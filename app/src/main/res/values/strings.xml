@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Notes</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_filter_tags">Filter tags</string>
+    <string name="action_edit_tags">Manage tags</string>
+
+    <string name="action_save">Save</string>
+
+    <string name="hint_name">Name</string>
+    <string name="hint_note">Multiline-\nNote</string>
+</resources>
