@@ -13,10 +13,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "allthenotes";
 
     private static final String NOTES_TABLE_CREATE =
-            "CREATE TABLE " + NotesContract.NoteEntry.TABLE_NAME + " (" +
-                    NotesContract.NoteEntry.COLUMN_NAME_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    NotesContract.NoteEntry.COLUMN_NAME_NAME + " TEXT NOT NULL, " +
-                    NotesContract.NoteEntry.COLUMN_NAME_CONTENT + " TEXT NOT NULL);";
+            "CREATE TABLE " + DbContract.NoteEntry.TABLE_NAME + " (" +
+                    DbContract.NoteEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    DbContract.NoteEntry.COLUMN_TYPE + " INTEGER NOT NULL, " +
+                    DbContract.NoteEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                    DbContract.NoteEntry.COLUMN_CONTENT + " TEXT NOT NULL);";
 
     DbOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,7 +30,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS" + NotesContract.NoteEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS" + DbContract.NoteEntry.TABLE_NAME + ";");
         onCreate(db);
     }
 }

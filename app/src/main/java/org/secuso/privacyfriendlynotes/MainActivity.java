@@ -3,15 +3,9 @@ package org.secuso.privacyfriendlynotes;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -23,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -40,7 +36,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplication(), CreateTextNoteActivity.class));
+                startActivity(new Intent(getApplication(), TextNoteActivity.class));
             }
         });
 
@@ -61,17 +57,63 @@ public class MainActivity extends AppCompatActivity
                 LayoutInflater inflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View rowView = inflater.inflate(R.layout.item_note, null);
+
                 TextView text = (TextView) rowView.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(NotesContract.NoteEntry.COLUMN_NAME_NAME));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
                 text.setText(name);
+
+                ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
+                switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
+                    case DbContract.NoteEntry.TYPE_SKETCH:
+                        iv.setImageResource(R.drawable.ic_photo_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_AUDIO:
+                        iv.setImageResource(R.drawable.ic_mic_black_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_TEXT:
+                        iv.setImageResource(R.drawable.ic_short_text_black_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_CHECKLIST:
+                        iv.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
+                        break;
+                    default:
+                }
                 return rowView;
             }
 
             @Override
             public void bindView(View view, Context context, Cursor cursor) {
                 TextView text = (TextView) view.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(NotesContract.NoteEntry.COLUMN_NAME_NAME));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
                 text.setText(name);
+
+                ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
+                switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
+                    case DbContract.NoteEntry.TYPE_SKETCH:
+                        iv.setImageResource(R.drawable.ic_photo_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_AUDIO:
+                        iv.setImageResource(R.drawable.ic_mic_black_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_TEXT:
+                        iv.setImageResource(R.drawable.ic_short_text_black_24dp);
+                        break;
+                    case DbContract.NoteEntry.TYPE_CHECKLIST:
+                        iv.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
+                        break;
+                    default:
+                }
+            }
+        });
+        notesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(getApplication(), TextNoteActivity.class);
+                CursorAdapter ca = (CursorAdapter) parent.getAdapter();
+                Cursor c = ca.getCursor();
+                c.moveToPosition(position);
+                i.putExtra(TextNoteActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+                startActivity(i);
             }
         });
     }

@@ -8,8 +8,10 @@
     <string name="action_filter_tags">Filter tags</string>
     <string name="action_edit_tags">Manage tags</string>
 
-    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
+    
+    <string name="toast_canceled">Canceled without saving.</string>
 </resources>
