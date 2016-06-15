@@ -51,6 +51,7 @@ public class DbAccess {
         values.put(NoteEntry.COLUMN_NAME, name);
         values.put(NoteEntry.COLUMN_CONTENT, content);
         db.insert(NoteEntry.TABLE_NAME, null, values);
+        db.close();
     }
 
     /**
@@ -70,6 +71,7 @@ public class DbAccess {
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.update(NoteEntry.TABLE_NAME, values, selection, selectionArgs);
+        db.close();
     }
 
     /**
@@ -84,6 +86,7 @@ public class DbAccess {
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);
+        db.close();
     }
 
     /**

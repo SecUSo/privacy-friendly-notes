@@ -10,6 +10,8 @@
 
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
+    <string name="action_save">Save</string>
+    <string name="action_update">Update</string>
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_text_note);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
+        findViewById(R.id.btn_save).setOnClickListener(this);
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         Intent i = getIntent();
         id = i.getIntExtra(EXTRA_ID, -1);
@@ -41,8 +43,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
                 etContent.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
             }
+            ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
-            findViewById(R.id.btn_delete).setVisibility(View.GONE);
+            findViewById(R.id.btn_delete).setEnabled(false);
         }
     }
 
@@ -75,6 +78,16 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     finish();
                 }
                 break;
+            case R.id.btn_save:
+                if (!fieldsEmpty()) {
+                    if (edit) {
+                        updateNote();
+                    } else {
+                        saveNote();
+                    }
+                }
+                finish();
+                break;
             default:
         }
     }
@@ -87,7 +100,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private void saveNote(){
         DbAccess.saveNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString());
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
-        finish();
     }
 
     private boolean fieldsEmpty(){
