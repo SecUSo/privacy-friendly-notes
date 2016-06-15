@@ -2,8 +2,8 @@ package org.secuso.privacyfriendlynotes;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,6 +15,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     EditText etContent;
 
     private boolean edit = false;
+    private boolean shouldSave = true;
     private int id = -1;
     Cursor noteCursor = null;
 
@@ -23,6 +24,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_note);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
+        findViewById(R.id.btn_delete).setOnClickListener(this);
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         Intent i = getIntent();
         id = i.getIntExtra(EXTRA_ID, -1);
@@ -31,7 +33,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
         if (edit) {
-            noteCursor = DbAccess.getTextNote(getBaseContext(), id);
+            noteCursor = DbAccess.getNote(getBaseContext(), id);
             noteCursor.moveToFirst();
             if (noteCursor.getCount() != 1) {
                 Toast.makeText(getBaseContext(), "Too many or no notes found: " + noteCursor.getCount(), Toast.LENGTH_SHORT).show();
@@ -39,17 +41,22 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
                 etContent.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
             }
+        } else {
+            findViewById(R.id.btn_delete).setVisibility(View.GONE);
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //The
-        if (edit) {
-            updateNote();
-        } else {
-            saveNote();
+        //The Activity is not visible anymore. Save the work!
+        //TODO check if fields are empty empty
+        if (shouldSave && !fieldsEmpty()) {
+            if (edit) {
+                updateNote();
+            } else {
+                saveNote();
+            }
         }
     }
 
@@ -58,18 +65,32 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         switch (v.getId()) {
             case R.id.btn_cancel:
                 Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+                shouldSave = false;
+                finish();
+                break;
+            case R.id.btn_delete:
+                if (edit) { //note only exists in edit mode
+                    shouldSave = false;
+                    DbAccess.deleteNote(getBaseContext(), id);
+                    finish();
+                }
                 break;
             default:
         }
     }
 
     private void updateNote(){
-        //TODO
+        DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), etContent.getText().toString());
+        Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
-        DbAccess.saveTextNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString());
-        Toast.makeText(getApplicationContext(), "Saving Note", Toast.LENGTH_SHORT).show();
+        DbAccess.saveNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString());
+        Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    private boolean fieldsEmpty(){
+        return etName.getText().toString().isEmpty() && etContent.getText().toString().isEmpty();
     }
 }

@@ -18,23 +18,30 @@
         android:layout_alignParentStart="true"
         android:hint="@string/hint_name"
         android:lines="1" />
-    <EditText
-        android:layout_width="wrap_content"
+
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/etContent"
-        android:hint="@string/hint_note"
         android:layout_below="@id/etName"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="10dp" />
+        android:id="@+id/scrollView">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/etContent"
+            android:hint="@string/hint_note"
+            android:layout_marginTop="10dp" />
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/buttonRow"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_below="@id/scrollView"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
@@ -42,8 +49,16 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="right|end"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:text="@string/action_cancel"
             android:id="@+id/btn_cancel" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|end"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:text="@string/action_delete"
+            android:id="@+id/btn_delete" />
     </LinearLayout>
 </RelativeLayout>

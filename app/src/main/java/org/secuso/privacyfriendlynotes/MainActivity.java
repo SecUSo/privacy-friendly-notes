@@ -5,17 +5,17 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.CursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -108,12 +108,24 @@ public class MainActivity extends AppCompatActivity
         notesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i = new Intent(getApplication(), TextNoteActivity.class);
+                //get details about the clicked note
                 CursorAdapter ca = (CursorAdapter) parent.getAdapter();
                 Cursor c = ca.getCursor();
                 c.moveToPosition(position);
-                i.putExtra(TextNoteActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
-                startActivity(i);
+                //start the appropriate activity
+                switch (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
+                    case DbContract.NoteEntry.TYPE_TEXT:
+                        Intent i = new Intent(getApplication(), TextNoteActivity.class);
+                        i.putExtra(TextNoteActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+                        startActivity(i);
+                        break;
+                    case DbContract.NoteEntry.TYPE_AUDIO:
+                        break;
+                    case DbContract.NoteEntry.TYPE_SKETCH:
+                        break;
+                    case DbContract.NoteEntry.TYPE_CHECKLIST:
+                        break;
+                }
             }
         });
     }

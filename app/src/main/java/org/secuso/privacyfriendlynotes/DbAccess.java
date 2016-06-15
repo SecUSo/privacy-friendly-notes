@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.secuso.privacyfriendlynotes.DbContract.*;
+import org.secuso.privacyfriendlynotes.DbContract.NoteEntry;
 
 /**
  * Class that holds methods to access the database easily.
@@ -19,7 +19,7 @@ public class DbAccess {
      * @param id the id of the note
      * @return the cursor to the note
      */
-    public static Cursor getTextNote(Context c, int id) {
+    public static Cursor getNote(Context c, int id) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -42,7 +42,7 @@ public class DbAccess {
      * @param name the name of the note
      * @param content the content of the note
      */
-    public static void saveTextNote(Context c, String name, String content){
+    public static void saveNote(Context c, String name, String content){
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -60,8 +60,16 @@ public class DbAccess {
      * @param name the new name of the note
      * @param content the new content of the note
      */
-    public static void updateTextNote(Context c, int id, String name, String content) {
-        //TODO
+    public static void updateNote(Context c, int id, String name, String content) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NoteEntry.COLUMN_NAME, name);
+        values.put(NoteEntry.COLUMN_CONTENT, content);
+        String selection = NoteEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+        db.update(NoteEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 
     /**
@@ -69,8 +77,13 @@ public class DbAccess {
      * @param c the current context
      * @param id the ID of the note
      */
-    public static void deleteTextNote(Context c, int id) {
-        //TODO
+    public static void deleteNote(Context c, int id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = NoteEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+        db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);
     }
 
     /**
