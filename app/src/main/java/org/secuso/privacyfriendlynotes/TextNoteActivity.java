@@ -53,7 +53,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        //TODO check if fields are empty empty
         if (shouldSave && !fieldsEmpty()) {
             if (edit) {
                 updateNote();

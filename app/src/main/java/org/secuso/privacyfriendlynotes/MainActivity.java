@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.CursorAdapter;
@@ -22,8 +21,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
+    FloatingActionsMenu fabMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +35,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplication(), TextNoteActivity.class));
-            }
-        });
+        //set the OnClickListeners
+        findViewById(R.id.fab_text).setOnClickListener(this);
+        findViewById(R.id.fab_checklist).setOnClickListener(this);
+        findViewById(R.id.fab_audio).setOnClickListener(this);
+        findViewById(R.id.fab_sketch).setOnClickListener(this);
+
+        fabMenu = (FloatingActionsMenu) findViewById(R.id.fab_menu);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -191,5 +194,23 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab_text:
+                startActivity(new Intent(getApplication(), TextNoteActivity.class));
+                fabMenu.collapseImmediately();
+                break;
+            case R.id.fab_checklist:
+                startActivity(new Intent(getApplication(), ChecklistNoteActivity.class));
+                fabMenu.collapseImmediately();
+                break;
+            case R.id.fab_audio:
+                break;
+            case R.id.fab_sketch:
+                break;
+        }
     }
 }

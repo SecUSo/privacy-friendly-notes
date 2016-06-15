@@ -18,7 +18,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TextNoteActivity"
+        <activity
+            android:name=".TextNoteActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".ChecklistNoteActivity"
             android:parentActivityName=".MainActivity"></activity>
     </application>
 
