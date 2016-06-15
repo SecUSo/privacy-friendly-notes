@@ -79,13 +79,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_save:
-                if (!fieldsEmpty()) {
-                    if (edit) {
-                        updateNote();
-                    } else {
-                        saveNote();
-                    }
-                }
+                shouldSave = true; //safe on exit
                 finish();
                 break;
             default:
