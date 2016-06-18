@@ -25,7 +25,7 @@ public class DbAccess {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT};
+        String[] projection = {NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT, NoteEntry.COLUMN_CATEGORY};
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = {"" + id};
 
@@ -44,7 +44,7 @@ public class DbAccess {
      * @param name the name of the note
      * @param content the content of the note
      */
-    public static void addNote(Context c, String name, String content, int type){
+    public static void addNote(Context c, String name, String content, int type, int category){
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -52,6 +52,7 @@ public class DbAccess {
         values.put(NoteEntry.COLUMN_TYPE, type);
         values.put(NoteEntry.COLUMN_NAME, name);
         values.put(NoteEntry.COLUMN_CONTENT, content);
+        values.put(NoteEntry.COLUMN_CATEGORY, category);
         db.insert(NoteEntry.TABLE_NAME, null, values);
         db.close();
     }
@@ -63,15 +64,18 @@ public class DbAccess {
      * @param name the new name of the note
      * @param content the new content of the note
      */
-    public static void updateNote(Context c, int id, String name, String content) {
+    public static void updateNote(Context c, int id, String name, String content, int category) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(NoteEntry.COLUMN_NAME, name);
         values.put(NoteEntry.COLUMN_CONTENT, content);
+        values.put(NoteEntry.COLUMN_CATEGORY, category);
+
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
+
         db.update(NoteEntry.TABLE_NAME, values, selection, selectionArgs);
         db.close();
     }
@@ -233,8 +237,13 @@ public class DbAccess {
         String selection = CategoryEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
-        //TODO delete category id from notes
+
         //delete the id from the notes
+        ContentValues values = new ContentValues();
+        values.putNull(NoteEntry.COLUMN_CATEGORY);
+        String selection2 = NoteEntry.COLUMN_CATEGORY + " = ?";
+        String[] selectionArgs2 = { String.valueOf(id) };
+        db.update(NoteEntry.TABLE_NAME, values, selection2, selectionArgs2);
 
         db.close();
     }

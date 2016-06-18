@@ -39,34 +39,6 @@
         </ScrollView>
     </LinearLayout>
 
+    <include layout="@layout/bottom_line"></include>
 
-    <LinearLayout
-        android:id="@+id/buttonRow"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:weightSum="3">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="@string/action_cancel"
-            android:id="@+id/btn_cancel" />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="@string/action_delete"
-            android:id="@+id/btn_delete" />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="@string/action_save"
-            android:id="@+id/btn_save"/>
-    </LinearLayout>
 </LinearLayout>

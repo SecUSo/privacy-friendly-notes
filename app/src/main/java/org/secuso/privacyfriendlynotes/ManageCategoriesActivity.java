@@ -88,6 +88,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                     if (!DbAccess.addCategory(getBaseContext(), name.getText().toString())){
                         Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();
                     }
+                    name.setText("");
                 }
                 updateList();
                 break;

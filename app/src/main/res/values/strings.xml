@@ -32,6 +32,8 @@
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
+    <string name="dialog_need_category_title">No Categories</string>
+    <string name="dialog_need_category_message">You need to create at least one category.\nDo you want to do that now?</string>
 
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>
