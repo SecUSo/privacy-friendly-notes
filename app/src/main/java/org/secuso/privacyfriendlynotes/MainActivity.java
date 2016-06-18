@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     FloatingActionsMenu fabMenu;
+    private int selectedCategory = -1; //Category "All"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +128,9 @@ public class MainActivity extends AppCompatActivity
                     case DbContract.NoteEntry.TYPE_SKETCH:
                         break;
                     case DbContract.NoteEntry.TYPE_CHECKLIST:
+                        Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+                        startActivity(i4);
                         break;
                 }
             }
@@ -136,9 +140,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
-        adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext()));
+        updateList();
     }
 
     @Override
@@ -166,7 +168,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_sort_alphabetical) {
+            //switch to an alphabetically sorted cursor.
+            updateListAlphabetical();
             return true;
         }
 
@@ -187,8 +191,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_all) {
 
-        }  else if (id == R.id.nav_share) {
-
+        }  else if (id == R.id.nav_manage_categories) {
+            startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -208,9 +212,33 @@ public class MainActivity extends AppCompatActivity
                 fabMenu.collapseImmediately();
                 break;
             case R.id.fab_audio:
+                //TODO
+                fabMenu.collapseImmediately();
                 break;
             case R.id.fab_sketch:
+                //TODO
+                fabMenu.collapseImmediately();
                 break;
+        }
+    }
+
+    private void buildDrawerMenu(){
+        //TODO
+    }
+
+    private void updateList() {
+        ListView notesList = (ListView) findViewById(R.id.notes_list);
+        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
+        if (selectedCategory == -1) { //show all
+            adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext()));
+        }
+    }
+
+    private void updateListAlphabetical() {
+        ListView notesList = (ListView) findViewById(R.id.notes_list);
+        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
+        if (selectedCategory == -1) { //show all
+            adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext()));
         }
     }
 }

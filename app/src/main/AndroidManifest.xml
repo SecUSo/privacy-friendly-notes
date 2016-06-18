@@ -20,9 +20,14 @@
         </activity>
         <activity
             android:name=".TextNoteActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/title_textnote"/>
+        <activity
+            android:name=".ChecklistNoteActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".ChecklistNoteActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".ManageCategoriesActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/title_manage_categories"></activity>
     </application>
 
 </manifest>

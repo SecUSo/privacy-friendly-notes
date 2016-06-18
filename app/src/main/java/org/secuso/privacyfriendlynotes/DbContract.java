@@ -20,4 +20,10 @@ public class DbContract {
         public static final int TYPE_CHECKLIST = 3;
         public static final int TYPE_SKETCH = 4;
     }
+
+    public static abstract class CategoryEntry implements BaseColumns {
+        public static final String TABLE_NAME = "categories";
+        public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_NAME = "name";
+    }
 }

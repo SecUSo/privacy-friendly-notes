@@ -20,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/etName"
-            android:hint="@string/hint_name"
-            android:lines="1" />
+            android:singleLine="true"
+            android:hint="@string/hint_name" />
 
         <ScrollView
             android:layout_width="match_parent"

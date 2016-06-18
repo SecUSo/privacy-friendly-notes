@@ -19,6 +19,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
                     DbContract.NoteEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                     DbContract.NoteEntry.COLUMN_CONTENT + " TEXT NOT NULL);";
 
+    private static final String CATEGORIES_TABLE_CREATE =
+            "CREATE TABLE " + DbContract.CategoryEntry.TABLE_NAME + " (" +
+                    DbContract.CategoryEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                    DbContract.CategoryEntry.COLUMN_NAME + " TEXT NOT NULL UNIQUE);";
+
     DbOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -26,11 +31,13 @@ public class DbOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(NOTES_TABLE_CREATE);
+        db.execSQL(CATEGORIES_TABLE_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS" + DbContract.NoteEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS" + DbContract.CategoryEntry.TABLE_NAME + ";");
         onCreate(db);
     }
 }

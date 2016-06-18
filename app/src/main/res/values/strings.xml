@@ -2,17 +2,22 @@
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
 
+    <string name="title_manage_categories">Categories</string>
+    <string name="title_textnote">Text Note</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_sort_alphabetical">Sort alphabetical</string>
     <string name="action_filter_tags">Filter tags</string>
     <string name="action_about">About</string>
+    <string name="action_manage_categories">Manage categories</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_save">Save</string>
     <string name="action_update">Update</string>
+    <string name="action_add">Add</string>
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
@@ -20,6 +25,7 @@
     <string name="toast_canceled">Canceled without saving</string>
     <string name="toast_saved">Note saved</string>
     <string name="toast_updated">Note updated</string>
+    <string name="toast_category_exists">Category already exists</string>
 
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>

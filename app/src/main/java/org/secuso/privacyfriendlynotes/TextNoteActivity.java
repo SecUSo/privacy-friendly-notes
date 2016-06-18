@@ -91,7 +91,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void saveNote(){
-        DbAccess.saveNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString());
+        DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
