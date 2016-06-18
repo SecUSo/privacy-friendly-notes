@@ -8,6 +8,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="nav_all">All notes</string>
+    <string name="nav_trash">Recycle bin</string>
+
     <string name="action_sort_alphabetical">Sort alphabetical</string>
     <string name="action_filter_tags">Filter tags</string>
     <string name="action_about">About</string>

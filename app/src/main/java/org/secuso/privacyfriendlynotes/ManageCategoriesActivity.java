@@ -84,8 +84,10 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         switch (v.getId()) {
             case R.id.btn_add:
                 EditText name = (EditText) findViewById(R.id.etName);
-                if (!DbAccess.addCategory(getBaseContext(), name.getText().toString())){
-                    Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();
+                if (!name.getText().toString().isEmpty()){
+                    if (!DbAccess.addCategory(getBaseContext(), name.getText().toString())){
+                        Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();
+                    }
                 }
                 updateList();
                 break;

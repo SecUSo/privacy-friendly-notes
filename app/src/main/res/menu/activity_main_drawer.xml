@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single"
-        android:id="@+id/drawer_group">
-        <item
-            android:id="@+id/nav_private"
-            android:title="Private" />
-        <item
-            android:id="@+id/nav_work"
-            android:title="Work" />
-        <item
-            android:id="@+id/nav_university"
-            android:title="University" />
-        <item
-            android:id="@+id/nav_all"
-            android:title="All" />
-    </group>
-
     <item android:title="Manage">
         <menu>
             <item
                 android:id="@+id/nav_manage_categories"
                 android:icon="@drawable/ic_settings"
-                android:title="@string/action_manage_categories" />
+                android:title="@string/action_manage_categories"/>
         </menu>
     </item>
+
+    <group android:checkableBehavior="single"
+        android:id="@+id/drawer_group">
+        <item
+            android:id="@+id/nav_all"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="@string/nav_all"/>
+        <item
+            android:id="@+id/nav_trash"
+            android:icon="@drawable/ic_delete_black_24dp"
+            android:title="@string/nav_trash"/>
+    </group>
+
+    <group android:checkableBehavior="single"
+        android:id="@+id/drawer_group2">
+    <!-- Filled dynamically in buildDrawerMenu() -->
+    </group>
 
 </menu>

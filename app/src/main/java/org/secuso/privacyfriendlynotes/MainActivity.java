@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,10 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    private static final int CAT_ALL = -1;
     FloatingActionsMenu fabMenu;
-    private int selectedCategory = -1; //Category "All"
+
+    private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +144,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         updateList();
+        buildDrawerMenu();
     }
 
     @Override
@@ -181,18 +185,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        item.setCheckable(true);
+        item.setChecked(true);
         int id = item.getItemId();
-
-        if (id == R.id.nav_private) {
-
-        } else if (id == R.id.nav_work) {
-
-        } else if (id == R.id.nav_university) {
-
+        if (id == R.id.nav_trash) {
+            //TODO
         } else if (id == R.id.nav_all) {
-
-        }  else if (id == R.id.nav_manage_categories) {
+            selectedCategory = CAT_ALL;
+            updateList();
+        } else if (id == R.id.nav_manage_categories) {
             startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
+        } else {
+            selectedCategory = id;
+            updateList();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -222,8 +227,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void buildDrawerMenu(){
-        //TODO
+    private void buildDrawerMenu() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu navMenu = navigationView.getMenu();
+        //reset the menu
+        navMenu.clear();
+        //Inflate the standard stuff
+        MenuInflater menuInflater = new MenuInflater(getApplicationContext());
+        menuInflater.inflate(R.menu.activity_main_drawer, navMenu);
+        //Get the rest from the database
+        Cursor c = DbAccess.getCategories(getBaseContext());
+        while (c.moveToNext()){
+            String name = c.getString(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
+            int id = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
+            navMenu.add(R.id.drawer_group2, id, Menu.NONE, name).setIcon(R.drawable.ic_label_black_24dp);
+        }
+        c.close();
     }
 
     private void updateList() {
@@ -231,6 +250,8 @@ public class MainActivity extends AppCompatActivity
         CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
         if (selectedCategory == -1) { //show all
             adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext()));
+        } else {
+            //TODO
         }
     }
 
