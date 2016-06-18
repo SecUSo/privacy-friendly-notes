@@ -1,8 +1,10 @@
 package org.secuso.privacyfriendlynotes;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -72,9 +74,25 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_delete:
                 if (edit) { //note only exists in edit mode
-                    shouldSave = false;
-                    DbAccess.deleteNote(getBaseContext(), id);
-                    finish();
+                    new AlertDialog.Builder(TextNoteActivity.this)
+                            .setTitle(String.format(getString(R.string.dialog_delete_title), etName.getText().toString()))
+                            .setMessage(String.format(getString(R.string.dialog_delete_message), etName.getText().toString()))
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //do nothing
+                                }
+                            })
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    shouldSave = false;
+                                    DbAccess.deleteNote(getBaseContext(), id);
+                                    finish();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
                 break;
             case R.id.btn_save:
