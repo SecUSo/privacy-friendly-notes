@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="text"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:hint="@string/hint_name"/>
         <Button
             android:id="@+id/btn_add"
             android:layout_width="wrap_content"

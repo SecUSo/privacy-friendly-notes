@@ -229,10 +229,13 @@ public class DbAccess {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+        //delete the category
         String selection = CategoryEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
         //TODO delete category id from notes
+        //delete the id from the notes
+
         db.close();
     }
 }

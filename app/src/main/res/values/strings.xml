@@ -27,6 +27,9 @@
     <string name="toast_updated">Note updated</string>
     <string name="toast_category_exists">Category already exists</string>
 
+    <string name="dialog_delete_title">Delete %1s?</string>
+    <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
+
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>
     <string name="fab_checklist">New checklist</string>

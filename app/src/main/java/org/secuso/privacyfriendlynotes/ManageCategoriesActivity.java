@@ -1,15 +1,18 @@
 package org.secuso.privacyfriendlynotes;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,8 +36,34 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 TextView text = (TextView) rowView.findViewById(R.id.item_name);
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
                 text.setText(name);
-                ((TextView) rowView.findViewById(R.id.item_id)).setText(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))));
-
+                ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
+                iv.setTag(R.id.tag_id, cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))); //The tag is later used to delete a category.
+                iv.setTag(R.id.tag_name, name);
+                iv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final int id = (int) v.getTag(R.id.tag_id);
+                        String name = (String) v.getTag(R.id.tag_name);
+                        new AlertDialog.Builder(ManageCategoriesActivity.this)
+                                .setTitle(String.format(getString(R.string.dialog_delete_title), name))
+                                .setMessage(String.format(getString(R.string.dialog_delete_message), name))
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //do nothing
+                                    }
+                                })
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        DbAccess.deleteCategory(getBaseContext(), id);
+                                        updateList();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                });
                 return rowView;
             }
 
@@ -43,7 +72,9 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 TextView text = (TextView) view.findViewById(R.id.item_name);
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
                 text.setText(name);
-                ((TextView) view.findViewById(R.id.item_id)).setText(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))));
+                ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
+                iv.setTag(R.id.tag_id, cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))); //The tag is later used to delete a category.
+                iv.setTag(R.id.tag_name, name);
             }
         });
     }
