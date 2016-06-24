@@ -67,7 +67,11 @@ public class MainActivity extends AppCompatActivity
 
                 TextView text = (TextView) rowView.findViewById(R.id.item_name);
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
-                text.setText(name);
+                if (name.length() >= 30) {
+                    text.setText(name.substring(0,27) + "...");
+                } else {
+                    text.setText(name);
+                }
 
                 ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
                 switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
@@ -92,7 +96,11 @@ public class MainActivity extends AppCompatActivity
             public void bindView(View view, Context context, Cursor cursor) {
                 TextView text = (TextView) view.findViewById(R.id.item_name);
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
-                text.setText(name);
+                if (name.length() >= 30) {
+                    text.setText(name.substring(0,27) + "...");
+                } else {
+                    text.setText(name);
+                }
 
                 ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
                 switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
@@ -127,8 +135,10 @@ public class MainActivity extends AppCompatActivity
                         startActivity(i);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
+                        //TODO click on audio note
                         break;
                     case DbContract.NoteEntry.TYPE_SKETCH:
+                        //TODO click on sketch note
                         break;
                     case DbContract.NoteEntry.TYPE_CHECKLIST:
                         Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
