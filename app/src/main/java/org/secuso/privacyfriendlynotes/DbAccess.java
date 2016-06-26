@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.secuso.privacyfriendlynotes.DbContract.CategoryEntry;
 import org.secuso.privacyfriendlynotes.DbContract.NoteEntry;
+import org.secuso.privacyfriendlynotes.DbContract.NotificationEntry;
 
 /**
  * Class that holds methods to access the database easily.
@@ -92,6 +93,7 @@ public class DbAccess {
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);
+        //TODO DELETE NOTIFICATIONS
         db.close();
     }
 
@@ -245,6 +247,60 @@ public class DbAccess {
         String[] selectionArgs2 = { String.valueOf(id) };
         db.update(NoteEntry.TABLE_NAME, values, selection2, selectionArgs2);
 
+        db.close();
+    }
+
+    /**
+     * Inserts a new Notification into the database
+     * @param c the current context
+     * @param note_id the id of the note
+     * @return the rowID
+     */
+    public static long addNotification(Context c, int note_id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(NotificationEntry.COLUMN_NOTE, note_id);
+        long rowId = db.insert(NotificationEntry.TABLE_NAME, null, values);
+        db.close();
+        return rowId;
+    }
+
+    /**
+     * Returns a specific notification
+     * @param c the current context
+     * @param id the id of the notification
+     * @return the cursor to the notification
+     */
+    public static Cursor getNotification(Context c, int id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {NotificationEntry.COLUMN_ID, NotificationEntry.COLUMN_NOTE};
+        String selection = NotificationEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = {"" + id};
+
+        return db.query(NotificationEntry.TABLE_NAME,   // Table name
+                projection,                     // SELECT
+                selection,                      // Columns for WHERE
+                selectionArgs,                  // Values for WHERE
+                null,                           // Group
+                null,                           // Filter by Group
+                null);                     // Sort Order
+    }
+
+    /**
+     * Deletes a notification from the database
+     * @param c the current context
+     * @param id the id of the notification
+     */
+    public static void deleteNotification(Context c, int id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = NotificationEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+        db.delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
         db.close();
     }
 }

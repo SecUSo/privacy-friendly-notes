@@ -27,4 +27,10 @@ public class DbContract {
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_NAME = "name";
     }
+
+    public static abstract class NotificationEntry implements BaseColumns {
+        public static final String TABLE_NAME = "notifications";
+        public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_NOTE = "note";
+    }
 }

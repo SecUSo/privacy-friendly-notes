@@ -28,6 +28,7 @@
         <activity android:name=".ManageCategoriesActivity"
             android:parentActivityName=".MainActivity"
             android:label="@string/title_manage_categories"></activity>
+        <service android:name=".NotificationService"></service>
     </application>
 
 </manifest>

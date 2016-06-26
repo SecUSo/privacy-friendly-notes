@@ -10,9 +10,9 @@
     <color name="middlegrey">#A8A8A8</color>
     <color name="yellow">#f6d126</color>
     <!--> App colors <-->
-    <color name="colorPrimary">#0274B2</color>
+    <color name="colorPrimary">#024265</color>
     <color name="colorPrimaryDark">#024265</color>
-    <color name="colorAccent">#f6d126</color>
+    <color name="colorAccent">#0274B2</color>
     <!-- Other colors-->
     <color name="black_semi_transparent">#B2000000</color>
     <color name="background">#e5e5e5</color>
