@@ -29,6 +29,7 @@ import java.util.Calendar;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
+    public static final String EXTRA_NOTIFICATION_ID = "org.secuso.privacyfriendlynotes.notificationID";
 
     EditText etName;
     EditText etContent;
@@ -243,20 +244,28 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTE_ID, id);
-
-        PendingIntent pi = PendingIntent.getService(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
 
+        //Store a reference for the notification in the database. This is later used by the service.
+        long notification_id = DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+        //Create the intent that is fired by AlarmManager
+        Intent i = new Intent(this, NotificationService.class);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+
+        PendingIntent pi = PendingIntent.getService(this, (int) notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
         Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + monthOfYear + "." + year + " " + hourOfDay + ":" + minute), Toast.LENGTH_SHORT).show();
+    }
+
+    private void cancelNotification(){
+        //TODO
     }
 }

@@ -256,11 +256,12 @@ public class DbAccess {
      * @param note_id the id of the note
      * @return the rowID
      */
-    public static long addNotification(Context c, int note_id) {
+    public static long addNotification(Context c, int note_id, long time) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(NotificationEntry.COLUMN_NOTE, note_id);
+        values.put(NotificationEntry.COLUMN_TIME, time);
         long rowId = db.insert(NotificationEntry.TABLE_NAME, null, values);
         db.close();
         return rowId;
@@ -276,9 +277,9 @@ public class DbAccess {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {NotificationEntry.COLUMN_ID, NotificationEntry.COLUMN_NOTE};
+        String[] projection = {NotificationEntry.COLUMN_ID, NotificationEntry.COLUMN_NOTE, NotificationEntry.COLUMN_TIME};
         String selection = NotificationEntry.COLUMN_ID + " = ?";
-        String[] selectionArgs = {"" + id};
+        String[] selectionArgs =  { String.valueOf(id) };
 
         return db.query(NotificationEntry.TABLE_NAME,   // Table name
                 projection,                     // SELECT

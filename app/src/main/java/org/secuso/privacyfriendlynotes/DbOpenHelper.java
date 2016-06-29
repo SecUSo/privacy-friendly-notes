@@ -27,8 +27,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final String NOTIFICATIONS_TABLE_CREATE =
             "CREATE TABLE " + DbContract.NotificationEntry.TABLE_NAME + " (" +
-                    DbContract.NotificationEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
-                    DbContract.NotificationEntry.COLUMN_NOTE + " INTEGER NOT NULL);";
+                    DbContract.NotificationEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    DbContract.NotificationEntry.COLUMN_NOTE + " INTEGER NOT NULL, " +
+                    DbContract.NotificationEntry.COLUMN_TIME + " INTEGER NOT NULL);";
 
     DbOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
