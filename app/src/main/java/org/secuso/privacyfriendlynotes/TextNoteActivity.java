@@ -14,6 +14,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,10 +39,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private int dayOfMonth, monthOfYear, year;
 
     private boolean edit = false;
+    private boolean hasAlarm = false;
     private boolean shouldSave = true;
     private int id = -1;
+    private int notification_id = -1;
     private int currentCat;
     Cursor noteCursor = null;
+    Cursor notificationCursor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,21 +92,23 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (edit) {
             noteCursor = DbAccess.getNote(getBaseContext(), id);
             noteCursor.moveToFirst();
-            if (noteCursor.getCount() != 1) {
-                Toast.makeText(getBaseContext(), "Too many or no notes found: " + noteCursor.getCount(), Toast.LENGTH_SHORT).show();
-            } else {
-                etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
-                etContent.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
-                //find the current category and set spinner to that
-                currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
+            etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
+            etContent.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
+            //find the current category and set spinner to that
+            currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
 
-                for (int i = 0; i < adapter.getCount(); i++){
-                    c.moveToPosition(i);
-                    if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-                        spinner.setSelection(i);
-                        break;
-                    }
+            for (int i = 0; i < adapter.getCount(); i++){
+                c.moveToPosition(i);
+                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
+                    spinner.setSelection(i);
+                    break;
                 }
+            }
+            //fill the notificationCursor
+            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
+            hasAlarm = notificationCursor.moveToFirst();
+            if (hasAlarm) {
+                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
@@ -133,6 +139,15 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_reminder);
+        if (hasAlarm) {
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -143,6 +158,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (id == R.id.action_reminder) {
             //open the schedule dialog
             final Calendar c = Calendar.getInstance();
+            if (hasAlarm) {
+                c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            }
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
@@ -238,6 +256,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         this.monthOfYear = monthOfYear;
         this.year = year;
         final Calendar c = Calendar.getInstance();
+        if (hasAlarm) {
+            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+        }
         TimePickerDialog tpd = new TimePickerDialog(TextNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
     }
@@ -266,6 +287,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void cancelNotification(){
-        //TODO
+        DbAccess.deleteNotification(getBaseContext(), notification_id);
     }
 }

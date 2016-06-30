@@ -304,4 +304,27 @@ public class DbAccess {
         db.delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
         db.close();
     }
+
+    /**
+     * Get a notification by its note id
+     * @param c the current context
+     * @param note_id the note id
+     * @return the cursor to the notification
+     */
+    public static Cursor getNotificationByNoteId(Context c, int note_id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {NotificationEntry.COLUMN_ID, NotificationEntry.COLUMN_NOTE, NotificationEntry.COLUMN_TIME};
+        String selection = NotificationEntry.COLUMN_NOTE + " = ?";
+        String[] selectionArgs = { String.valueOf(note_id) };
+
+        return db.query(NotificationEntry.TABLE_NAME,   // Table name
+                projection,                     // SELECT
+                selection,                      // Columns for WHERE
+                selectionArgs,                  // Values for WHERE
+                null,                           // Group
+                null,                           // Filter by Group
+                null);                     // Sort Order
+    }
 }
