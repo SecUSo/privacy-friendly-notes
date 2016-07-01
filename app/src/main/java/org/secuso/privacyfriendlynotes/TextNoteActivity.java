@@ -14,7 +14,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,13 +21,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
+public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_NOTIFICATION_ID = "org.secuso.privacyfriendlynotes.notificationID";
 
@@ -54,6 +54,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
+
+        loadActivity(true);
+
+    }
+
+    private void loadActivity(boolean initial){
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
@@ -114,6 +120,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
         }
+        if(!initial) {
+            invalidateOptionsMenu();
+        }
     }
 
     @Override
@@ -159,14 +168,20 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             //open the schedule dialog
             final Calendar c = Calendar.getInstance();
             if (hasAlarm) {
-                c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
-            }
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+                //ask whether to delete or update the current alarm
+                PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
+                popupMenu.inflate(R.menu.reminder);
+                popupMenu.setOnMenuItemClickListener(this);
+                popupMenu.show();
+            } else {
+                //create a new one
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
 
-            DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
-            dpd.show();
+                DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+                dpd.show();
+            }
             return true;
         }
 
@@ -268,13 +283,20 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
 
+        if (hasAlarm) {
+            //Update the current alarm
+            DbAccess.updateNotificationTime(getBaseContext(), notification_id, alarmtime.getTimeInMillis());
+        } else {
+            //create new alarm
+            notification_id = (int) (long) DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+        }
         //Store a reference for the notification in the database. This is later used by the service.
-        long notification_id = DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+
         //Create the intent that is fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
 
-        PendingIntent pi = PendingIntent.getService(this, (int) notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -284,9 +306,38 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
         Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + monthOfYear + "." + year + " " + hourOfDay + ":" + minute), Toast.LENGTH_SHORT).show();
+        loadActivity(false);
     }
 
     private void cancelNotification(){
+        //Create the intent that would be fired by AlarmManager
+        Intent i = new Intent(this, NotificationService.class);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pi);
         DbAccess.deleteNotification(getBaseContext(), notification_id);
+        loadActivity(false);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_reminder_edit) {
+            final Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+            dpd.show();
+            return true;
+        } else if (id == R.id.action_reminder_delete) {
+            cancelNotification();
+            return true;
+        }
+        return false;
     }
 }

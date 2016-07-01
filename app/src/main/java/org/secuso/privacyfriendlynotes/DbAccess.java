@@ -259,12 +259,27 @@ public class DbAccess {
     public static long addNotification(Context c, int note_id, long time) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+
         ContentValues values = new ContentValues();
         values.put(NotificationEntry.COLUMN_NOTE, note_id);
         values.put(NotificationEntry.COLUMN_TIME, time);
+
         long rowId = db.insert(NotificationEntry.TABLE_NAME, null, values);
         db.close();
         return rowId;
+    }
+
+    public static void updateNotificationTime(Context c, int id, long time) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NotificationEntry.COLUMN_TIME, time);
+
+        String selection = NotificationEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+        db.update(NotificationEntry.TABLE_NAME, values, selection, selectionArgs);
+        db.close();
     }
 
     /**
@@ -326,5 +341,20 @@ public class DbAccess {
                 null,                           // Group
                 null,                           // Filter by Group
                 null);                     // Sort Order
+    }
+
+    /**
+     * Delete notifications by specifying the note id
+     * @param c the current context
+     * @param note_id the note id
+     */
+    public static void deleteNotificationsByNoteId(Context c, int note_id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = NotificationEntry.COLUMN_NOTE + " = ?";
+        String[] selectionArgs = { String.valueOf(note_id) };
+        db.delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
+        db.close();
     }
 }

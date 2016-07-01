@@ -15,6 +15,8 @@
     <string name="action_sort_alphabetical">Sort alphabetical</string>
     <string name="action_about">About</string>
     <string name="action_reminder">Set reminder</string>
+    <string name="action_reminder_edit">Edit reminder</string>
+    <string name="action_reminder_delete">Delete reminder</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>

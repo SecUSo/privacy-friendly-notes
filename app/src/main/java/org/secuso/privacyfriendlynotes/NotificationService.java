@@ -19,7 +19,7 @@ public class NotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int notification_id = (int) (long) intent.getLongExtra(NOTIFICATION_ID, -1);
+        int notification_id = intent.getIntExtra(NOTIFICATION_ID, -1);
         if (notification_id != -1) {
             //get the cursor on the notification
             Cursor cNotification = DbAccess.getNotification(getBaseContext(), notification_id);
