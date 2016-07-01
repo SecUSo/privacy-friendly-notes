@@ -27,6 +27,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -180,6 +181,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 int day = c.get(Calendar.DAY_OF_MONTH);
 
                 DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+                dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
             }
             return true;
@@ -305,7 +307,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + monthOfYear + "." + year + " " + hourOfDay + ":" + minute), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
         loadActivity(false);
     }
 
@@ -332,6 +334,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
             DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+            dpd.getDatePicker().setMinDate(new Date().getTime());
             dpd.show();
             return true;
         } else if (id == R.id.action_reminder_delete) {
