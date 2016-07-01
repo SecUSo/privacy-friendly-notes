@@ -269,6 +269,12 @@ public class DbAccess {
         return rowId;
     }
 
+    /**
+     * Updates the time of a notification
+     * @param c the current context
+     * @param id the notification id
+     * @param time the new time
+     */
     public static void updateNotificationTime(Context c, int id, long time) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -356,5 +362,25 @@ public class DbAccess {
         String[] selectionArgs = { String.valueOf(note_id) };
         db.delete(NotificationEntry.TABLE_NAME, selection, selectionArgs);
         db.close();
+    }
+
+    /**
+     * Returns a cursor over all the notifications in the database.
+     * @param c the current context
+     * @return A {@link android.database.Cursor} over all the notes
+     */
+    public static Cursor getAllNotifications(Context c) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {NotificationEntry.COLUMN_ID, NotificationEntry.COLUMN_NOTE, NotificationEntry.COLUMN_TIME};
+
+        return db.query(NotificationEntry.TABLE_NAME,   // Table name
+                projection,                     // SELECT
+                null,                           // Columns for WHERE
+                null,                           // Values for WHERE
+                null,                           // Group
+                null,                           // Filter by Group
+                null);                     // Sort Order
     }
 }

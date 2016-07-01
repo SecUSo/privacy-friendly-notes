@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.secuso.privacyfriendlynotes">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -20,15 +21,24 @@
         </activity>
         <activity
             android:name=".TextNoteActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/title_textnote"/>
+            android:label="@string/title_textnote"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ChecklistNoteActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".ManageCategoriesActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/title_manage_categories"></activity>
-        <service android:name=".NotificationService"></service>
+        <activity
+            android:name=".ManageCategoriesActivity"
+            android:label="@string/title_manage_categories"
+            android:parentActivityName=".MainActivity" />
+
+        <service android:name=".NotificationService" />
+
+        <receiver
+            android:name=".BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
