@@ -27,7 +27,7 @@ public class BootReceiver extends BroadcastReceiver {
             PendingIntent pi = PendingIntent.getService(context, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, pi);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pi);
             } else {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, pi);
             }
