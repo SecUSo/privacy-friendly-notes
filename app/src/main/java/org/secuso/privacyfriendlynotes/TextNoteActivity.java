@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -202,7 +203,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_delete:
                 if (edit) { //note only exists in edit mode
-                    displayDeleteDialog();
+                    displayTrashDialog();
                 }
                 break;
             case R.id.btn_save:
@@ -247,6 +248,34 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 .show();
     }
 
+    private void displayTrashDialog() {
+        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
+        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
+            //we never displayed the message before, so show it now
+            new AlertDialog.Builder(TextNoteActivity.this)
+                    .setTitle(getString(R.string.dialog_trash_title))
+                    .setMessage(getString(R.string.dialog_trash_message))
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            shouldSave = false;
+                            DbAccess.trashNote(getBaseContext(), id);
+                            finish();
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+            editor.commit();
+        } else {
+            shouldSave = false;
+            DbAccess.trashNote(getBaseContext(), id);
+            finish();
+        }
+
+    }
+
     private void displayDeleteDialog() {
         new AlertDialog.Builder(TextNoteActivity.this)
                 .setTitle(String.format(getString(R.string.dialog_delete_title), etName.getText().toString()))
@@ -261,7 +290,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         shouldSave = false;
-                        DbAccess.deleteNote(getBaseContext(), id);
+                        DbAccess.trashNote(getBaseContext(), id);
                         finish();
                     }
                 })

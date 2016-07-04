@@ -18,7 +18,8 @@ public class DbOpenHelper extends SQLiteOpenHelper {
                     DbContract.NoteEntry.COLUMN_TYPE + " INTEGER NOT NULL, " +
                     DbContract.NoteEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                     DbContract.NoteEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
-                    DbContract.NoteEntry.COLUMN_CATEGORY + " INTEGER);";
+                    DbContract.NoteEntry.COLUMN_CATEGORY + " INTEGER, " +
+                    DbContract.NoteEntry.COLUMN_TRASH + " INTEGER NOT NULL DEFAULT 0);";
 
     private static final String CATEGORIES_TABLE_CREATE =
             "CREATE TABLE " + DbContract.CategoryEntry.TABLE_NAME + " (" +

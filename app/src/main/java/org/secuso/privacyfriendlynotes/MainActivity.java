@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity
         item.setChecked(true);
         int id = item.getItemId();
         if (id == R.id.nav_trash) {
-            //TODO navigate to trash
+            startActivity(new Intent(getApplication(), RecycleActivity.class));
         } else if (id == R.id.nav_all) {
             selectedCategory = CAT_ALL;
             updateList();
@@ -259,10 +259,12 @@ public class MainActivity extends AppCompatActivity
         ListView notesList = (ListView) findViewById(R.id.notes_list);
         CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
         if (selectedCategory == -1) { //show all
-            adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext()));
+            String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
+            String[] selectionArgs = { "0" };
+            adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
         } else {
-            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ?";
-            String[] selectionArgs = { String.valueOf(selectedCategory) };
+            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ? AND " + DbContract.NoteEntry.COLUMN_TRASH + " = ?";
+            String[] selectionArgs = { String.valueOf(selectedCategory), "0" };
             adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
         }
     }
@@ -271,10 +273,12 @@ public class MainActivity extends AppCompatActivity
         ListView notesList = (ListView) findViewById(R.id.notes_list);
         CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
         if (selectedCategory == -1) { //show all
-            adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext()));
+            String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
+            String[] selectionArgs = { "0" };
+            adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext(), selection, selectionArgs));
         } else {
-            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ?";
-            String[] selectionArgs = { String.valueOf(selectedCategory) };
+            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ? AND " + DbContract.NoteEntry.COLUMN_TRASH + " = ?";
+            String[] selectionArgs = { String.valueOf(selectedCategory), "0" };
             adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext(), selection, selectionArgs));
         }
     }

@@ -26,7 +26,7 @@ public class DbAccess {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT, NoteEntry.COLUMN_CATEGORY};
+        String[] projection = { NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT, NoteEntry.COLUMN_CATEGORY };
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = {"" + id};
 
@@ -82,6 +82,43 @@ public class DbAccess {
     }
 
     /**
+     * Moves a note to trash
+     * @param c the current context
+     * @param id the id of the note
+     */
+    public static void trashNote(Context c, int id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NoteEntry.COLUMN_TRASH, 1);
+        String selection = NoteEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+
+        db.update(NoteEntry.TABLE_NAME, values, selection, selectionArgs);
+        db.close();
+        deleteNotificationsByNoteId(c, id);
+    }
+
+    /**
+     * Restores a note from the trash
+     * @param c the current context
+     * @param id the id of the note
+     */
+    public static void restoreNote(Context c, int id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NoteEntry.COLUMN_TRASH, 0);
+        String selection = NoteEntry.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(id) };
+
+        db.update(NoteEntry.TABLE_NAME, values, selection, selectionArgs);
+        db.close();
+    }
+
+    /**
      * Deletes a  text note from the database.
      * @param c the current context
      * @param id the ID of the note
@@ -93,8 +130,8 @@ public class DbAccess {
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);
-        //TODO DELETE NOTIFICATIONS
         db.close();
+        deleteNotificationsByNoteId(c, id);
     }
 
     /**
