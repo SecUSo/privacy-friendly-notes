@@ -4,6 +4,7 @@
 
     <string name="title_manage_categories">Categories</string>
     <string name="title_textnote">Text Note</string>
+    <string name="title_checklistnote">Checklist Note</string>
     <string name="title_recycle_bin">Recycle Bin</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -39,6 +40,8 @@
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
     <string name="dialog_trash_title">Moving to recycle bin</string>
     <string name="dialog_trash_message">Notes will be moved to the recycle bin. You can recover or permanently delete them there. Notifications cannot be restored.</string>
+    <string name="dialog_save_title">Deleting selected items.</string>
+    <string name="dialog_save_message">Checked items will be deleted on updating or saving the note.</string>
     <string name="dialog_restore_title">Restore or delete %1s?</string>
     <string name="dialog_restore_message">Do you want to restore or delete %1s?</string>
     <string name="dialog_need_category_title">No Categories</string>

@@ -26,6 +26,7 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ChecklistNoteActivity"
+            android:label="@string/title_checklistnote"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ManageCategoriesActivity"

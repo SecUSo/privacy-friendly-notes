@@ -47,8 +47,8 @@ public class NotificationService extends IntentService {
                     //TODO start the sketch note
                     break;
                 case DbContract.NoteEntry.TYPE_CHECKLIST:
-                    Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
-                    i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note_id);
+                    i = new Intent(getApplication(), ChecklistNoteActivity.class);
+                    i.putExtra(ChecklistNoteActivity.EXTRA_ID, note_id);
                     break;
             }
 
