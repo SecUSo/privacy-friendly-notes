@@ -27,6 +27,7 @@
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
+    <string name="hint_new_item">New item</string>
 
     <string name="toast_canceled">Canceled without saving</string>
     <string name="toast_saved">Note saved</string>

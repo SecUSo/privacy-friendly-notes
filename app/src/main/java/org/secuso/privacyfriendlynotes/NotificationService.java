@@ -39,7 +39,6 @@ public class NotificationService extends IntentService {
                 case DbContract.NoteEntry.TYPE_TEXT:
                     i = new Intent(getBaseContext(), TextNoteActivity.class);
                     i.putExtra(TextNoteActivity.EXTRA_ID, note_id);
-                    i.putExtra(TextNoteActivity.EXTRA_NOTIFICATION_ID, notification_id);
                     break;
                 case DbContract.NoteEntry.TYPE_AUDIO:
                     //TODO start the audio note
@@ -50,7 +49,6 @@ public class NotificationService extends IntentService {
                 case DbContract.NoteEntry.TYPE_CHECKLIST:
                     Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
                     i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note_id);
-                    i4.putExtra(TextNoteActivity.EXTRA_NOTIFICATION_ID, notification_id);
                     break;
             }
 

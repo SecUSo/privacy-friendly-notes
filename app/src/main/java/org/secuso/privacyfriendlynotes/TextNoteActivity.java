@@ -33,7 +33,6 @@ import java.util.Date;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
-    public static final String EXTRA_NOTIFICATION_ID = "org.secuso.privacyfriendlynotes.notificationID";
 
     EditText etName;
     EditText etContent;
@@ -225,7 +224,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private boolean fieldsEmpty(){
-        return etName.getText().toString().isEmpty() && etContent.getText().toString().isEmpty();
+        return etName.getText().toString().isEmpty();
     }
 
     private void displayCategoryDialog() {
