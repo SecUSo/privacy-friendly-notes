@@ -79,6 +79,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     }
 
     private void loadActivity(boolean initial){
+        //get rid of the old data. Otherwise we would have duplicates.
+        itemNamesList.clear();
+
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
