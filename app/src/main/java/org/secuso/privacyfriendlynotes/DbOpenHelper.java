@@ -11,6 +11,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "allthenotes";
+    Context context;
 
     private static final String NOTES_TABLE_CREATE =
             "CREATE TABLE " + DbContract.NoteEntry.TABLE_NAME + " (" +
@@ -34,6 +35,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     DbOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -41,6 +43,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL(NOTES_TABLE_CREATE);
         db.execSQL(CATEGORIES_TABLE_CREATE);
         db.execSQL(NOTIFICATIONS_TABLE_CREATE);
+        db.execSQL("INSERT INTO " + DbContract.CategoryEntry.TABLE_NAME + " (" + DbContract.CategoryEntry.COLUMN_NAME + ") VALUES ('" + context.getString(R.string.default_category) + "');");
     }
 
     @Override
