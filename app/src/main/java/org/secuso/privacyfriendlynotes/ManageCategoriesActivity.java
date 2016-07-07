@@ -1,24 +1,27 @@
 package org.secuso.privacyfriendlynotes;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class ManageCategoriesActivity extends AppCompatActivity implements View.OnClickListener {
 
     ListView list;
+    ArrayList selectedIds = new ArrayList();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,55 +29,47 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
         findViewById(R.id.btn_add).setOnClickListener(this);
         list = (ListView) findViewById(R.id.category_list);
-        list.setAdapter(new CursorAdapter(getApplicationContext(), DbAccess.getCategories(getBaseContext()), CursorAdapter.FLAG_AUTO_REQUERY) {
+        String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
+        int[] to = {R.id.item_name};
+        list.setAdapter(new SimpleCursorAdapter(getBaseContext(), R.layout.item_category, DbAccess.getCategories(getBaseContext()), from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
-            public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                LayoutInflater inflater = (LayoutInflater) context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View rowView = inflater.inflate(R.layout.item_category, null);
-
-                TextView text = (TextView) rowView.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
-                text.setText(name);
-                ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
-                iv.setTag(R.id.tag_id, cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))); //The tag is later used to delete a category.
-                iv.setTag(R.id.tag_name, name);
-                iv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final int id = (int) v.getTag(R.id.tag_id);
-                        String name = (String) v.getTag(R.id.tag_name);
-                        new AlertDialog.Builder(ManageCategoriesActivity.this)
-                                .setTitle(String.format(getString(R.string.dialog_delete_title), name))
-                                .setMessage(String.format(getString(R.string.dialog_delete_message), name))
-                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //do nothing
-                                    }
-                                })
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        DbAccess.deleteCategory(getBaseContext(), id);
-                                        updateList();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                    }
-                });
-                return rowView;
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                //do nothing
             }
 
             @Override
-            public void bindView(View view, Context context, Cursor cursor) {
-                TextView text = (TextView) view.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
-                text.setText(name);
-                ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
-                iv.setTag(R.id.tag_id, cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID))); //The tag is later used to delete a category.
-                iv.setTag(R.id.tag_name, name);
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Inflate the menu for the CAB
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.manage_cab, menu);
+                selectedIds.clear();
+                return true;
+
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Respond to clicks on the actions in the CAB
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                updateList();
             }
         });
     }
@@ -92,6 +87,16 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 }
                 updateList();
                 break;
+        }
+    }
+
+    private void deleteSelectedItems(){
+        CursorAdapter adapter = (CursorAdapter) list.getAdapter();
+        SparseBooleanArray checkedItemPositions = list.getCheckedItemPositions();
+        for (int i=0; i < checkedItemPositions.size(); i++) {
+            if(checkedItemPositions.valueAt(i)) {
+                DbAccess.deleteCategory(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
+            }
         }
     }
 
