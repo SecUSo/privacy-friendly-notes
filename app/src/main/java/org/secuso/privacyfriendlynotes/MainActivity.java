@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
                 ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
                 switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
                     case DbContract.NoteEntry.TYPE_SKETCH:
-                        iv.setImageResource(R.drawable.ic_photo_24dp);
+                        iv.setImageResource(R.drawable.ic_photo_black_24dp);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
                         iv.setImageResource(R.drawable.ic_mic_black_24dp);
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity
                 ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
                 switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
                     case DbContract.NoteEntry.TYPE_SKETCH:
-                        iv.setImageResource(R.drawable.ic_photo_24dp);
+                        iv.setImageResource(R.drawable.ic_photo_black_24dp);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
                         iv.setImageResource(R.drawable.ic_mic_black_24dp);
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity
                 fabMenu.collapseImmediately();
                 break;
             case R.id.fab_audio:
-                //TODO fab audio
+                startActivity(new Intent(getApplication(), AudioNoteActivity.class));
                 fabMenu.collapseImmediately();
                 break;
             case R.id.fab_sketch:

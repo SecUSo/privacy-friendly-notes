@@ -41,7 +41,7 @@
             android:id="@+id/fab_sketch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_photo_24dp"
+            android:src="@drawable/ic_photo_white_24dp"
             fab:fab_size="mini"
             fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/colorAccent"/>
@@ -50,7 +50,7 @@
             android:id="@+id/fab_audio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_mic_black_24dp"
+            android:src="@drawable/ic_mic_white_24dp"
             fab:fab_size="mini"
             fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/colorAccent"/>
@@ -59,7 +59,7 @@
             android:id="@+id/fab_checklist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_format_list_bulleted_black_24dp"
+            android:src="@drawable/ic_format_list_bulleted_white_24dp"
             fab:fab_size="mini"
             fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/colorAccent"/>
@@ -68,7 +68,7 @@
             android:id="@+id/fab_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_short_text_black_24dp"
+            android:src="@drawable/ic_short_text_white_24dp"
             fab:fab_size="mini"
             fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/colorAccent"/>
