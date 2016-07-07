@@ -57,6 +57,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
 
+        etName = (EditText) findViewById(R.id.etName);
+        etContent = (EditText) findViewById(R.id.etContent);
+        spinner = (Spinner) findViewById(R.id.spinner_category);
+
         loadActivity(true);
 
     }
@@ -66,10 +70,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         edit = (id != -1);
-
-        etName = (EditText) findViewById(R.id.etName);
-        etContent = (EditText) findViewById(R.id.etContent);
-        spinner = (Spinner) findViewById(R.id.spinner_category);
 
         SimpleCursorAdapter adapter = null;
 
