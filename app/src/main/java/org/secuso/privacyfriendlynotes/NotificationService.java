@@ -41,7 +41,8 @@ public class NotificationService extends IntentService {
                     i.putExtra(TextNoteActivity.EXTRA_ID, note_id);
                     break;
                 case DbContract.NoteEntry.TYPE_AUDIO:
-                    //TODO start the audio note
+                    i = new Intent(getBaseContext(), AudioNoteActivity.class);
+                    i.putExtra(AudioNoteActivity.EXTRA_ID, note_id);
                     break;
                 case DbContract.NoteEntry.TYPE_SKETCH:
                     //TODO start the sketch note

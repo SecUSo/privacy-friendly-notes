@@ -135,7 +135,9 @@ public class MainActivity extends AppCompatActivity
                         startActivity(i);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
-                        //TODO click on audio note
+                        Intent i2 = new Intent(getApplication(), AudioNoteActivity.class);
+                        i2.putExtra(AudioNoteActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+                        startActivity(i2);
                         break;
                     case DbContract.NoteEntry.TYPE_SKETCH:
                         //TODO click on sketch note

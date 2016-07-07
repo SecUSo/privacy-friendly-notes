@@ -6,6 +6,7 @@
     <string name="title_manage_categories">Categories</string>
     <string name="title_textnote">Text Note</string>
     <string name="title_checklistnote">Checklist Note</string>
+    <string name="title_audionote">Audio Note</string>
     <string name="title_recycle_bin">Recycle Bin</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -36,6 +37,7 @@
     <string name="toast_updated">Note updated</string>
     <string name="toast_category_exists">Category already exists</string>
     <string name="toast_alarm_scheduled">Alarm scheduled for %1s</string>
+    <string name="toast_need_permission_audio">Permission to use the microphone is needed for this feature</string>
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
