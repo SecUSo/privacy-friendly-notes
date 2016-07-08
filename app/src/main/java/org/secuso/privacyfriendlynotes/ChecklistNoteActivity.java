@@ -533,12 +533,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 break;
         }
     }
+
     private void saveToExternalStorage(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File path = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
-            File file = new File(path, "/" + etName.getText().toString() + ".txt");
+            File file = new File(path, "/checklist_" + etName.getText().toString() + ".txt");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();

@@ -439,7 +439,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File path = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
-            File file = new File(path, "/" + etName.getText().toString() + ".txt");
+            File file = new File(path, "/text_" + etName.getText().toString() + ".txt");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();

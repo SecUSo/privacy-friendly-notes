@@ -14,8 +14,11 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -45,7 +48,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
 //TODO Horizontal layouts
@@ -53,6 +59,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
 
     private static final int REQUEST_CODE_AUDIO = 1;
+    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 2;
 
     EditText etName;
     ImageButton btnPlayPause;
@@ -302,6 +309,29 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 dpd.show();
             }
             return true;
+        } else if (id == R.id.action_save) {
+            if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    // Show an expanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            REQUEST_CODE_EXTERNAL_STORAGE);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            REQUEST_CODE_EXTERNAL_STORAGE);
+                }
+            } else {
+                saveToExternalStorage();
+            }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -522,6 +552,14 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                     finish();
                 }
                 break;
+            case REQUEST_CODE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Save the file
+                    saveToExternalStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 
@@ -600,5 +638,48 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             return true;
         }
         return false;
+    }
+
+    private void saveToExternalStorage(){
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            File file = new File(path, "/" + etName.getText().toString() + ".mp4");
+            try {
+                // Make sure the directory exists.
+                boolean path_exists = path.exists() || path.mkdirs();
+                if (path_exists) {
+                    FileChannel source = null;
+                    FileChannel destination = null;
+                    try {
+                        source = new FileInputStream(new File(mFilePath)).getChannel();
+                        destination = new FileOutputStream(file).getChannel();
+                        destination.transferFrom(source, 0, source.size());
+                    } finally {
+                        source.close();
+                        destination.close();
+                    }
+                    // Tell the media scanner about the new file so that it is
+                    // immediately available to the user.
+                    MediaScannerConnection.scanFile(this,
+                            new String[] { file.toString() }, null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.i("ExternalStorage", "Scanned " + path + ":");
+                                    Log.i("ExternalStorage", "-> uri=" + uri);
+                                }
+                            });
+
+                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_file_exported_to), file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
+                }
+            } catch (IOException e) {
+                // Unable to create file, likely because external storage is
+                // not currently mounted.
+                Log.w("ExternalStorage", "Error writing " + file, e);
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+        }
     }
 }
