@@ -30,6 +30,11 @@
             android:padding="16dp"
             android:id="@+id/btn_record"
             android:background="@drawable/ic_mic_black_24dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/recording_time"
+            android:layout_gravity="center_horizontal"/>
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

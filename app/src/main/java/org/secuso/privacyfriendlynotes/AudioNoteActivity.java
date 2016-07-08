@@ -40,6 +40,7 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -56,6 +57,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     EditText etName;
     ImageButton btnPlayPause;
     ImageButton btnRecord;
+    TextView tvRecordingTime;
     SeekBar seekBar;
     Spinner spinner;
 
@@ -66,6 +68,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private String mFilePath;
     private boolean recording = false;
     private boolean playing = false;
+    private long startTime = System.currentTimeMillis();
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -90,6 +93,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
         btnRecord = (ImageButton) findViewById(R.id.btn_record);
+        tvRecordingTime = (TextView) findViewById(R.id.recording_time);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
         findViewById(R.id.btn_record).setOnClickListener(this);
@@ -179,6 +183,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             mFilePath = getFilesDir().getPath() + mFileName;
             btnPlayPause.setVisibility(View.VISIBLE);
             btnRecord.setVisibility(View.INVISIBLE);
+            tvRecordingTime.setVisibility(View.INVISIBLE);
             //find the current category and set spinner to that
             currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
 
@@ -201,6 +206,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             mFileName = "/recording_" + System.currentTimeMillis() + ".mp4";
             mFilePath = getFilesDir().getPath() + mFileName;
             seekBar.setEnabled(false);
+            tvRecordingTime.setVisibility(View.VISIBLE);
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -218,7 +224,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 saveNote();
             }
         } else {
-            new File(mFilePath).delete();
+            if(!edit) {
+                new File(mFilePath).delete();
+            }
         }
     }
 
@@ -317,13 +325,28 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         try {
             mRecorder.prepare();
-            mRecorder.start();
             final Animation animation = new AlphaAnimation(1, (float)0.5); // Change alpha from fully visible to invisible
             animation.setDuration(500); // duration - half a second
             animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
             animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
             animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
             btnRecord.startAnimation(animation);
+            startTime = System.currentTimeMillis();
+            AudioNoteActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecorder != null) {
+                        long time = System.currentTimeMillis() - startTime;
+                        int seconds = (int) time / 1000;
+                        int minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        tvRecordingTime.setText(String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+                        mHandler.postDelayed(this, 100);
+                    }
+                }
+            });
+
+            mRecorder.start();
         } catch (IOException e) {
             recording = false;
             e.printStackTrace();
