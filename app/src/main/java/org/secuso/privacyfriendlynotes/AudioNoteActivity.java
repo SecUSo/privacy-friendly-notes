@@ -48,7 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
+//TODO Horizontal layouts
 public class AudioNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
 
@@ -207,6 +207,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             mFilePath = getFilesDir().getPath() + mFileName;
             seekBar.setEnabled(false);
             tvRecordingTime.setVisibility(View.VISIBLE);
+            shouldSave = false; // will be set to true, once we have a recording
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -226,6 +227,22 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         } else {
             if(!edit) {
                 new File(mFilePath).delete();
+            }
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus) {
+            if (recording) {
+                stopRecording();
+                if (fieldsEmpty()) {
+                    etName.setText(mFileName);
+                }
+                finish();
+            } else if (playing) {
+                pausePlaying();
             }
         }
     }
@@ -410,6 +427,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void recordingFinished() {
+        shouldSave = true;
         btnRecord.setVisibility(View.INVISIBLE);
         btnPlayPause.setVisibility(View.VISIBLE);
         seekBar.setEnabled(true);
