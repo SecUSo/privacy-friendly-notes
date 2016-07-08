@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
+
 public class RecycleActivity extends AppCompatActivity {
 
     @Override
@@ -97,7 +99,8 @@ public class RecycleActivity extends AppCompatActivity {
                 CursorAdapter ca = (CursorAdapter) parent.getAdapter();
                 Cursor c = ca.getCursor();
                 c.moveToPosition(position);
-                displayRestoreDialog(c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)), c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
+                displayRestoreDialog(c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)), c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)),
+                        c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)), c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)));
 
             }
         });
@@ -117,7 +120,7 @@ public class RecycleActivity extends AppCompatActivity {
         adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
     }
 
-    private void displayRestoreDialog(final int id, final String name) {
+    private void displayRestoreDialog(final int id, final String name, final String content, final int type) {
 
         new AlertDialog.Builder(RecycleActivity.this)
                 .setTitle(String.format(getString(R.string.dialog_restore_title), name))
@@ -126,6 +129,9 @@ public class RecycleActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DbAccess.deleteNote(getBaseContext(), id);
+                        if (type == DbContract.NoteEntry.TYPE_AUDIO) {
+                            new File(getFilesDir().getPath()+content).delete();
+                        }
                         updateList();
                     }
                 })

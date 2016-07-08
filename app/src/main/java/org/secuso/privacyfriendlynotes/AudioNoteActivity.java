@@ -11,10 +11,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +29,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -38,6 +43,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,11 +55,13 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     EditText etName;
     ImageButton btnPlayPause;
+    ImageButton btnRecord;
     SeekBar seekBar;
     Spinner spinner;
 
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
+    private Handler mHandler = new Handler();
     private String mFileName = "finde_die_datei.mp4";
     private String mFilePath;
     private boolean recording = false;
@@ -81,6 +89,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         etName = (EditText) findViewById(R.id.etName);
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
+        btnRecord = (ImageButton) findViewById(R.id.btn_record);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
         findViewById(R.id.btn_record).setOnClickListener(this);
@@ -105,6 +114,25 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                         REQUEST_CODE_AUDIO);
             }
         }
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mPlayer != null && fromUser) {
+                    mPlayer.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         loadActivity(true);
 
@@ -150,6 +178,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             mFileName = noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
             mFilePath = getFilesDir().getPath() + mFileName;
             btnPlayPause.setVisibility(View.VISIBLE);
+            btnRecord.setVisibility(View.INVISIBLE);
             //find the current category and set spinner to that
             currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
 
@@ -171,6 +200,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             findViewById(R.id.btn_delete).setEnabled(false);
             mFileName = "/recording_" + System.currentTimeMillis() + ".mp4";
             mFilePath = getFilesDir().getPath() + mFileName;
+            seekBar.setEnabled(false);
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -187,6 +217,8 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             } else {
                 saveNote();
             }
+        } else {
+            new File(mFilePath).delete();
         }
     }
 
@@ -260,51 +292,111 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btn_record:
                 if (!recording) {
-                    recording = true;
-                    mRecorder = new MediaRecorder();
-                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                    mRecorder.setOutputFile(mFilePath);
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                    try {
-                        mRecorder.prepare();
-                        mRecorder.start();
-                    } catch (IOException e) {
-                        recording = false;
-                        e.printStackTrace();
-                    }
-
+                    startRecording();
                 } else {
-                    Log.d("LALALA", "Stopped recording");
-                    mRecorder.stop();
-                    mRecorder.release();
-                    mRecorder = null;
-                    recording = false;
+                    stopRecording();
                 }
                 break;
             case R.id.btn_play_pause:
                 if (!playing) {
-                    mPlayer = new MediaPlayer();
-                    try {
-                        mPlayer.setDataSource(mFilePath);
-                        mPlayer.prepare();
-                        mPlayer.start();
-                        playing = true;
-                    } catch (IOException e) {
-                        playing = false;
-                        e.printStackTrace();
-                    }
+                    startPlaying();
                 } else {
-                    try {
-                        mPlayer.stop();
-                    } catch (RuntimeException stopException) {
-                        //TODO delete the file
-                    }
-                    mPlayer.release();
-                    mPlayer = null;
+                    pausePlaying();
                 }
                 break;
             default:
+        }
+    }
+
+    private void startRecording() {
+        recording = true;
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mRecorder.setOutputFile(mFilePath);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        try {
+            mRecorder.prepare();
+            mRecorder.start();
+            final Animation animation = new AlphaAnimation(1, (float)0.5); // Change alpha from fully visible to invisible
+            animation.setDuration(500); // duration - half a second
+            animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+            animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+            animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+            btnRecord.startAnimation(animation);
+        } catch (IOException e) {
+            recording = false;
+            e.printStackTrace();
+        }
+    }
+
+    private void stopRecording() {
+        Log.d("LALALA", "Stopped recording");
+        mRecorder.stop();
+        mRecorder.release();
+        btnRecord.clearAnimation();
+        mRecorder = null;
+        recording = false;
+        recordingFinished();
+    }
+
+    private void startPlaying() {
+        playing = true;
+        if (mPlayer == null) {
+            mPlayer = new MediaPlayer();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            try {
+                mPlayer.setDataSource(mFilePath);
+                mPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                playing = false;
+                togglePlayPauseButton();
+                seekBar.setProgress(0);
+                mPlayer.release();
+                mPlayer = null;
+            }
+        });
+
+        togglePlayPauseButton();
+        seekBar.setMax(mPlayer.getDuration());
+        AudioNoteActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mPlayer != null) {
+                    seekBar.setProgress(mPlayer.getCurrentPosition());
+                    mHandler.postDelayed(this, 100);
+                }
+            }
+        });
+        mPlayer.start();
+    }
+
+    private void pausePlaying() {
+        playing = false;
+        togglePlayPauseButton();
+        try {
+            mPlayer.pause();
+        } catch (RuntimeException stopException) {
+        }
+    }
+
+    private void recordingFinished() {
+        btnRecord.setVisibility(View.INVISIBLE);
+        btnPlayPause.setVisibility(View.VISIBLE);
+        seekBar.setEnabled(true);
+    }
+
+    private void togglePlayPauseButton(){
+        if (playing) {
+            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_black_24dp);
+        } else {
+            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
         }
     }
 
