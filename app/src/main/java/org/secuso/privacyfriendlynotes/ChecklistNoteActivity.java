@@ -19,10 +19,12 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -60,6 +62,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     EditText etNewItem;
     ListView lvItemList;
     Spinner spinner;
+
+    private ShareActionProvider mShareActionProvider = null;
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -217,6 +221,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.checklist, menu);
+            MenuItem item = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            setShareIntent();
         }
         return true;
     }
@@ -236,6 +243,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -569,6 +578,16 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setShareIntent(){
+        if (mShareActionProvider != null) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
+            mShareActionProvider.setShareIntent(sendIntent);
         }
     }
 

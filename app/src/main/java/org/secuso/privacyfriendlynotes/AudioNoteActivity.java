@@ -23,10 +23,13 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +70,8 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     TextView tvRecordingTime;
     SeekBar seekBar;
     Spinner spinner;
+
+    private ShareActionProvider mShareActionProvider = null;
 
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
@@ -189,7 +194,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             noteCursor.moveToFirst();
             etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
             mFileName = noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
-            mFilePath = getFilesDir().getPath() + mFileName;
+            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
             btnPlayPause.setVisibility(View.VISIBLE);
             btnRecord.setVisibility(View.INVISIBLE);
             tvRecordingTime.setVisibility(View.INVISIBLE);
@@ -214,7 +219,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
             mFileName = "/recording_" + System.currentTimeMillis() + ".mp4";
-            mFilePath = getFilesDir().getPath() + mFileName;
+            mFilePath = getFilesDir().getPath() + "/audio_notes";
+            new File(mFilePath).mkdirs(); //ensure that the file exists
+            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
             seekBar.setEnabled(false);
             tvRecordingTime.setVisibility(View.VISIBLE);
             shouldSave = false; // will be set to true, once we have a recording
@@ -268,6 +275,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.audio, menu);
+            MenuItem item = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            setShareIntent();
         }
         return true;
     }
@@ -287,6 +297,8 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -680,6 +692,19 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setShareIntent(){
+        if (mShareActionProvider != null) {
+            File audioFile = new File(mFilePath);
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("audio/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            mShareActionProvider.setShareIntent(sendIntent);
         }
     }
 }
