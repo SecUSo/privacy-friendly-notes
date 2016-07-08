@@ -19,10 +19,14 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +56,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     EditText etContent;
     Spinner spinner;
 
+    private ShareActionProvider mShareActionProvider = null;
+
     private int dayOfMonth, monthOfYear, year;
 
     private boolean edit = false;
@@ -74,6 +80,39 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
         spinner = (Spinner) findViewById(R.id.spinner_category);
+
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                setShareIntent();
+            }
+        });
+        etContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                    setShareIntent();
+            }
+        });
 
         loadActivity(true);
 
@@ -169,6 +208,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.text, menu);
+            MenuItem item = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            setShareIntent();
         }
         return true;
     }
@@ -470,6 +512,16 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setShareIntent(){
+        if (mShareActionProvider != null) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
+            mShareActionProvider.setShareIntent(sendIntent);
         }
     }
 }
