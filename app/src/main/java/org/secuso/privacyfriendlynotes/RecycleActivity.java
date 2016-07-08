@@ -8,6 +8,8 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -112,6 +114,29 @@ public class RecycleActivity extends AppCompatActivity {
         updateList();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.recycle, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_delete_all) {
+            deleteAll();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void updateList() {
         ListView notesList = (ListView) findViewById(R.id.notes_list);
         CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
@@ -150,5 +175,21 @@ public class RecycleActivity extends AppCompatActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void deleteAll(){
+        ListView notesList = (ListView) findViewById(R.id.notes_list);
+        CursorAdapter ca = (CursorAdapter) notesList.getAdapter();
+        Cursor c = ca.getCursor();
+        c.moveToPosition(-1);
+        while (c.moveToNext()){
+            if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_AUDIO) {
+                //TODO Delete the audio file
+                String filePath = getFilesDir().getPath() + c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+                new File(filePath).delete();
+            }
+            DbAccess.deleteNote(getBaseContext(), c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+        }
+        updateList();
     }
 }
