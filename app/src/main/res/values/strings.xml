@@ -38,6 +38,9 @@
     <string name="toast_category_exists">Category already exists</string>
     <string name="toast_alarm_scheduled">Alarm scheduled for %1s</string>
     <string name="toast_need_permission_audio">Permission to use the microphone is needed for this feature</string>
+    <string name="toast_need_permission_write_external">Permission to write to external storage is needed for this feature</string>
+    <string name="toast_external_storage_not_mounted">Error: Cannot write to external storage</string>
+    <string name="toast_file_exported_to">Exportet note to %1s</string>
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>

@@ -1,5 +1,6 @@
 package org.secuso.privacyfriendlynotes;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
@@ -8,13 +9,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,11 +37,16 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
+
+    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
     EditText etName;
     EditText etContent;
@@ -185,6 +199,29 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
                 dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
+            }
+            return true;
+        } else if (id == R.id.action_save) {
+            if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    // Show an expanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            REQUEST_CODE_EXTERNAL_STORAGE);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            REQUEST_CODE_EXTERNAL_STORAGE);
+                }
+            } else {
+                saveToExternalStorage();
             }
             return true;
         }
@@ -372,5 +409,58 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Save the file
+                    saveToExternalStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    private void saveToExternalStorage(){
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            File file = new File(path, "/" + etName.getText().toString() + ".txt");
+            try {
+                // Make sure the directory exists.
+                boolean path_exists = path.exists() || path.mkdirs();
+                if (path_exists) {
+
+                    PrintWriter out = new PrintWriter(file);
+                    out.println(etName.getText().toString());
+                    out.println();
+                    out.println(etContent.getText().toString());
+                    out.close();
+                    // Tell the media scanner about the new file so that it is
+                    // immediately available to the user.
+                    MediaScannerConnection.scanFile(this,
+                            new String[] { file.toString() }, null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.i("ExternalStorage", "Scanned " + path + ":");
+                                    Log.i("ExternalStorage", "-> uri=" + uri);
+                                }
+                            });
+
+                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_file_exported_to), file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
+                }
+            } catch (IOException e) {
+                // Unable to create file, likely because external storage is
+                // not currently mounted.
+                Log.w("ExternalStorage", "Error writing " + file, e);
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+        }
     }
 }
