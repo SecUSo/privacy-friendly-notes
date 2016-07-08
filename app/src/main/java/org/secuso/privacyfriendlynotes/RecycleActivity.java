@@ -184,7 +184,6 @@ public class RecycleActivity extends AppCompatActivity {
         c.moveToPosition(-1);
         while (c.moveToNext()){
             if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_AUDIO) {
-                //TODO Delete the audio file
                 String filePath = getFilesDir().getPath() + c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
                 new File(filePath).delete();
             }
