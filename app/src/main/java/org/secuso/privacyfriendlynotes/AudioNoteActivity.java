@@ -218,7 +218,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
-            mFileName = "/recording_" + System.currentTimeMillis() + ".mp4";
+            mFileName = "/recording_" + System.currentTimeMillis() + ".aac";
             mFilePath = getFilesDir().getPath() + "/audio_notes";
             new File(mFilePath).mkdirs(); //ensure that the file exists
             mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
@@ -388,7 +388,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         recording = true;
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
         mRecorder.setOutputFile(mFilePath);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         try {
@@ -657,7 +657,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File path = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
-            File file = new File(path, "/" + etName.getText().toString() + ".mp4");
+            File file = new File(path, "/" + etName.getText().toString() + ".aac");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
