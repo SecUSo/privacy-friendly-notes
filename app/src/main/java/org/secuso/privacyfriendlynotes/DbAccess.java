@@ -45,7 +45,7 @@ public class DbAccess {
      * @param name the name of the note
      * @param content the content of the note
      */
-    public static void addNote(Context c, String name, String content, int type, int category){
+    public static int addNote(Context c, String name, String content, int type, int category){
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -54,8 +54,9 @@ public class DbAccess {
         values.put(NoteEntry.COLUMN_NAME, name);
         values.put(NoteEntry.COLUMN_CONTENT, content);
         values.put(NoteEntry.COLUMN_CATEGORY, category);
-        db.insert(NoteEntry.TABLE_NAME, null, values);
+        int id = (int)(long)db.insert(NoteEntry.TABLE_NAME, null, values);
         db.close();
+        return id;
     }
 
     /**

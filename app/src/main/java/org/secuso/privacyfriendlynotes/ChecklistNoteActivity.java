@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
@@ -96,8 +97,10 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         itemNamesList.clear();
 
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
-        Intent intent = getIntent();
-        id = intent.getIntExtra(EXTRA_ID, -1);
+        if (id == -1) {
+            Intent intent = getIntent();
+            id = intent.getIntExtra(EXTRA_ID, -1);
+        }
         edit = (id != -1);
 
         SimpleCursorAdapter adapter = null;
@@ -180,6 +183,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             if (hasAlarm) {
                 notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
+            findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
@@ -200,6 +204,12 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 saveNote();
             }
         }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        loadActivity(false);
     }
 
     @Override
@@ -358,7 +368,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                     jsonObject.put("checked", false);
                     jsonArray.put(jsonObject);
                 }
-                DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+                id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
                 Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -374,7 +384,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         jsonArray.put(jsonObject);
                     }
                 }
-                DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+                id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
                 Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -510,6 +520,19 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         return false;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Save the file
+                    saveToExternalStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
     private void saveToExternalStorage(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -520,24 +543,10 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
-                    StringBuilder content = new StringBuilder();
-                    Adapter a = lvItemList.getAdapter();
-                    SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
-                    if (checkedItemPositions.size() == 0) {
-                            for (int i=0; i < itemNamesList.size(); i++) {
-                                String name = (String) a.getItem(i);
-                                content.append(name + " [ ]\n");
-                            }
-                    } else {
-                        for (int i=0; i < itemNamesList.size(); i++) {
-                            String name = (String) a.getItem(i);
-                            content.append("- " + name + " [" + (checkedItemPositions.valueAt(i) ? "x" : " ") + "]\n");
-                        }
-                    }
                     PrintWriter out = new PrintWriter(file);
                     out.println(etName.getText().toString());
                     out.println();
-                    out.println(content.toString());
+                    out.println(getContentString());
                     out.close();
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
@@ -560,5 +569,23 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         } else {
             Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private String getContentString(){
+        StringBuilder content = new StringBuilder();
+        Adapter a = lvItemList.getAdapter();
+        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
+        if (checkedItemPositions.size() == 0) {
+            for (int i=0; i < itemNamesList.size(); i++) {
+                String name = (String) a.getItem(i);
+                content.append(name + " [ ]\n");
+            }
+        } else {
+            for (int i=0; i < itemNamesList.size(); i++) {
+                String name = (String) a.getItem(i);
+                content.append("- " + name + " [" + (checkedItemPositions.valueAt(i) ? "x" : " ") + "]\n");
+            }
+        }
+        return content.toString();
     }
 }

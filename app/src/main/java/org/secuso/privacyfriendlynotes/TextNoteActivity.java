@@ -81,8 +81,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void loadActivity(boolean initial){
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
-        Intent intent = getIntent();
-        id = intent.getIntExtra(EXTRA_ID, -1);
+        if (id == -1) {
+            Intent intent = getIntent();
+            id = intent.getIntExtra(EXTRA_ID, -1);
+        }
         edit = (id != -1);
 
         SimpleCursorAdapter adapter = null;
@@ -133,6 +135,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             if (hasAlarm) {
                 notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
+            findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
@@ -153,6 +156,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 saveNote();
             }
         }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        loadActivity(false);
     }
 
     @Override
@@ -256,7 +265,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void saveNote(){
-        DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
+        id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
