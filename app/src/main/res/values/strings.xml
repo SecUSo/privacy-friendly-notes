@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Notes</string>
-    <string name="app_name_long">Privacy Friendly Notes</string>
+    <string name="app_name_long" translatable="false">Privacy Friendly Notes</string>
     <string name="default_category">Default</string>
 
     <string name="title_manage_categories">Categories</string>
@@ -42,7 +42,7 @@
     <string name="toast_need_permission_audio">Permission to use the microphone is needed for this feature</string>
     <string name="toast_need_permission_write_external">Permission to write to external storage is needed for this feature</string>
     <string name="toast_external_storage_not_mounted">Error: Cannot write to external storage</string>
-    <string name="toast_file_exported_to">Exportet note to %1s</string>
+    <string name="toast_file_exported_to">Exported note to %1s</string>
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
