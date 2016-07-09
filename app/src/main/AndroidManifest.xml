@@ -45,6 +45,9 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_audionote"
             android:parentActivityName=".MainActivity" />
+        <activity android:name=".SketchActivity"
+            android:label="@string/title_sketchnote"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".MainActivity"
@@ -57,6 +60,7 @@
             android:name=".AboutActivity"
             android:label="@string/title_about"
             android:parentActivityName=".MainActivity" />
+
 
         <service android:name=".NotificationService" />
 

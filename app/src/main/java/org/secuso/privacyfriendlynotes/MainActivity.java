@@ -145,7 +145,9 @@ public class MainActivity extends AppCompatActivity
                         startActivity(i2);
                         break;
                     case DbContract.NoteEntry.TYPE_SKETCH:
-                        //TODO click on sketch note
+                        Intent i3 = new Intent(getApplication(), SketchActivity.class);
+                        i3.putExtra(SketchActivity.EXTRA_ID, c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
+                        startActivity(i3);
                         break;
                     case DbContract.NoteEntry.TYPE_CHECKLIST:
                         Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
@@ -253,7 +255,7 @@ public class MainActivity extends AppCompatActivity
                 fabMenu.collapseImmediately();
                 break;
             case R.id.fab_sketch:
-                //TODO fab sketch
+                startActivity(new Intent(getApplication(), SketchActivity.class));
                 fabMenu.collapseImmediately();
                 break;
         }

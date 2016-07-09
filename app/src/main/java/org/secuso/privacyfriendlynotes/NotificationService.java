@@ -45,7 +45,8 @@ public class NotificationService extends IntentService {
                     i.putExtra(AudioNoteActivity.EXTRA_ID, note_id);
                     break;
                 case DbContract.NoteEntry.TYPE_SKETCH:
-                    //TODO start the sketch note
+                    i = new Intent(getBaseContext(), SketchActivity.class);
+                    i.putExtra(SketchActivity.EXTRA_ID, note_id);
                     break;
                 case DbContract.NoteEntry.TYPE_CHECKLIST:
                     i = new Intent(getApplication(), ChecklistNoteActivity.class);
