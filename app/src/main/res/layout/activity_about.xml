@@ -99,7 +99,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
-        android:text="@string/privacy_friendly"
+        android:text="@string/about_privacy_friendly"
         android:gravity="center_horizontal" />
 
     <TextView
@@ -113,7 +113,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/url"
+        android:text="@string/about_url"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:autoLink="web"/>
