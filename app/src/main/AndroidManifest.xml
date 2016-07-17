@@ -3,7 +3,7 @@
     package="org.secuso.privacyfriendlynotes">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -38,9 +38,13 @@
             android:name=".RecycleActivity"
             android:label="@string/title_recycle_bin"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".AudioNoteActivity"
+        <activity
+            android:name=".AudioNoteActivity"
             android:label="@string/title_audionote"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".AboutActivity"
+            android:label="@string/title_about"
+            android:parentActivityName=".MainActivity"/>
 
         <service android:name=".NotificationService" />
 
@@ -59,7 +63,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider_paths" />
         </provider>
-
     </application>
 
 </manifest>

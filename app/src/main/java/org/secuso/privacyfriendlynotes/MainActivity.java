@@ -188,6 +188,8 @@ public class MainActivity extends AppCompatActivity
             //switch to an alphabetically sorted cursor.
             updateListAlphabetical();
             return true;
+        } else if (id == R.id.action_about) {
+            startActivity(new Intent(getApplication(), AboutActivity.class));
         }
 
         return super.onOptionsItemSelected(item);

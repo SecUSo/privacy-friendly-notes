@@ -8,6 +8,7 @@
     <string name="title_checklistnote">Checklist Note</string>
     <string name="title_audionote">Audio Note</string>
     <string name="title_recycle_bin">Recycle Bin</string>
+    <string name="title_about">About</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -62,4 +63,14 @@
     <string name="fab_audio">New audio</string>
     <string name="fab_checklist">New checklist</string>
     <string name="fab_sketch">New sketch</string>
+
+    <string name="about_version_number">Version 1.0</string>
+    <string name="about_author">Authors: </string>
+    <string name="about_author_names" translatable="false">Robin Morawetz</string>
+    <string name="about_author_contributors">and contributors.</string>
+    <string name="about_affiliation">In affiliation with</string>
+    <string name="privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Technische Universität Darmstadt.</string>
+    <string name="more_info">More information can be found on:</string>
+    <string name="url" translatable="false"><a href="https://www.secuso.org/pfa">https://www.secuso.org/pfa</a></string>
+
 </resources>
