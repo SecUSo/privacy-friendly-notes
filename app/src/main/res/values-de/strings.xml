@@ -30,14 +30,14 @@
     <string name="fab_text">Text</string>
     <string name="hint_name">Name</string>
     <string name="hint_new_item">Neuer Punkt</string>
-    <string name="hint_note">Mehrzeilige\n Notiz</string>
+    <string name="hint_note">Mehrzeilige\nNotiz</string>
     <string name="nav_all">Alle Notizen</string>
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>
     <string name="navigation_drawer_close">Navigation drawer schließen</string>
     <string name="navigation_drawer_open">Navigation drawer öffnen</string>
     <string name="title_audionote">Audio Notiz</string>
-    <string name="title_checklistnote">Checklist Notiz</string>
+    <string name="title_checklistnote">Checkliste</string>
     <string name="title_manage_categories">Kategorien</string>
     <string name="title_recycle_bin">Papierkorb</string>
     <string name="title_textnote">Text Notiz</string>
