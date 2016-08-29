@@ -569,7 +569,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                                 }
                             });
 
-                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_file_exported_to), file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_file_exported_to), file.getAbsolutePath()), Toast.LENGTH_LONG).show();
                 }
             } catch (IOException e) {
                 // Unable to create file, likely because external storage is

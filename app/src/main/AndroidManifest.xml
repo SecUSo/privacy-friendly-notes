@@ -25,11 +25,13 @@
         <activity
             android:name=".TextNoteActivity"
             android:label="@string/title_textnote"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity
             android:name=".ChecklistNoteActivity"
             android:label="@string/title_checklistnote"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity
             android:name=".ManageCategoriesActivity"
             android:label="@string/title_manage_categories"
@@ -41,8 +43,10 @@
         <activity
             android:name=".AudioNoteActivity"
             android:label="@string/title_audionote"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".AboutActivity"
+            android:parentActivityName=".MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name=".AboutActivity"
             android:label="@string/title_about"
             android:parentActivityName=".MainActivity"/>
 
