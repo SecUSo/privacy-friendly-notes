@@ -188,7 +188,7 @@ public class DbAccess {
 
         String[] projection = {NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT};
 
-        String sortOrder = NoteEntry.COLUMN_NAME + " ASC";
+        String sortOrder = NoteEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
 
         return db.query(NoteEntry.TABLE_NAME,   // Table name
                 projection,                     // SELECT
@@ -212,7 +212,7 @@ public class DbAccess {
 
         String[] projection = {NoteEntry.COLUMN_ID, NoteEntry.COLUMN_TYPE, NoteEntry.COLUMN_NAME, NoteEntry.COLUMN_CONTENT};
 
-        String sortOrder = NoteEntry.COLUMN_NAME + " ASC";
+        String sortOrder = NoteEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
 
         return db.query(NoteEntry.TABLE_NAME,   // Table name
                 projection,                     // SELECT
