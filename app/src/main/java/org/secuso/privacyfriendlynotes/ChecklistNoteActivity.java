@@ -201,7 +201,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave && !fieldsEmpty()) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
@@ -354,6 +354,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         jsonArray.put(jsonObject);
                     }
                 }
+                fillNameIfEmpty();
                 DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), jsonArray.toString(), currentCat);
                 Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -393,6 +394,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         jsonArray.put(jsonObject);
                     }
                 }
+                fillNameIfEmpty();
                 id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
                 Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -401,8 +403,15 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         }
     }
 
-    private boolean fieldsEmpty(){
-        return etName.getText().toString().isEmpty();
+    private void fillNameIfEmpty(){
+        if (etName.getText().toString().isEmpty()) {
+            SharedPreferences sp = getSharedPreferences(Preferences.SP_VALUES, Context.MODE_PRIVATE);
+            int counter = sp.getInt(Preferences.SP_VALUES_NAMECOUNTER, 1);
+            etName.setText(String.format(getString(R.string.note_standardname), counter));
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt(Preferences.SP_VALUES_NAMECOUNTER, counter+1);
+            editor.commit();
+        }
     }
 
     private void displayCategoryDialog() {

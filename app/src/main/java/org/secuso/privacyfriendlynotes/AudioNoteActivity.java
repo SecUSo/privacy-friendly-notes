@@ -57,7 +57,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
-//TODO Horizontal layouts
+
 public class AudioNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
 
@@ -235,7 +235,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave && !fieldsEmpty()) {
+        if (shouldSave ) {
             if (edit) {
                 updateNote();
             } else {
@@ -260,9 +260,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         if (!hasFocus) {
             if (recording) {
                 stopRecording();
-                if (fieldsEmpty()) {
-                    etName.setText(mFileName);
-                }
                 finish();
             } else if (playing) {
                 pausePlaying();
@@ -493,17 +490,26 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void updateNote(){
+        fillNameIfEmpty();
         DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), mFileName, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
+        fillNameIfEmpty();
         id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), mFileName, DbContract.NoteEntry.TYPE_AUDIO, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean fieldsEmpty(){
-        return etName.getText().toString().isEmpty();
+    private void fillNameIfEmpty(){
+        if (etName.getText().toString().isEmpty()) {
+            SharedPreferences sp = getSharedPreferences(Preferences.SP_VALUES, Context.MODE_PRIVATE);
+            int counter = sp.getInt(Preferences.SP_VALUES_NAMECOUNTER, 1);
+            etName.setText(String.format(getString(R.string.note_standardname), counter));
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt(Preferences.SP_VALUES_NAMECOUNTER, counter+1);
+            editor.commit();
+        }
     }
 
     private void displayCategoryDialog() {

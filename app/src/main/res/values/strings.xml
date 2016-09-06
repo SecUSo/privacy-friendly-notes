@@ -64,6 +64,8 @@
     <string name="fab_checklist">New checklist</string>
     <string name="fab_sketch">New sketch</string>
 
+    <string name="note_standardname">Note %1s</string>
+
     <string name="about_version_number">Version 1.0</string>
     <string name="about_author">Authors: </string>
     <string name="about_author_names" translatable="false">Robin Morawetz</string>

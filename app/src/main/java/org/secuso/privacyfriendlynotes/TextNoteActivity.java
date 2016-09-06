@@ -153,7 +153,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave && !fieldsEmpty()) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
@@ -269,17 +269,26 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void updateNote(){
+        fillNameIfEmpty();
         DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), etContent.getText().toString(), currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
+        fillNameIfEmpty();
         id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean fieldsEmpty(){
-        return etName.getText().toString().isEmpty();
+    private void fillNameIfEmpty(){
+        if (etName.getText().toString().isEmpty()) {
+            SharedPreferences sp = getSharedPreferences(Preferences.SP_VALUES, Context.MODE_PRIVATE);
+            int counter = sp.getInt(Preferences.SP_VALUES_NAMECOUNTER, 1);
+            etName.setText(String.format(getString(R.string.note_standardname), counter));
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt(Preferences.SP_VALUES_NAMECOUNTER, counter+1);
+            editor.commit();
+        }
     }
 
     private void displayCategoryDialog() {
