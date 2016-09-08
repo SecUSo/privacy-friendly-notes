@@ -71,7 +71,7 @@
     <string name="about_author_names" translatable="false">Robin Morawetz</string>
     <string name="about_author_contributors">and contributors.</string>
     <string name="about_affiliation">In affiliation with</string>
-    <string name="about_privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Technische Universität Darmstadt.</string>
+    <string name="about_privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Technische Universität Darmstadt. Sourcecode licensed under GPLv3. Images copyright TU Darmstadt and Google Inc.</string>
     <string name="about_more_info">More information can be found on:</string>
     <string name="about_url" translatable="false"><a href="https://www.secuso.org/pfa">https://www.secuso.org/pfa</a></string>
 
