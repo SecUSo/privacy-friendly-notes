@@ -19,21 +19,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/action_cancel"
             android:id="@+id/btn_cancel" />
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/action_delete"
             android:id="@+id/btn_delete" />
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/action_save"
             android:id="@+id/btn_save"/>
     </LinearLayout>
