@@ -31,7 +31,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         list = (ListView) findViewById(R.id.category_list);
         String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
         int[] to = {R.id.item_name};
-        list.setAdapter(new SimpleCursorAdapter(getBaseContext(), R.layout.item_category, DbAccess.getCategories(getBaseContext()), from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
+        list.setAdapter(new SimpleCursorAdapter(getBaseContext(), R.layout.item_category, DbAccess.getCategoriesWithoutDefault(getBaseContext()), from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
         list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         list.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
@@ -102,6 +102,6 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
     private void updateList(){
         CursorAdapter adapter = (CursorAdapter) list.getAdapter();
-        adapter.changeCursor(DbAccess.getCategories(getBaseContext()));
+        adapter.changeCursor(DbAccess.getCategoriesWithoutDefault(getBaseContext()));
     }
 }

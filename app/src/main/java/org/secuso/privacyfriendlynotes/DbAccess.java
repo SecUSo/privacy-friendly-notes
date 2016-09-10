@@ -136,6 +136,26 @@ public class DbAccess {
     }
 
     /**
+     * Delete notes by specifying the category id
+     * @param c the current context
+     * @param cat_id the category id
+     */
+    public static void deleteNotesByCategoryId(Context c, int cat_id) {
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        //Selection arguments for all the notes belonging to that category
+        String selection = NoteEntry.COLUMN_CATEGORY + " = ?";
+        String[] selectionArgs = { String.valueOf(cat_id) };
+        //Temporary save them
+        Cursor cur = getCursorAllNotes(c, selection, selectionArgs);
+        if (cur.getCount() > 0) {
+            deleteNote(c, cur.getInt(cur.getColumnIndexOrThrow(NoteEntry.COLUMN_ID)));
+        }
+
+    }
+
+    /**
      * Returns a cursor over all the notes in the database.
      * @param c the current context
      * @return A {@link android.database.Cursor} over all the notes
@@ -238,6 +258,28 @@ public class DbAccess {
                 projection,                     // SELECT
                 null,                           // Columns for WHERE
                 null,                           // Values for WHERE
+                null,                           // Group
+                null,                           // Filter by
+                null);                     // Sort Order
+    }
+
+    /**
+     * Returns a cursor over all the categories in the database. Does not include the default category.
+     * @param c the current context
+     * @return A {@link android.database.Cursor} over all the notes
+     */
+    public static Cursor getCategoriesWithoutDefault(Context c){
+        DbOpenHelper dbHelper = new DbOpenHelper(c);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {CategoryEntry.COLUMN_ID, CategoryEntry.COLUMN_NAME};
+        String selection = CategoryEntry.COLUMN_NAME + " != ?";
+        String[] selectionArgs = { c.getString(R.string.default_category) };
+
+        return db.query(CategoryEntry.TABLE_NAME,   // Table name
+                projection,                     // SELECT
+                selection,                      // Columns for WHERE
+                selectionArgs,                  // Values for WHERE
                 null,                           // Group
                 null,                           // Filter by
                 null);                     // Sort Order
