@@ -24,14 +24,14 @@
         </activity>
         <activity
             android:name=".TextNoteActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_textnote"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ChecklistNoteActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_checklistnote"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ManageCategoriesActivity"
             android:label="@string/title_manage_categories"
@@ -42,13 +42,17 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AudioNoteActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_audionote"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".HelpActivity"
+            android:title="@string/title_help"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
 
         <service android:name=".NotificationService" />
 

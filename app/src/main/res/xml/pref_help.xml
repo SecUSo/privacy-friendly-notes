@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/help_overview_heading">
+        <Preference
+            android:selectable="false"
+            android:persistent="false"
+            android:title=""
+            android:summary="@string/help_intro"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/help_privacy_heading">
+        <Preference
+            android:title="@string/help_perm_receive_boot_title"
+            android:summary="@string/help_perm_receive_boot_sum"
+            android:selectable="false" />
+        <Preference
+            android:title="@string/help_perm_record_audio_title"
+            android:summary="@string/help_perm_record_audio_sum"
+            android:selectable="false" />
+        <Preference
+            android:title="@string/help_perm_write_external_title"
+            android:summary="@string/help_perm_write_external_sum"
+            android:selectable="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -8,6 +8,7 @@
     <string name="title_checklistnote">Checklist Note</string>
     <string name="title_audionote">Audio Note</string>
     <string name="title_recycle_bin">Recycle Bin</string>
+    <string name="title_help">Help</string>
     <string name="title_about">About</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -18,6 +19,7 @@
     <string name="nav_manage_categories">Manage categories</string>
 
     <string name="action_sort_alphabetical">Sort alphabetical</string>
+    <string name="action_help">Help</string>
     <string name="action_about">About</string>
     <string name="action_reminder">Set reminder</string>
     <string name="action_reminder_edit">Edit reminder</string>
@@ -65,6 +67,17 @@
     <string name="fab_sketch">New sketch</string>
 
     <string name="note_standardname">Note %1s</string>
+
+    <string name="help_overview_heading">Overview</string>
+    <string name="help_intro">Welcome to the help page. This app lets you take and manage notes without compromising your privacy.</string>
+    <string name="help_privacy_heading">Privacy Info</string>
+    <string name="help_perm_receive_boot_title">RECEIVE BOOT COMPLETED</string>
+    <string name="help_perm_receive_boot_sum">is needed to reschedule the notifications after a reboot.</string>
+    <string name="help_perm_record_audio_title">RECORD AUDIO</string>
+    <string name="help_perm_record_audio_sum">is needed to record audio notes; if this is not granted, audio notes are unavailable.</string>
+    <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
+    <string name="help_perm_write_external_sum">is needed to save notes to the internal memory; if this is not granted, notes cannot be saved externally.</string>
+
 
     <string name="about_version_number">Version 1.0</string>
     <string name="about_author">Authors: </string>
