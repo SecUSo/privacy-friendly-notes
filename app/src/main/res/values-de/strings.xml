@@ -77,4 +77,9 @@
     <string name="dialog_help">Hilfe anzeigen</string>
     <string name="dialog_welcome_text">Wilkommen in der Privacy Friendly Notes App. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen. Der Quellcode ist auf GitHub verfügbar. Weitere Erklärungen finden Sie im Privacy Friendly App Guide.\n\nUm zu starten, klicken Sie einfach auf das \"Plus\" unten links.</string>
     <string name="dialog_welcome">Wilkommen</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="settings_general_heading">Allgemein</string>
+    <string name="settings_del_notes_title">Lösche Notizen einer Kategorie</string>
+    <string name="settings_del_notes_sum">Lösche die Notizen einer Kategorie, wenn diese gelöscht wird.</string>
 </resources>

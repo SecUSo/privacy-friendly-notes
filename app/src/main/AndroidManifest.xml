@@ -46,9 +46,13 @@
             android:label="@string/title_audionote"
             android:parentActivityName=".MainActivity" />
         <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/title_settings"/>
+        <activity
             android:name=".HelpActivity"
-            android:title="@string/title_help"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:label="@string/title_help" />
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_about"

@@ -1,6 +1,8 @@
 package org.secuso.privacyfriendlynotes;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -91,10 +93,15 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
     }
 
     private void deleteSelectedItems(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean delNotes = sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false);
         CursorAdapter adapter = (CursorAdapter) list.getAdapter();
         SparseBooleanArray checkedItemPositions = list.getCheckedItemPositions();
         for (int i=0; i < checkedItemPositions.size(); i++) {
             if(checkedItemPositions.valueAt(i)) {
+                if (delNotes) {
+                    DbAccess.trashNotesByCategoryId(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
+                }
                 DbAccess.deleteCategory(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
             }
         }

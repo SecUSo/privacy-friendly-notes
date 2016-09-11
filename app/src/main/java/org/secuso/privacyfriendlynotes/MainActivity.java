@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.CursorAdapter;
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
         SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
         if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
             WelcomeDialog welcomeDialog = new WelcomeDialog();
@@ -202,6 +204,8 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_help) {
             startActivity(new Intent(getApplication(), HelpActivity.class));
+        } else if (id == R.id.action_settings) {
+            startActivity(new Intent(getApplication(), SettingsActivity.class));
         } else if (id == R.id.action_about) {
             startActivity(new Intent(getApplication(), AboutActivity.class));
         }

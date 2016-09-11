@@ -140,7 +140,7 @@ public class DbAccess {
      * @param c the current context
      * @param cat_id the category id
      */
-    public static void deleteNotesByCategoryId(Context c, int cat_id) {
+    public static void trashNotesByCategoryId(Context c, int cat_id) {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -150,7 +150,9 @@ public class DbAccess {
         //Temporary save them
         Cursor cur = getCursorAllNotes(c, selection, selectionArgs);
         if (cur.getCount() > 0) {
-            deleteNote(c, cur.getInt(cur.getColumnIndexOrThrow(NoteEntry.COLUMN_ID)));
+            while(cur.moveToNext()) {
+                trashNote(c, cur.getInt(cur.getColumnIndexOrThrow(NoteEntry.COLUMN_ID)));
+            }
         }
 
     }
