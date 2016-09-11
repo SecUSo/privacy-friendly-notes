@@ -2,6 +2,7 @@ package org.secuso.privacyfriendlynotes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -24,10 +25,13 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import org.secuso.privacyfriendlynotes.fragments.WelcomeDialog;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final int CAT_ALL = -1;
+    private static final String TAG_WELCOME_DIALOG = "welcome_dialog";
     FloatingActionsMenu fabMenu;
 
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
@@ -150,6 +154,14 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
+        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
+            WelcomeDialog welcomeDialog = new WelcomeDialog();
+            welcomeDialog.show(getFragmentManager(), TAG_WELCOME_DIALOG);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, false);
+            editor.commit();
+        }
     }
 
     @Override

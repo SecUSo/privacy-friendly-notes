@@ -57,6 +57,9 @@
     <string name="dialog_restore_message">Do you want to restore or delete %1s?</string>
     <string name="dialog_need_category_title">No Categories</string>
     <string name="dialog_need_category_message">You need to create at least one category.\nDo you want to do that now?</string>
+    <string name="dialog_welcome">Welcome</string>
+    <string name="dialog_help">View Help</string>
+    <string name="dialog_welcome_text">Welcome to the Privacy Friendly Notes App. This App lets you create and manage notes without compromising your privacy. The sourcecode is available at GitHub. For further explanations have a look at the Privacy Friendly App Guide.\n\nTo get started, just click the \"plus\" on the main screen.</string>
 
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>

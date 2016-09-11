@@ -63,7 +63,7 @@
     <string name="about_author_contributors">und Beitragende.</string>
     <string name="note_standardname">Notiz %1s</string>
     <string name="action_help">Hilfe</string>
-    <string name="help_intro">Wilkommen auf der Hilfe Seite. Mit dieser App können sie Notizen erstellen und managen ohne ihre Privatsphäre zu beeinträchtigen.</string>
+    <string name="help_intro">Wilkommen auf der Hilfe Seite. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen.</string>
     <string name="help_overview_heading">Übersicht</string>
     <string name="title_help">Hilfe</string>
     <string name="help_privacy_heading">Privatsphäre</string>
@@ -74,4 +74,7 @@
     <string name="help_perm_write_external_title">Auf SD-Karte zugreifen</string>
     <string name="help_perm_write_external_sum">wird benötigt um Notizen zu exportieren; wird dies nicht gewährt, können Notizen nicht exportiert werden.</string>
     <string name="tv_category">Kategorie:</string>
+    <string name="dialog_help">Hilfe anzeigen</string>
+    <string name="dialog_welcome_text">Wilkommen in der Privacy Friendly Notes App. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen. Der Quellcode ist auf GitHub verfügbar. Weitere Erklärungen finden Sie im Privacy Friendly App Guide.\n\nUm zu starten, klicken Sie einfach auf das \"Plus\" unten links.</string>
+    <string name="dialog_welcome">Wilkommen</string>
 </resources>
