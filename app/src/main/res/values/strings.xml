@@ -68,6 +68,8 @@
 
     <string name="note_standardname">Note %1s</string>
 
+    <string name="tv_category">Category:</string>
+
     <string name="help_overview_heading">Overview</string>
     <string name="help_intro">Welcome to the help page. This app lets you take and manage notes without compromising your privacy.</string>
     <string name="help_privacy_heading">Privacy Info</string>
@@ -77,7 +79,6 @@
     <string name="help_perm_record_audio_sum">is needed to record audio notes; if this is not granted, audio notes are unavailable.</string>
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">is needed to save notes to the internal memory; if this is not granted, notes cannot be saved externally.</string>
-
 
     <string name="about_version_number">Version 1.0</string>
     <string name="about_author">Authors: </string>
