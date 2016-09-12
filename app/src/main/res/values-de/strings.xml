@@ -82,4 +82,8 @@
     <string name="settings_general_heading">Allgemein</string>
     <string name="settings_del_notes_title">Lösche Notizen einer Kategorie</string>
     <string name="settings_del_notes_sum">Lösche die Notizen einer Kategorie, wenn diese gelöscht wird.</string>
+    <string name="settings_font_size_title">Schriftgröße</string>
+    <string name="settings_font_size_sum">Hier klicken um die Schriftgröße auszuwählen.</string>
+    <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
+    <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
 </resources>
