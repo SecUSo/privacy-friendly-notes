@@ -56,7 +56,8 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".NotificationService" />
 
