@@ -26,10 +26,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -135,6 +139,45 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         }
         lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         lvItemList.setOnItemClickListener(this);
+        lvItemList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Inflate the menu for the CAB
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.checklist_cab, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Respond to clicks on the actions in the CAB
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
+                a.notifyDataSetChanged();
+
+            }
+        });
         lvItemList.setAdapter(new CheckListAdapter(getBaseContext(), R.layout.item_checklist, itemNamesList));
         //fill in values if update
         if (edit) {
@@ -560,5 +603,15 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         CheckListItem temp = (CheckListItem) a.getItem(position);
         temp.setChecked(!temp.isChecked());
         a.notifyDataSetChanged();
+    }
+
+    private void deleteSelectedItems(){
+        ArrayAdapter adapter = (ArrayAdapter) lvItemList.getAdapter();
+        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
+        for (int i=0; i < checkedItemPositions.size(); i++) {
+            if(checkedItemPositions.valueAt(i)) {
+                itemNamesList.remove(adapter.getItem(checkedItemPositions.keyAt(i)));
+            }
+        }
     }
 }

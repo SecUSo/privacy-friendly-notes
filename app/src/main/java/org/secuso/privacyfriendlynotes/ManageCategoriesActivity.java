@@ -17,12 +17,9 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
 public class ManageCategoriesActivity extends AppCompatActivity implements View.OnClickListener {
 
     ListView list;
-    ArrayList selectedIds = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +43,6 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 // Inflate the menu for the CAB
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.manage_cab, menu);
-                selectedIds.clear();
                 return true;
 
             }
