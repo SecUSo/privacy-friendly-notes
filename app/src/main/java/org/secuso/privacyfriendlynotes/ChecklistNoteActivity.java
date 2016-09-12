@@ -26,7 +26,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +44,8 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.secuso.privacyfriendlynotes.util.CheckListAdapter;
+import org.secuso.privacyfriendlynotes.util.CheckListItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
+public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
 
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
@@ -76,7 +77,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     Cursor noteCursor = null;
     Cursor notificationCursor = null;
 
-    private ArrayList<String> itemNamesList = new ArrayList<>();
+    private ArrayList<CheckListItem> itemNamesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,25 +133,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 }
             });
         }
-        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
-        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_SELECTED_MESSAGE, true)) {
-            new AlertDialog.Builder(ChecklistNoteActivity.this)
-                    .setTitle(getString(R.string.dialog_save_title))
-                    .setMessage(getString(R.string.dialog_save_message))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //do nothing
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .show();
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(Preferences.SP_DATA_DISPLAY_SELECTED_MESSAGE, false);
-            editor.commit();
-        }
-        lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        lvItemList.setAdapter(new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_multiple_choice, itemNamesList));
+        lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        lvItemList.setOnItemClickListener(this);
+        lvItemList.setAdapter(new CheckListAdapter(getBaseContext(), R.layout.item_checklist, itemNamesList));
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -161,13 +146,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 JSONArray content = new JSONArray(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
                 for (int i=0; i < content.length(); i++) {
                     JSONObject o = content.getJSONObject(i);
-                    itemNamesList.add(o.getString("name"));
+                    itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
                 }
                 ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
-                for (int i=0; i < content.length(); i++) {
-                    JSONObject o = content.getJSONObject(i);
-                    lvItemList.setItemChecked(i, o.getBoolean("checked"));
-                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -314,7 +295,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.btn_add:
                 if (!etNewItem.getText().toString().isEmpty()) {
-                    itemNamesList.add(etNewItem.getText().toString());
+                    itemNamesList.add(new CheckListItem(false, etNewItem.getText().toString()));
                     etNewItem.setText("");
                     ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
                 }
@@ -326,80 +307,41 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private void updateNote(){
         Adapter a = lvItemList.getAdapter();
         JSONArray jsonArray = new JSONArray();
-        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
 
-        if (checkedItemPositions.size() == 0) {
-            //no item is checked, just update it
-            try {
-                for (int i=0; i < itemNamesList.size(); i++) {
-                    String name = (String) a.getItem(i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("name", name);
-                    jsonObject.put("checked", false);
-                    jsonArray.put(jsonObject);
-                }
-                DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), jsonArray.toString(), currentCat);
-                Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            CheckListItem temp;
+            for (int i = 0; i < itemNamesList.size(); i++) {
+                temp = (CheckListItem) a.getItem(i);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("name", temp.getName());
+                jsonObject.put("checked", temp.isChecked());
+                jsonArray.put(jsonObject);
             }
-        } else {
-            try {
-                for (int i=0; i < itemNamesList.size(); i++) {
-                    String name = (String) a.getItem(i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("name", name);
-                    jsonObject.put("checked", checkedItemPositions.valueAt(i));
-                    if (!checkedItemPositions.valueAt(i)) {
-                        jsonArray.put(jsonObject);
-                    }
-                }
-                fillNameIfEmpty();
-                DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), jsonArray.toString(), currentCat);
-                Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            fillNameIfEmpty();
+            DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), jsonArray.toString(), currentCat);
+            Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void saveNote(){
         Adapter a = lvItemList.getAdapter();
         JSONArray jsonArray = new JSONArray();
-        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
-
-        if (checkedItemPositions.size() == 0) {
-            //no item is checked, just update it
-            try {
-                for (int i=0; i < itemNamesList.size(); i++) {
-                    String name = (String) a.getItem(i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("name", name);
-                    jsonObject.put("checked", false);
-                    jsonArray.put(jsonObject);
-                }
-                id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
-                Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            CheckListItem temp;
+            for (int i = 0; i < itemNamesList.size(); i++) {
+                temp = (CheckListItem) a.getItem(i);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("name", temp.getName());
+                jsonObject.put("checked", temp.isChecked());
+                jsonArray.put(jsonObject);
             }
-        } else {
-            try {
-                for (int i=0; i < itemNamesList.size(); i++) {
-                    String name = (String) a.getItem(i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("name", name);
-                    jsonObject.put("checked", checkedItemPositions.valueAt(i));
-                    if (!checkedItemPositions.valueAt(i)) {
-                        jsonArray.put(jsonObject);
-                    }
-                }
-                fillNameIfEmpty();
-                id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
-                Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            fillNameIfEmpty();
+            id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+            Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -603,18 +545,23 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private String getContentString(){
         StringBuilder content = new StringBuilder();
         Adapter a = lvItemList.getAdapter();
-        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
-        if (checkedItemPositions.size() == 0) {
-            for (int i=0; i < itemNamesList.size(); i++) {
-                String name = (String) a.getItem(i);
-                content.append(name + " [ ]\n");
-            }
-        } else {
-            for (int i=0; i < itemNamesList.size(); i++) {
-                String name = (String) a.getItem(i);
-                content.append("- " + name + " [" + (checkedItemPositions.valueAt(i) ? "x" : " ") + "]\n");
-            }
+
+        content.append(etName.getText().toString() + "\n\n");
+
+        CheckListItem temp;
+        for (int i=0; i < itemNamesList.size(); i++) {
+            temp = (CheckListItem) a.getItem(i);
+            content.append("- " + temp.getName() + "[" + (temp.isChecked() ? "x" : " ") + "]\n");
         }
         return content.toString();
+    }
+
+    //Click on a listitem
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
+        CheckListItem temp = (CheckListItem) a.getItem(position);
+        temp.setChecked(!temp.isChecked());
+        a.notifyDataSetChanged();
     }
 }
