@@ -545,9 +545,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private String getContentString(){
         StringBuilder content = new StringBuilder();
         Adapter a = lvItemList.getAdapter();
-
-        content.append(etName.getText().toString() + "\n\n");
-
         CheckListItem temp;
         for (int i=0; i < itemNamesList.size(); i++) {
             temp = (CheckListItem) a.getItem(i);
