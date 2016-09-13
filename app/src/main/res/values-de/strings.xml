@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Notes</string>
+    <string name="app_name">Notizen</string>
     <string name="action_about">Über</string>
     <string name="action_add">Hinzufügen</string>
     <string name="action_cancel">Abbruch</string>
@@ -9,7 +9,7 @@
     <string name="action_sort_alphabetical">Alphabetisch sortieren</string>
     <string name="action_reminder">Erinnerung setzen</string>
     <string name="action_save">Speichern</string>
-    <string name="app_name_long"></string>
+    <string name="app_name_long">Privacy Friendly Notizen</string>
     <string name="action_update">Speichern</string>
     <string name="default_category">Standard</string>
     <string name="dialog_delete_message">Wollen Sie %1s endgültig löschen?</string>
@@ -55,7 +55,6 @@
     <string name="action_share">Teilen</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version 1.0</string>
-    <string name="more_info">Mehr Informationen finden Sie unter: </string>
     <string name="title_about">Über</string>
     <string name="about_affiliation">In Zusammenarbeit mit</string>
     <string name="about_more_info">Mehr Informationen finden Sie unter:</string>
