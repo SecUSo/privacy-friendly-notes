@@ -661,8 +661,13 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private void saveToExternalStorage(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            File path = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            File path;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+                path = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            } else{
+                path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
+            }
             File file = new File(path, "/" + etName.getText().toString() + ".aac");
             try {
                 // Make sure the directory exists.

@@ -540,8 +540,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private void saveToExternalStorage(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            File path = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            File path;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+                path = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOCUMENTS), "/PrivacyFriendlyNotes");
+            } else{
+                path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
+            }
             File file = new File(path, "/checklist_" + etName.getText().toString() + ".txt");
             try {
                 // Make sure the directory exists.
@@ -608,10 +613,14 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private void deleteSelectedItems(){
         ArrayAdapter adapter = (ArrayAdapter) lvItemList.getAdapter();
         SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
+        ArrayList<CheckListItem> temp = new ArrayList<>();
         for (int i=0; i < checkedItemPositions.size(); i++) {
             if(checkedItemPositions.valueAt(i)) {
-                itemNamesList.remove(adapter.getItem(checkedItemPositions.keyAt(i)));
+                temp.add((CheckListItem) adapter.getItem(checkedItemPositions.keyAt(i)));
             }
+        }
+        if (temp.size() > 0) {
+            itemNamesList.removeAll(temp);
         }
     }
 }
