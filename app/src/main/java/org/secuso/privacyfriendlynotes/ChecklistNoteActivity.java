@@ -596,7 +596,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         CheckListItem temp;
         for (int i=0; i < itemNamesList.size(); i++) {
             temp = (CheckListItem) a.getItem(i);
-            content.append("- " + temp.getName() + "[" + (temp.isChecked() ? "x" : " ") + "]\n");
+            content.append("- " + temp.getName() + " [" + (temp.isChecked() ? "✓" : "   ") + "]\n");
         }
         return content.toString();
     }
