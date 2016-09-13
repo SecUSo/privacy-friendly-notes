@@ -12,6 +12,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -91,7 +93,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         drawView = (InkView) findViewById(R.id.draw_view);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
-        drawView.setColor(getResources().getColor(android.R.color.black));
+        drawView.setColor(getResources().getColor(android.R.color.holo_green_dark));
         drawView.setMinStrokeWidth(1.5f);
         drawView.setMaxStrokeWidth(6f);
 
@@ -299,17 +301,18 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void updateNote(){
         fillNameIfEmpty();
-        /*Bitmap bitmap = drawView.getBitmap();
+        Bitmap oldSketch = new BitmapDrawable(getResources(), mFilePath).getBitmap();
+        Bitmap newSketch = drawView.getBitmap();
         try {
             FileOutputStream fo = new FileOutputStream(new File(mFilePath));
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, fo);
+            overlay(oldSketch, newSketch).compress(Bitmap.CompressFormat.PNG, 0, fo);
             fo.flush();
             fo.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
         DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), mFileName, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
@@ -500,6 +503,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                     FileChannel destination = null;
                     try {
                         Bitmap bm = new BitmapDrawable(getResources(), mFilePath).getBitmap();
+
                         //source = new FileInputStream(new File(mFilePath)).getChannel();
                         //destination = new FileOutputStream(file).getChannel();
                         //destination.transferFrom(source, 0, source.size());
@@ -542,5 +546,13 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             mShareActionProvider.setShareIntent(sendIntent);
         }
+    }
+    //taken from http://stackoverflow.com/a/10616868
+    public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        canvas.drawBitmap(bmp2, 0, 0, null);
+        return bmOverlay;
     }
 }

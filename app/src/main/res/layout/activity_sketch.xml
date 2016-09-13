@@ -26,7 +26,9 @@
         <com.simplify.ink.InkView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/draw_view" />
+            android:id="@+id/draw_view"
+            android:background="@drawable/border"
+            android:padding="3dp"/>
     </LinearLayout>
 
     <include layout="@layout/bottom_line"></include>
