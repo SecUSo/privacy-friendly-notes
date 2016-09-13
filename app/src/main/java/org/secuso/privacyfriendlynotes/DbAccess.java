@@ -128,6 +128,8 @@ public class DbAccess {
         DbOpenHelper dbHelper = new DbOpenHelper(c);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+        //TODO delete the file for sketch and audio
+
         String selection = NoteEntry.COLUMN_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);

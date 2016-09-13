@@ -23,10 +23,10 @@
             android:singleLine="true"
             android:hint="@string/hint_name" />
 
-        <org.secuso.privacyfriendlynotes.views.DrawView
+        <com.simplify.ink.InkView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/draw_view"/>
+            android:id="@+id/draw_view" />
     </LinearLayout>
 
     <include layout="@layout/bottom_line"></include>

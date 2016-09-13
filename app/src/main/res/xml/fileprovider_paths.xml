@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <files-path name="audio_notes" path="audio_notes/"/>
+    <files-path name="sketches" path="sketches/"/>
 </paths>
