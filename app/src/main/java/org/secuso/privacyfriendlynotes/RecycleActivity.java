@@ -155,7 +155,10 @@ public class RecycleActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         DbAccess.deleteNote(getBaseContext(), id);
                         if (type == DbContract.NoteEntry.TYPE_AUDIO) {
-                            new File(getFilesDir().getPath()+content).delete();
+                            new File(getFilesDir().getPath()+"/audio_notes"+content).delete();
+                        } else if (type == DbContract.NoteEntry.TYPE_SKETCH) {
+                            new File(getFilesDir().getPath()+"/sketches"+content).delete();
+                            new File(getFilesDir().getPath()+"/sketches"+content.substring(0, content.length()-3) + "jpg").delete();
                         }
                         updateList();
                     }
@@ -184,8 +187,12 @@ public class RecycleActivity extends AppCompatActivity {
         c.moveToPosition(-1);
         while (c.moveToNext()){
             if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_AUDIO) {
-                String filePath = getFilesDir().getPath() + c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+                String filePath = getFilesDir().getPath()+"/audio_notes" + c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
                 new File(filePath).delete();
+            } else if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_SKETCH) {
+                String content = c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+                new File(getFilesDir().getPath()+"/sketches"+content).delete();
+                new File(getFilesDir().getPath()+"/sketches"+content.substring(0, content.length()-3) + "jpg").delete();
             }
             DbAccess.deleteNote(getBaseContext(), c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
         }
