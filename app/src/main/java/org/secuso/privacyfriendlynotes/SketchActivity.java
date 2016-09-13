@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
@@ -46,9 +47,7 @@ import android.widget.Toast;
 
 import com.simplify.ink.InkView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -319,7 +318,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void saveNote(){
         fillNameIfEmpty();
-        Bitmap bitmap = drawView.getBitmap(android.R.color.white);
+        Bitmap bitmap = drawView.getBitmap();
         try {
             FileOutputStream fo = new FileOutputStream(new File(mFilePath));
             bitmap.compress(Bitmap.CompressFormat.PNG, 0, fo);
@@ -499,19 +498,12 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
-                    FileChannel source = null;
-                    FileChannel destination = null;
-                    try {
-                        Bitmap bm = new BitmapDrawable(getResources(), mFilePath).getBitmap();
+                    Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+                    Canvas canvas = new Canvas(bm);
+                    canvas.drawColor(Color.WHITE);
+                    canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
 
-                        //source = new FileInputStream(new File(mFilePath)).getChannel();
-                        //destination = new FileOutputStream(file).getChannel();
-                        //destination.transferFrom(source, 0, source.size());
-                        bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
-                    } finally {
-                        //source.close();
-                        //destination.close();
-                    }
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
                     MediaScannerConnection.scanFile(this,
@@ -537,7 +529,19 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void setShareIntent(){
         if (mShareActionProvider != null) {
-            File sketchFile = new File(mFilePath);
+            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
+            File sketchFile = new File(tempPath);
+
+            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+            Canvas canvas = new Canvas(bm);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+            try {
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
             Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
