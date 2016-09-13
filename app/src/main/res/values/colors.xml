@@ -15,4 +15,30 @@
     <color name="black_semi_transparent">#B2000000</color>
     <color name="background">#e5e5e5</color>
     <color name="half_black">#808080</color>
+
+    <color name="red">#CC3300</color>
+
+    <!--Very good list: http://stackoverflow.com/a/32674486 -->
+    <array name="mdcolor_500">
+        <item name="red_500" type="color">#e51c23</item>
+        <item name="pink_500" type="color">#e91e63</item>
+        <item name="purple_500" type="color">#9c27b0</item>
+        <item name="deep_purple_500" type="color">#673ab7</item>
+        <item name="indigo_500" type="color">#3f51b5</item>
+        <item name="blue_500" type="color">#5677fc</item>
+        <item name="light_blue_500" type="color">#03a9f4</item>
+        <item name="cyan_500" type="color">#00bcd4</item>
+        <item name="teal_500" type="color">#009688</item>
+        <item name="green_500" type="color">#259b24</item>
+        <item name="light_green_500" type="color">#8bc34a</item>
+        <item name="lime_500" type="color">#cddc39</item>
+        <item name="yellow_500" type="color">#ffeb3b</item>
+        <item name="orange_500" type="color">#ff9800</item>
+        <item name="deep_orange_500" type="color">#ff5722</item>
+        <item name="brown_500" type="color">#795548</item>
+        <item name="grey_500" type="color">#9e9e9e</item>
+        <item name="blue_grey_500" type="color">#607d8b</item>
+        <item name="white1" type="color">@color/white</item>
+    </array>
+
 </resources>

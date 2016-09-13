@@ -26,5 +26,5 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.simplify:ink:0.2.2'
-    compile 'com.thebluealliance:spectrum:0.6.0'
+    compile 'petrov.kristiyan.colorpicker:colorpicker-library:1.1.0'
 }

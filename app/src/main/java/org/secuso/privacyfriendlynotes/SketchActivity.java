@@ -19,6 +19,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -29,7 +30,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.Menu;
@@ -51,9 +51,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
+
+import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -62,6 +63,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     EditText etName;
     InkView drawView;
+    Button btnColorSelector;
     Spinner spinner;
 
     private ShareActionProvider mShareActionProvider = null;
@@ -90,9 +92,11 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
         etName = (EditText) findViewById(R.id.etName);
         drawView = (InkView) findViewById(R.id.draw_view);
+        btnColorSelector = (Button) findViewById(R.id.btn_color_selector);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
-        drawView.setColor(getResources().getColor(android.R.color.holo_green_dark));
+        btnColorSelector.setOnClickListener(this);
+        drawView.setColor(Color.BLACK);
         drawView.setMinStrokeWidth(1.5f);
         drawView.setMaxStrokeWidth(6f);
 
@@ -294,6 +298,9 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 shouldSave = true; //safe on exit
                 finish();
                 break;
+            case R.id.btn_color_selector:
+                displayColorDialog();
+                break;
             default:
         }
     }
@@ -390,6 +397,20 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             DbAccess.trashNote(getBaseContext(), id);
             finish();
         }
+    }
+
+    private void displayColorDialog() {
+        new ColorPicker(this)
+                .setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+                    @Override
+                    public void setOnFastChooseColorListener(int position, int color) {
+                        drawView.setColor(color);
+                        btnColorSelector.setBackgroundColor(color);
+                    }
+                })
+                .setColors(R.array.mdcolor_500)
+                .setTitle("")
+                .show();
     }
 
     @Override
