@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -13,12 +15,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        notesList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         notesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -157,6 +163,55 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        notesList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                //do nothing
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Inflate the menu for the CAB
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.main_cab, menu);
+                //Temporary fix, otherwise statusbar would be black
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+                    // or Color.TRANSPARENT or your preferred color
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Respond to clicks on the actions in the CAB
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                //Temporary fix, otherwise statusbar would be black
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    getWindow().setStatusBarColor(Color.TRANSPARENT);
+                    // or Color.TRANSPARENT or your preferred color
+                }
+                updateList();
+            }
+        });
+
+
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
         SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
         if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
@@ -304,6 +359,17 @@ public class MainActivity extends AppCompatActivity
             String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ? AND " + DbContract.NoteEntry.COLUMN_TRASH + " = ?";
             String[] selectionArgs = { String.valueOf(selectedCategory), "0" };
             adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext(), selection, selectionArgs));
+        }
+    }
+
+    private void deleteSelectedItems(){
+        ListView notesList = (ListView) findViewById(R.id.notes_list);
+        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
+        SparseBooleanArray checkedItemPositions = notesList.getCheckedItemPositions();
+        for (int i=0; i < checkedItemPositions.size(); i++) {
+            if(checkedItemPositions.valueAt(i)) {
+                DbAccess.trashNote(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
+            }
         }
     }
 }
