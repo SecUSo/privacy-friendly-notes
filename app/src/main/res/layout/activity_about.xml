@@ -121,5 +121,15 @@
             android:layout_gravity="center_horizontal"
             android:autoLink="web"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:autoLink="web"
+            android:gravity="center_horizontal"
+            android:text="@string/about_github"
+            android:textStyle="bold" />
+
+
     </LinearLayout>
 </ScrollView>
