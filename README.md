@@ -16,7 +16,7 @@ This app belongs to the group of Privacy Friendly Apps developed by the Technisc
 
 Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.
 
-Privacy Friendly Apps are group of Android applications which are optimized regarding privacy. Further information can be found in the [PFA guide] (https://www.secuso.informatik.tu-darmstadt.de/de/secuso/forschung/ergebnisse/privacy-friendly-apps/).
+Privacy Friendly Apps are group of Android applications which are optimized regarding privacy. Further information can be found in the [PFA guide] (https://secuso.org/pfa).
 
 ## Download and more Information
 
@@ -53,6 +53,9 @@ This app uses icons licensed under the [CC BY 2.5] (http://creativecommons.org/l
 
 Github-Users: <br />
 Rdlgrmpf <br />
+
+App-Icon: <br />
+Markus Hau <br />
 
 Libraries: <br>
 https://github.com/futuresimple/android-floating-action-button <br>
