@@ -116,16 +116,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/about_secuso_website"
             android:text="@string/about_url"
             android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:autoLink="web"/>
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/about_github_url"
             android:layout_gravity="center_horizontal"
-            android:autoLink="web"
             android:gravity="center_horizontal"
             android:text="@string/about_github"
             android:textStyle="bold" />
