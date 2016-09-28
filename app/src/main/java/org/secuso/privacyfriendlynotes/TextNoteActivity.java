@@ -307,7 +307,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                         finish();
                     }
                 })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(TextNoteActivity.this, ManageCategoriesActivity.class));
@@ -324,7 +324,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             new AlertDialog.Builder(TextNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;
@@ -355,7 +355,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                         //do nothing
                     }
                 })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         shouldSave = false;

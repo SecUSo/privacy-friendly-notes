@@ -522,7 +522,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                         finish();
                     }
                 })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(AudioNoteActivity.this, ManageCategoriesActivity.class));
@@ -539,7 +539,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             new AlertDialog.Builder(AudioNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;

@@ -409,7 +409,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         finish();
                     }
                 })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(ChecklistNoteActivity.this, ManageCategoriesActivity.class));
@@ -426,7 +426,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             new AlertDialog.Builder(ChecklistNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;

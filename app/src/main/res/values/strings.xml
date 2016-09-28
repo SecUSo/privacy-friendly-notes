@@ -63,6 +63,7 @@
     <string name="dialog_welcome">Welcome</string>
     <string name="dialog_help">View Help</string>
     <string name="dialog_welcome_text">With this app you can create and share notes in the form of text, checklists, memos and sketches.</string>
+    <string name="dialog_ok" translatable="false">OKAY</string>
 
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>

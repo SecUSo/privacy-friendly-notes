@@ -30,7 +30,7 @@ public class WelcomeDialog extends DialogFragment {
         builder.setView(i.inflate(R.layout.fragment_welcome_dialog, null));
         builder.setIcon(R.mipmap.ic_drawer);
         builder.setTitle(getActivity().getString(R.string.dialog_welcome));
-        builder.setPositiveButton(getActivity().getString(android.R.string.yes), null);
+        builder.setPositiveButton(getActivity().getString(R.string.dialog_ok), null);
         builder.setNegativeButton(getActivity().getString(R.string.dialog_help), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

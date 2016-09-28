@@ -362,7 +362,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                         finish();
                     }
                 })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(SketchActivity.this, ManageCategoriesActivity.class));
@@ -379,7 +379,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             new AlertDialog.Builder(SketchActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;
