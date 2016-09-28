@@ -1,11 +1,14 @@
 package org.secuso.privacyfriendlynotes;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -14,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -70,6 +74,32 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 updateList();
             }
         });
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                CursorAdapter adapter = (CursorAdapter) list.getAdapter();
+                Cursor cursor = adapter.getCursor();
+                cursor.moveToPosition(position);
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
+                new AlertDialog.Builder(ManageCategoriesActivity.this)
+                        .setTitle(String.format(getString(R.string.dialog_delete_title), name))
+                        .setMessage(String.format(getString(R.string.dialog_delete_message), name))
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do nothing
+                            }
+                        })
+                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteItem(position);
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
     }
 
     @Override
@@ -86,6 +116,17 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 updateList();
                 break;
         }
+    }
+
+    private void deleteItem(int position) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean delNotes = sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false);
+        CursorAdapter adapter = (CursorAdapter) list.getAdapter();
+        if (delNotes) {
+            DbAccess.trashNotesByCategoryId(getBaseContext(), (int) (long) adapter.getItemId(position));
+        }
+        DbAccess.deleteCategory(getBaseContext(), (int) (long) adapter.getItemId(position));
+        updateList();
     }
 
     private void deleteSelectedItems(){
