@@ -56,7 +56,7 @@ public class NotificationService extends IntentService {
 
             PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getBaseContext());
-            mBuilder.setSmallIcon(R.mipmap.ic_launcher)
+            mBuilder.setSmallIcon(R.mipmap.ic_notification)
                     .setContentTitle(name)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true);
