@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -112,6 +113,11 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         edit = (id != -1);
 
         SimpleCursorAdapter adapter = null;
+        // Should we set a custom font size?
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
+            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+        }
 
         //CategorySpinner
         Cursor c = DbAccess.getCategories(getBaseContext());

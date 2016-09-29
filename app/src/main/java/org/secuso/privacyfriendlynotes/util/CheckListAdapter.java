@@ -1,6 +1,8 @@
 package org.secuso.privacyfriendlynotes.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.SettingsActivity;
 
 import java.util.List;
 
@@ -39,6 +42,11 @@ public class CheckListAdapter extends ArrayAdapter <CheckListItem> {
 
             checkBox.setChecked(item.isChecked());
             textView.setText(item.getName());
+            // Should we set a custom font size?
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+            if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
+                textView.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+            }
         }
 
         return v;
