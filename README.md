@@ -1,4 +1,3 @@
-
 ## Privacy Friendly Notes
 
 This app lets you create and manage notes. Currently it supports four types of notes:
@@ -16,18 +15,16 @@ This app belongs to the group of Privacy Friendly Apps developed by the Technisc
 
 Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.
 
-Privacy Friendly Apps are group of Android applications which are optimized regarding privacy. Further information can be found in the [PFA guide] (https://secuso.org/pfa).
+Privacy Friendly Apps are group of Android applications which are optimized regarding privacy. Further information can be found in the [here] (https://secuso.org/pfa).
 
 ## Download and more Information
 
-Further development requires Android Studio, we recommend to use at least version 2.1.2
+Further development requires Android Studio, we recommend to use at least version 2.2.2
  
 ### API Reference
 
-Mininum SDK: 16
-Target SDK: 23
-
-
+Mininum SDK: 17
+Target SDK: 25
 
 ## License
 
@@ -47,17 +44,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-This app uses icons licensed under the [CC BY 2.5] (http://creativecommons.org/licenses/by/2.5/). In addition, the app uses icons from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. All other images (the logo of Privacy Friendly Apps, the SECUSO logo and the header in the navigation drawer) copyright [Technische Universtität Darmstadt] (www.tu-darmstadt.de) (2016).
+This app uses icons licensed under the [CC BY 2.5] (http://creativecommons.org/licenses/by/2.5/). In addition, the app uses icons from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. All other images (the logo of Privacy Friendly Apps, the SECUSO logo and the splash icon) copyright [Technische Universtität Darmstadt] (www.tu-darmstadt.de) (2016).
 
 ## Contributors
-
-Github-Users: <br />
-Rdlgrmpf <br />
 
 App-Icon: <br />
 Markus Hau <br />
 
-Libraries: <br>
-https://github.com/futuresimple/android-floating-action-button <br>
-https://github.com/kristiyanP/colorpicker <br>
-https://github.com/simplifycom/ink-android
+Github-Users: <br />
+Rdlgrmpf <br />
+Yonjuni
+
