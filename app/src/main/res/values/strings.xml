@@ -95,7 +95,7 @@
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">is needed to save notes to the internal memory; if this is not granted, notes cannot be saved externally.</string>
 
-    <string name="about_version_number">Version 1.0</string>
+    <string name="about_version_number">Version 1.0.1</string>
     <string name="about_author">Authors: </string>
     <string name="about_author_names" translatable="false">Robin Morawetz</string>
     <string name="about_author_contributors">and contributors.</string>
