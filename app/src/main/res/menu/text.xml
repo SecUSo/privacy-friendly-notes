@@ -18,7 +18,7 @@
         android:id="@+id/action_save"
         android:orderInCategory="50"
         android:title="@string/action_save"
-        android:icon="@drawable/ic_save_white_24dp"
+        android:icon="@drawable/ic_import_export_black_24dp"
         app:showAsAction="ifRoom"/>
 
 </menu>
