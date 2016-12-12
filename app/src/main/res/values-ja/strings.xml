@@ -1,0 +1,104 @@
+<resources>
+    <string name="app_name">Notes</string>
+    <string name="app_name_long">Privacy Friendly Notes</string>
+    <string name="default_category">デフォルト</string>
+
+    <string name="title_manage_categories">カテゴリー</string>
+    <string name="title_textnote">テキスト メモ</string>
+    <string name="title_checklistnote">チェックリスト メモ</string>
+    <string name="title_audionote">オーディオ メモ</string>
+    <string name="title_sketchnote">スケッチ メモ</string>
+    <string name="title_recycle_bin">ゴミ箱</string>
+    <string name="title_settings">設定</string>
+    <string name="title_help">ヘルプ</string>
+    <string name="title_about">アプリについて</string>
+
+    <string name="navigation_drawer_open">ナビゲーションドロワーを開く</string>
+    <string name="navigation_drawer_close">ナビゲーションドロワーを閉じる</string>
+
+    <string name="nav_all">すべてのメモ</string>
+    <string name="nav_trash">ゴミ箱</string>
+    <string name="nav_manage_categories">カテゴリーの管理</string>
+
+    <string name="action_sort_alphabetical">アルファベット順に並び替え</string>
+    <string name="action_settings">設定</string>
+    <string name="action_help">ヘルプ</string>
+    <string name="action_about">アプリについて</string>
+    <string name="action_reminder">リマインダーを設定</string>
+    <string name="action_reminder_edit">リマインダーを編集</string>
+    <string name="action_reminder_delete">リマインダーを削除</string>
+
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_delete">削除</string>
+    <string name="action_delete_all">すべて削除</string>
+    <string name="action_save">保存</string>
+    <string name="action_update">更新</string>
+    <string name="action_add">追加</string>
+    <string name="action_share">共有</string>
+
+    <string name="hint_name">名前</string>
+    <string name="hint_note">複数行\nメモ</string>
+    <string name="hint_new_item">新しいアイテム</string>
+
+    <string name="toast_canceled">保存せずにキャンセルしました</string>
+    <string name="toast_saved">メモを保存しました</string>
+    <string name="toast_updated">メモを更新しました</string>
+    <string name="toast_category_exists">カテゴリーがすでに存在します</string>
+    <string name="toast_alarm_scheduled">%1s のアラームをスケジュールしました</string>
+    <string name="toast_need_permission_audio">この機能はマイクを使用するアクセス許可が必要です</string>
+    <string name="toast_need_permission_write_external">この機能は外部ストレージの書き込みアクセス許可が必要です</string>
+    <string name="toast_external_storage_not_mounted">エラー: 外部ストレージに書き込みできません</string>
+    <string name="toast_file_exported_to">%1s にメモをエクスポートしました</string>
+
+    <string name="dialog_delete_title">%1s を削除しますか?</string>
+    <string name="dialog_delete_message">%1s を削除してもよろしいですか?</string>
+    <string name="dialog_trash_title">ゴミ箱に移動しています</string>
+    <string name="dialog_trash_message">メモはゴミ箱に移動されます。 そこから復元したり永久に削除することができます。 通知は復元できません。</string>
+    <string name="dialog_save_title">選択したアイテムを削除しています。</string>
+    <string name="dialog_save_message">メモを更新または保存する際にチェックしたアイテムは削除されます。</string>
+    <string name="dialog_restore_title">%1s を復元または削除しますか?</string>
+    <string name="dialog_restore_message">%1s を復元または削除してもよろしいですか?</string>
+    <string name="dialog_need_category_title">カテゴリーなし</string>
+    <string name="dialog_need_category_message">カテゴリーを少なくとも一つ作成する必要があります。\n今すぐ行いますか?</string>
+    <string name="dialog_welcome">ようこそ</string>
+    <string name="dialog_help">ヘルプを表示</string>
+    <string name="dialog_welcome_text">このアプリで、テキスト、チェックリスト、メモ、スケッチの形式でメモを作成および共有することができます。</string>
+
+    <string name="dialog_option_delete">削除</string>
+    <string name="dialog_option_restore">復元</string>
+
+    <string name="fab_text">新しいテキスト</string>
+    <string name="fab_audio">新しいオーディオ</string>
+    <string name="fab_checklist">新しいチェックリスト</string>
+    <string name="fab_sketch">新しいスケッチ</string>
+
+    <string name="note_standardname">メモ %1s</string>
+
+    <string name="tv_category">カテゴリー:</string>
+
+    <string name="settings_general_heading">全般</string>
+    <string name="settings_del_notes_title">カテゴリーのメモを削除</string>
+    <string name="settings_del_notes_sum">削除するカテゴリー内のメモも削除されます。</string>
+    <string name="settings_use_custom_font_size_title">カスタムフォントサイズ</string>
+    <string name="settings_use_custom_font_size_sum">テキストメモエディターでカスタムフォントサイズを使用します。</string>
+    <string name="settings_font_size_title">フォントサイズ</string>
+    <string name="settings_font_size_sum">ここをクリックしてフォントサイズを選択します。</string>
+
+    <string name="help_overview_heading">概要</string>
+    <string name="help_intro">ヘルプページにようこそ。 このアプリは、プライバシーを損なうことなくメモを取ったり管理したりできます。</string>
+    <string name="help_privacy_heading">プライバシー情報</string>
+    <string name="help_perm_receive_boot_title">RECEIVE BOOT COMPLETED</string>
+    <string name="help_perm_receive_boot_sum">起動完了の受信は、再起動後に通知を再スケジュールするために必要です。</string>
+    <string name="help_perm_record_audio_title">RECORD AUDIO</string>
+    <string name="help_perm_record_audio_sum">オーディオの録音は、オーディオメモを録音するために必要です。 これが許可されていないと、オーディオメモは利用できません。</string>
+    <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
+    <string name="help_perm_write_external_sum">外部ストレージの書き込みは、メモを外部メモリに保存するために必要です。 これが許可されていないと、メモを外部に保存することはできません。</string>
+
+    <string name="about_version_number">バージョン 1.0</string>
+    <string name="about_author">作者: </string>
+    <string name="about_author_contributors">および貢献者。</string>
+    <string name="about_affiliation">提携</string>
+    <string name="about_privacy_friendly">このアプリケーションは、ダルムシュタット工科大学 (Technische Universität Darmstadt, Germany) が開発したプライバシーフレンドリーアプリのグループに属しています。ソースコードは GPLv3 の下でライセンスされます。画像の著作権は TU Darmstadt および Google Inc.</string>
+    <string name="about_more_info">さらに詳しい情報は以下でご覧ください:</string>
+
+</resources>
