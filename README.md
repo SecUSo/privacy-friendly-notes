@@ -19,7 +19,7 @@ Privacy Friendly Apps are group of Android applications which are optimized rega
 
 ## Download and more Information
 
-[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="60">](https://f-droid.org/repository/browse/?fdid=org.secuso.privacyfriendlynotes)
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="60">](https://f-droid.org/repository/browse/?fdid=org.secuso.privacyfriendlynotes)<a href="https://play.google.com/store/apps/details?id=org.secuso.privacyfriendlynotes"><img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="60"></a>
 
 ### Building
 
