@@ -209,6 +209,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (id == R.id.action_reminder) {
             //open the schedule dialog
             final Calendar c = Calendar.getInstance();
+
+            //fill the notificationCursor
+            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), this.id);
+            hasAlarm = notificationCursor.moveToFirst();
+            if (hasAlarm) {
+                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
+            }
+
             if (hasAlarm) {
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));

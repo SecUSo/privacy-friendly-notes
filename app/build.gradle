@@ -2,14 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "org.secuso.privacyfriendlynotes"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
     }
     buildTypes {
         release {
@@ -20,11 +19,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.getbase:floatingactionbutton:1.10.1'
-    compile 'com.simplify:ink:0.2.2'
-    compile 'petrov.kristiyan.colorpicker:colorpicker-library:1.1.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:25.0.1'
+    implementation 'com.android.support:design:25.0.1'
+    implementation 'com.getbase:floatingactionbutton:1.10.1'
+    implementation 'com.simplify:ink:0.2.2'
+    implementation 'petrov.kristiyan.colorpicker:colorpicker-library:1.1.0'
 }
