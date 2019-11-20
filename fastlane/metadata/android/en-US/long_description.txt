@@ -1,0 +1,23 @@
+Privacy Friendly Notes allows you to take and manage notes on Android devices. It belongs to the Privacy Friendly Apps group developed by the research group SECUSO at Technische Universität Darmstadt. More information can be found an secuso.org/pfa
+
+The following four types of notes are available:
+1. Simple text notes
+2. Checklist notes
+3. Audio notes
+4. Sketchnotes
+
+Furthermore, the notes can be grouped into categories, reminders can be assigned to notes and the notes can be exported to the device storage.
+
+How does Privacy Friendly Notes from other similar apps?
+
+1. Minimal Permissions
+The permission "RECORD_AUDIO" (Category "Mikrofon") is required to record audio notes. In case this permission is not granted by the user (in Android versions higher than 6) it will not be possible to record audio notes.
+
+"WRITE_EXTERNAL_STORAGE" (Category "Speicher") is used to export notes to the device storage. In case this permission is not granted by the user (in Android versions higher than 6) it will not be possible to export notes.
+
+Beside the permissions above the permission “RECEIVE_BOOT_COMPLETED” (Category “Normal/non-critical”) is required to reschedule notifications after a reboot. This permission cannot be modified by the user.
+
+For comparison: The Top Ten of similar apps from the Google Play Store , die im Google Play Store requires an average of 11,7 permissions (in December 2016). These are for instance the location permission or the permissions to access, modify or delete storage.
+
+2. No advertisement
+Moreover, Privacy Friendly Password Generator distinguishes from many other weather applications in the way that it completely relinquishes advertisements. Advertisement might track a user's actions. It could also shorten battery life or use mobile data.
