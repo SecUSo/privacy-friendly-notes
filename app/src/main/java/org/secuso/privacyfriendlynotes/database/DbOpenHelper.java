@@ -1,8 +1,10 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import org.secuso.privacyfriendlynotes.R;
 
 /**
  * Created by Robin on 11.06.2016.

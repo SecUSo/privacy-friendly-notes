@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -11,51 +11,84 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.MenuItemCompat;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import org.secuso.privacyfriendlynotes.database.DbAccess;
+import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.service.NotificationService;
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
+import org.secuso.privacyfriendlynotes.R;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
+public class AudioNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
 
-    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
+    private static final int REQUEST_CODE_AUDIO = 1;
+    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 2;
 
     EditText etName;
-    EditText etContent;
+    ImageButton btnPlayPause;
+    ImageButton btnRecord;
+    TextView tvRecordingTime;
+    SeekBar seekBar;
     Spinner spinner;
 
     private ShareActionProvider mShareActionProvider = null;
+
+    private MediaRecorder mRecorder = null;
+    private MediaPlayer mPlayer = null;
+    private Handler mHandler = new Handler();
+    private String mFileName = "finde_die_datei.mp4";
+    private String mFilePath;
+    private boolean recording = false;
+    private boolean playing = false;
+    private long startTime = System.currentTimeMillis();
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -71,14 +104,59 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_note);
+        setContentView(R.layout.activity_audio_note);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
-        etContent = (EditText) findViewById(R.id.etContent);
+        btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
+        seekBar = (SeekBar) findViewById(R.id.seekbar);
+        btnRecord = (ImageButton) findViewById(R.id.btn_record);
+        tvRecordingTime = (TextView) findViewById(R.id.recording_time);
         spinner = (Spinner) findViewById(R.id.spinner_category);
+
+        findViewById(R.id.btn_record).setOnClickListener(this);
+        btnPlayPause.setOnClickListener(this);
+
+        if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
+                    Manifest.permission.RECORD_AUDIO)) {
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        REQUEST_CODE_AUDIO);
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        REQUEST_CODE_AUDIO);
+            }
+        }
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mPlayer != null && fromUser) {
+                    mPlayer.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         loadActivity(true);
 
@@ -96,7 +174,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etContent.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
         }
 
@@ -129,7 +206,11 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             noteCursor = DbAccess.getNote(getBaseContext(), id);
             noteCursor.moveToFirst();
             etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
-            etContent.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
+            mFileName = noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
+            btnPlayPause.setVisibility(View.VISIBLE);
+            btnRecord.setVisibility(View.INVISIBLE);
+            tvRecordingTime.setVisibility(View.INVISIBLE);
             //find the current category and set spinner to that
             currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
 
@@ -150,6 +231,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
+            mFileName = "/recording_" + System.currentTimeMillis() + ".aac";
+            mFilePath = getFilesDir().getPath() + "/audio_notes";
+            new File(mFilePath).mkdirs(); //ensure that the file exists
+            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
+            seekBar.setEnabled(false);
+            tvRecordingTime.setVisibility(View.VISIBLE);
+            shouldSave = false; // will be set to true, once we have a recording
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -160,11 +248,15 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave) {
+        if (shouldSave ) {
             if (edit) {
                 updateNote();
             } else {
                 saveNote();
+            }
+        } else {
+            if(!edit) {
+                new File(mFilePath).delete();
             }
         }
     }
@@ -176,10 +268,23 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus) {
+            if (recording) {
+                stopRecording();
+                finish();
+            } else if (playing) {
+                pausePlaying();
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
-            getMenuInflater().inflate(R.menu.text, menu);
+            getMenuInflater().inflate(R.menu.audio, menu);
             MenuItem item = menu.findItem(R.id.action_share);
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
             setShareIntent();
@@ -229,27 +334,27 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+                DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
                 dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
             }
             return true;
         } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
+            if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
+                if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     // Show an expanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 } else {
                     // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 }
@@ -279,35 +384,157 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 shouldSave = true; //safe on exit
                 finish();
                 break;
+            case R.id.btn_record:
+                if (!recording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+                break;
+            case R.id.btn_play_pause:
+                if (!playing) {
+                    startPlaying();
+                } else {
+                    pausePlaying();
+                }
+                break;
             default:
+        }
+    }
+
+    private void startRecording() {
+        recording = true;
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+        mRecorder.setOutputFile(mFilePath);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        try {
+            mRecorder.prepare();
+            final Animation animation = new AlphaAnimation(1, (float)0.5); // Change alpha from fully visible to invisible
+            animation.setDuration(500); // duration - half a second
+            animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+            animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+            animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+            btnRecord.startAnimation(animation);
+            startTime = System.currentTimeMillis();
+            AudioNoteActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecorder != null) {
+                        long time = System.currentTimeMillis() - startTime;
+                        int seconds = (int) time / 1000;
+                        int minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        tvRecordingTime.setText(String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+                        mHandler.postDelayed(this, 100);
+                    }
+                }
+            });
+
+            mRecorder.start();
+        } catch (IOException e) {
+            recording = false;
+            e.printStackTrace();
+        }
+    }
+
+    private void stopRecording() {
+        Log.d("LALALA", "Stopped recording");
+        mRecorder.stop();
+        mRecorder.release();
+        btnRecord.clearAnimation();
+        mRecorder = null;
+        recording = false;
+        recordingFinished();
+    }
+
+    private void startPlaying() {
+        playing = true;
+        if (mPlayer == null) {
+            mPlayer = new MediaPlayer();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            try {
+                mPlayer.setDataSource(mFilePath);
+                mPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                playing = false;
+                togglePlayPauseButton();
+                seekBar.setProgress(0);
+                mPlayer.release();
+                mPlayer = null;
+            }
+        });
+
+        togglePlayPauseButton();
+        seekBar.setMax(mPlayer.getDuration());
+        AudioNoteActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mPlayer != null) {
+                    seekBar.setProgress(mPlayer.getCurrentPosition());
+                    mHandler.postDelayed(this, 100);
+                }
+            }
+        });
+        mPlayer.start();
+    }
+
+    private void pausePlaying() {
+        playing = false;
+        togglePlayPauseButton();
+        try {
+            mPlayer.pause();
+        } catch (RuntimeException stopException) {
+        }
+    }
+
+    private void recordingFinished() {
+        shouldSave = true;
+        btnRecord.setVisibility(View.INVISIBLE);
+        btnPlayPause.setVisibility(View.VISIBLE);
+        seekBar.setEnabled(true);
+    }
+
+    private void togglePlayPauseButton(){
+        if (playing) {
+            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_black_24dp);
+        } else {
+            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
         }
     }
 
     private void updateNote(){
         fillNameIfEmpty();
-        DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), etContent.getText().toString(), currentCat);
+        DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), mFileName, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
         fillNameIfEmpty();
-        id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
+        id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), mFileName, DbContract.NoteEntry.TYPE_AUDIO, currentCat);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
     private void fillNameIfEmpty(){
         if (etName.getText().toString().isEmpty()) {
-            SharedPreferences sp = getSharedPreferences(Preferences.SP_VALUES, Context.MODE_PRIVATE);
-            int counter = sp.getInt(Preferences.SP_VALUES_NAMECOUNTER, 1);
+            SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_VALUES, Context.MODE_PRIVATE);
+            int counter = sp.getInt(PreferenceKeys.SP_VALUES_NAMECOUNTER, 1);
             etName.setText(String.format(getString(R.string.note_standardname), counter));
             SharedPreferences.Editor editor = sp.edit();
-            editor.putInt(Preferences.SP_VALUES_NAMECOUNTER, counter+1);
+            editor.putInt(PreferenceKeys.SP_VALUES_NAMECOUNTER, counter+1);
             editor.commit();
         }
     }
 
     private void displayCategoryDialog() {
-        new AlertDialog.Builder(TextNoteActivity.this)
+        new AlertDialog.Builder(AudioNoteActivity.this)
                 .setTitle(getString(R.string.dialog_need_category_title))
                 .setMessage(getString(R.string.dialog_need_category_message))
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -319,7 +546,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(TextNoteActivity.this, ManageCategoriesActivity.class));
+                        startActivity(new Intent(AudioNoteActivity.this, ManageCategoriesActivity.class));
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -327,10 +554,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void displayTrashDialog() {
-        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
-        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
+        SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
+        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
-            new AlertDialog.Builder(TextNoteActivity.this)
+            new AlertDialog.Builder(AudioNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
@@ -344,36 +571,35 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
             SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
             editor.commit();
         } else {
             shouldSave = false;
             DbAccess.trashNote(getBaseContext(), id);
             finish();
         }
-
     }
 
-    private void displayDeleteDialog() {
-        new AlertDialog.Builder(TextNoteActivity.this)
-                .setTitle(String.format(getString(R.string.dialog_delete_title), etName.getText().toString()))
-                .setMessage(String.format(getString(R.string.dialog_delete_message), etName.getText().toString()))
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                })
-                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        shouldSave = false;
-                        DbAccess.trashNote(getBaseContext(), id);
-                        finish();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_AUDIO:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Do nothing. App should work
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_audio, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+            case REQUEST_CODE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Save the file
+                    saveToExternalStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 
     @Override
@@ -385,7 +611,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (hasAlarm) {
             c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
         }
-        TimePickerDialog tpd = new TimePickerDialog(TextNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
+        TimePickerDialog tpd = new TimePickerDialog(AudioNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
     }
 
@@ -442,7 +668,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+            DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
             dpd.getDatePicker().setMinDate(new Date().getTime());
             dpd.show();
             return true;
@@ -451,20 +677,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Save the file
-                    saveToExternalStorage();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
     }
 
     private void saveToExternalStorage(){
@@ -477,18 +689,21 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             } else{
                 path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
             }
-
-            File file = new File(path, "/text_" + etName.getText().toString() + ".txt");
+            File file = new File(path, "/" + etName.getText().toString() + ".aac");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
-
-                    PrintWriter out = new PrintWriter(file);
-                    out.println(etName.getText().toString());
-                    out.println();
-                    out.println(etContent.getText().toString());
-                    out.close();
+                    FileChannel source = null;
+                    FileChannel destination = null;
+                    try {
+                        source = new FileInputStream(new File(mFilePath)).getChannel();
+                        destination = new FileOutputStream(file).getChannel();
+                        destination.transferFrom(source, 0, source.size());
+                    } finally {
+                        source.close();
+                        destination.close();
+                    }
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
                     MediaScannerConnection.scanFile(this,
@@ -514,10 +729,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void setShareIntent(){
         if (mShareActionProvider != null) {
+            File audioFile = new File(mFilePath);
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
+            sendIntent.setType("audio/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             mShareActionProvider.setShareIntent(sendIntent);
         }
     }

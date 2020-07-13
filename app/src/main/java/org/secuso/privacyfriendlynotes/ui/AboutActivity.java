@@ -1,9 +1,11 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
+
+import org.secuso.privacyfriendlynotes.R;
 
 public class AboutActivity extends AppCompatActivity {
 

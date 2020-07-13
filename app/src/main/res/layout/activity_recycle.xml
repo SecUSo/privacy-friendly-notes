@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="org.secuso.privacyfriendlynotes.RecycleActivity">
+    tools:context="org.secuso.privacyfriendlynotes.ui.RecycleActivity">
 
     <ListView
         android:id="@+id/notes_list"

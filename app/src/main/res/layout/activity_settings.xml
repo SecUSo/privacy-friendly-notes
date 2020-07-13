@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.secuso.privacyfriendlynotes.SettingsActivity">
+    tools:context="org.secuso.privacyfriendlynotes.ui.SettingsActivity">
     <fragment
         android:id="@+id/fragment_settings"
-        android:name="org.secuso.privacyfriendlynotes.fragments.SettingsFragment"
+        android:name="org.secuso.privacyfriendlynotes.ui.fragments.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

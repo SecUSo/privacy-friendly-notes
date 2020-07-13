@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.util;
+package org.secuso.privacyfriendlynotes.ui.util;
 
 /**
  * Created by Robin on 12.09.2016.

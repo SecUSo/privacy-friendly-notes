@@ -72,7 +72,7 @@
     <string name="fab_checklist">新しいチェックリスト</string>
     <string name="fab_sketch">新しいスケッチ</string>
 
-    <string name="note_standardname">メモ %1s</string>
+    <string name="note_standardname">メモ %d</string>
 
     <string name="tv_category">カテゴリー:</string>
 

@@ -11,10 +11,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name="NotesApplication"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,55 +23,55 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".TextNoteActivity"
+            android:name=".ui.TextNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_textnote"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ChecklistNoteActivity"
+            android:name=".ui.ChecklistNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_checklistnote"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ManageCategoriesActivity"
+            android:name=".ui.ManageCategoriesActivity"
             android:label="@string/title_manage_categories"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".RecycleActivity"
+            android:name=".ui.RecycleActivity"
             android:label="@string/title_recycle_bin"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".AudioNoteActivity"
+            android:name=".ui.AudioNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_audionote"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".SketchActivity"
+        <activity android:name=".ui.SketchActivity"
             android:label="@string/title_sketchnote"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".ui.SettingsActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:label="@string/title_settings"/>
         <activity
-            android:name=".HelpActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".ui.HelpActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:label="@string/title_help" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
 
 
-        <service android:name=".NotificationService" />
+        <service android:name=".service.NotificationService" />
 
-        <receiver android:name=".BootReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -93,7 +94,7 @@
             android:process=":backup"
             tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="org.secuso.privacyfriendlybackup.api.PFAAuthService" />
+                <action android:name="org.secuso.privacyfriendlybackup.api.pfa.PFAAuthService" />
             </intent-filter>
         </service>
     </application>

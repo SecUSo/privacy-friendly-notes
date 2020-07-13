@@ -1,7 +1,9 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.secuso.privacyfriendlynotes.R;
 
 public class HelpActivity extends AppCompatActivity {
 

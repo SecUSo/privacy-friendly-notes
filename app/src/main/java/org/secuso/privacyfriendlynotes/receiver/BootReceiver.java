@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
+
+import org.secuso.privacyfriendlynotes.service.NotificationService;
+import org.secuso.privacyfriendlynotes.database.DbAccess;
+import org.secuso.privacyfriendlynotes.database.DbContract;
 
 public class BootReceiver extends BroadcastReceiver {
     public BootReceiver() {

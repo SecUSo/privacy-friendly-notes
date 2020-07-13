@@ -10,7 +10,7 @@ import org.secuso.privacyfriendlybackup.api.pfa.BackupManager;
 import org.secuso.privacyfriendlynotes.backup.BackupCreator;
 import org.secuso.privacyfriendlynotes.backup.BackupRestorer;
 
-class NotesApplication extends Application implements Configuration.Provider {
+public class NotesApplication extends Application implements Configuration.Provider {
 
     @Override
     public void onCreate() {

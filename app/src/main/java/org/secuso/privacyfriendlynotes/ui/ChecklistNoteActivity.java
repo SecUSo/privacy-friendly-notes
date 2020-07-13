@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -21,11 +21,12 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -49,8 +50,13 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.secuso.privacyfriendlynotes.util.CheckListAdapter;
-import org.secuso.privacyfriendlynotes.util.CheckListItem;
+import org.secuso.privacyfriendlynotes.database.DbAccess;
+import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.service.NotificationService;
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListAdapter;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -405,11 +411,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     private void fillNameIfEmpty(){
         if (etName.getText().toString().isEmpty()) {
-            SharedPreferences sp = getSharedPreferences(Preferences.SP_VALUES, Context.MODE_PRIVATE);
-            int counter = sp.getInt(Preferences.SP_VALUES_NAMECOUNTER, 1);
+            SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_VALUES, Context.MODE_PRIVATE);
+            int counter = sp.getInt(PreferenceKeys.SP_VALUES_NAMECOUNTER, 1);
             etName.setText(String.format(getString(R.string.note_standardname), counter));
             SharedPreferences.Editor editor = sp.edit();
-            editor.putInt(Preferences.SP_VALUES_NAMECOUNTER, counter+1);
+            editor.putInt(PreferenceKeys.SP_VALUES_NAMECOUNTER, counter+1);
             editor.commit();
         }
     }
@@ -435,8 +441,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     }
 
     private void displayTrashDialog() {
-        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
-        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
+        SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
+        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
             new AlertDialog.Builder(ChecklistNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
@@ -452,7 +458,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
             SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(Preferences.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
             editor.commit();
         } else {
             shouldSave = false;

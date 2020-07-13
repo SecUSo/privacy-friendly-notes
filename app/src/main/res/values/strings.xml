@@ -73,7 +73,7 @@
     <string name="fab_checklist">New checklist</string>
     <string name="fab_sketch">New sketch</string>
 
-    <string name="note_standardname">Note %1s</string>
+    <string name="note_standardname">Note %d</string>
 
     <string name="tv_category">Category:</string>
 
