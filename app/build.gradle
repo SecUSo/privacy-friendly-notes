@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "org.secuso.privacyfriendlynotes"
-        minSdkVersion 17
-        targetSdkVersion 25
+        minSdkVersion 21
+        targetSdkVersion 29
         versionCode 3
         versionName "1.0.2"
     }
@@ -19,11 +19,18 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':backup-api')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:25.0.1'
-    implementation 'com.android.support:design:25.0.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'com.simplify:ink:0.2.2'
     implementation 'petrov.kristiyan.colorpicker:colorpicker-library:1.1.0'
+
+    def work_version = "2.3.4"
+    implementation "androidx.work:work-runtime:$work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

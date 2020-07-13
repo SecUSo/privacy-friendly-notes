@@ -13,7 +13,7 @@
         android:title="@string/action_share"
         app:showAsAction="ifRoom"
         app:actionProviderClass=
-            "android.support.v7.widget.ShareActionProvider" />
+            "androidx.appcompat.widget.ShareActionProvider" />
     <item
         android:id="@+id/action_save"
         android:orderInCategory="50"
