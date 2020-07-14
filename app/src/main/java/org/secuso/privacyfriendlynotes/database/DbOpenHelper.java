@@ -36,7 +36,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
                     DbContract.NotificationEntry.COLUMN_TIME + " INTEGER NOT NULL);";
 
     DbOpenHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this(context, DATABASE_NAME, DATABASE_VERSION);
+    }
+
+    public DbOpenHelper(Context context, String name, int version) {
+        super(context, name, null, version);
         this.context = context;
     }
 

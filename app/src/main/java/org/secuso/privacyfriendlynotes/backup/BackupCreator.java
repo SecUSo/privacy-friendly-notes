@@ -9,22 +9,34 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
-import org.secuso.privacyfriendlybackup.api.util.DatabaseUtil;
-import org.secuso.privacyfriendlybackup.api.util.PreferenceUtil;
+import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
+import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
+import org.secuso.privacyfriendlynotes.NotesApplication;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collections;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.secuso.privacyfriendlynotes.database.DbOpenHelper.DATABASE_NAME;
 
 public class BackupCreator implements IBackupCreator {
 
     @Override
-    public @NonNull String createBackup(@NonNull Context context) {
+    public void writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
+        // lock application, so no changes can be made as long as this backup is created
+        // depending on the size of the application - this could take a bit
+        ((NotesApplication) context.getApplicationContext()).lock();
+
         Log.d("PFA BackupCreator", "createBackup() started");
-        StringWriter stringWriter = new StringWriter();
-        JsonWriter writer = new JsonWriter(stringWriter);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, UTF_8);
+        JsonWriter writer = new JsonWriter(outputStreamWriter);
         writer.setIndent("  ");
 
         try {
@@ -40,6 +52,14 @@ public class BackupCreator implements IBackupCreator {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             PreferenceUtil.writePreferences(writer, pref);
 
+            writer.name("files");
+            writer.beginObject();
+            for(String path : Arrays.asList("sketches", "audio_notes")) {
+                writer.name(path);
+                FileUtil.writePath(writer, new File(context.getFilesDir().getPath(),path), false);
+            }
+            writer.endObject();
+
             writer.endObject();
 
             writer.close();
@@ -47,9 +67,6 @@ public class BackupCreator implements IBackupCreator {
             e.printStackTrace();
         }
 
-        String result = stringWriter.toString();
-
-        Log.d("PFA BackupCreator", result);
-        return result;
+        ((NotesApplication) context.getApplicationContext()).release();
     }
 }
