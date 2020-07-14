@@ -12,7 +12,7 @@ import org.secuso.privacyfriendlynotes.R;
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "allthenotes";
+    public static final String DATABASE_NAME = "allthenotes";
     Context context;
 
     private static final String NOTES_TABLE_CREATE =
@@ -50,9 +50,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.NoteEntry.TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.CategoryEntry.TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.NotificationEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.NoteEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.CategoryEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.NotificationEntry.TABLE_NAME + ";");
         onCreate(db);
     }
 }
