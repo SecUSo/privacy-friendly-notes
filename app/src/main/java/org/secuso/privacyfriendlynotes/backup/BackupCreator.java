@@ -37,7 +37,7 @@ public class BackupCreator implements IBackupCreator {
         Log.d("PFA BackupCreator", "createBackup() started");
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, UTF_8);
         JsonWriter writer = new JsonWriter(outputStreamWriter);
-        writer.setIndent("  ");
+        writer.setIndent("");
 
         try {
             writer.beginObject();
@@ -46,26 +46,32 @@ public class BackupCreator implements IBackupCreator {
             Log.d("PFA BackupCreator", "Writing database");
             writer.name("database");
             DatabaseUtil.writeDatabase(writer, dataBase);
+            dataBase.close();
 
             Log.d("PFA BackupCreator", "Writing preferences");
             writer.name("preferences");
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             PreferenceUtil.writePreferences(writer, pref);
 
+            Log.d("PFA BackupCreator", "Writing files");
             writer.name("files");
             writer.beginObject();
             for(String path : Arrays.asList("sketches", "audio_notes")) {
                 writer.name(path);
-                FileUtil.writePath(writer, new File(context.getFilesDir().getPath(),path), false);
+                FileUtil.writePath(writer, new File(context.getFilesDir().getPath(), path), false);
             }
+            Log.d("PFA BackupCreator", "finished writing files");
             writer.endObject();
 
             writer.endObject();
 
             writer.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Log.e("PFA BackupCreator", "Error occurred", e);
             e.printStackTrace();
         }
+
+        Log.d("PFA BackupCreator", "Backup created successfully");
 
         ((NotesApplication) context.getApplicationContext()).release();
     }

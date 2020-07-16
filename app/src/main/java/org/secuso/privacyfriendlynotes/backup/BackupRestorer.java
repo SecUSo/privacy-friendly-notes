@@ -68,6 +68,7 @@ public class BackupRestorer implements IBackupRestorer {
 
         // copy file to correct location
         File databaseFile = context.getDatabasePath("restoreDatabase");
+        File oldDBFile = context.getDatabasePath(DATABASE_NAME);
         FileUtil.copyFile(databaseFile, context.getDatabasePath(DATABASE_NAME));
         databaseFile.delete();
     }
@@ -140,7 +141,7 @@ public class BackupRestorer implements IBackupRestorer {
             Log.d("PFA BackupRestorer", resultString);
              */
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return false;
         }
     }
