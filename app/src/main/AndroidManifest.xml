@@ -14,6 +14,12 @@
         android:name="NotesApplication"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            tools:node="remove" />
+
         <activity
             android:name=".ui.SplashActivity"
             android:theme="@style/SplashTheme">

@@ -17,6 +17,7 @@
     <color name="half_black">#808080</color>
 
     <color name="red">#CC3300</color>
+    <color name="ic_launcher_background">#3680BB</color>
 
     <!--Very good list: http://stackoverflow.com/a/32674486 -->
     <array name="mdcolor_500">
