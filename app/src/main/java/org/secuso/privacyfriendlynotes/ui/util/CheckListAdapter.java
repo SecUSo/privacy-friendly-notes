@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.util;
+package org.secuso.privacyfriendlynotes.ui.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,7 +11,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.SettingsActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.util.List;
 

@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.secuso.privacyfriendlynotes.HelpActivity">
+    tools:context="org.secuso.privacyfriendlynotes.ui.HelpActivity">
     <fragment
         android:id="@+id/fragment_help"
-        android:name="org.secuso.privacyfriendlynotes.fragments.HelpFragment"
+        android:name="org.secuso.privacyfriendlynotes.ui.fragments.HelpFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

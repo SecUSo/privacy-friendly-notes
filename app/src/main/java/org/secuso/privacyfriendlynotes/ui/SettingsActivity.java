@@ -1,7 +1,9 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.secuso.privacyfriendlynotes.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

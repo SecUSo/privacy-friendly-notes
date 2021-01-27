@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,9 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.secuso.privacyfriendlynotes.DbContract.CategoryEntry;
-import org.secuso.privacyfriendlynotes.DbContract.NoteEntry;
-import org.secuso.privacyfriendlynotes.DbContract.NotificationEntry;
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.database.DbContract.CategoryEntry;
+import org.secuso.privacyfriendlynotes.database.DbContract.NoteEntry;
+import org.secuso.privacyfriendlynotes.database.DbContract.NotificationEntry;
 
 /**
  * Class that holds methods to access the database easily.

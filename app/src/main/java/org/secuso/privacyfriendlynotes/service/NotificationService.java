@@ -1,11 +1,19 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.service;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
+
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.database.DbAccess;
+import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.ui.AudioNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.ChecklistNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.SketchActivity;
+import org.secuso.privacyfriendlynotes.ui.TextNoteActivity;
 
 /**
  * Created by Robin on 26.06.2016.

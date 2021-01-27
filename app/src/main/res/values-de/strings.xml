@@ -60,7 +60,7 @@
     <string name="about_more_info">Mehr Informationen finden Sie unter:</string>
     <string name="about_privacy_friendly">Diese App gehört zu einer Gruppe von Privacy Friendly Apps, welche von der Technischen Universität Darmstadt entwickelt werden.</string>
     <string name="about_author_contributors">und Beitragende.</string>
-    <string name="note_standardname">Notiz %1s</string>
+    <string name="note_standardname">Notiz %d</string>
     <string name="action_help">Hilfe</string>
     <string name="help_intro">Wilkommen auf der Hilfe Seite. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen.</string>
     <string name="help_overview_heading">Übersicht</string>

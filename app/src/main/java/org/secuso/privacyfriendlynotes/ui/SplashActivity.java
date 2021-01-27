@@ -1,8 +1,8 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by yonjuni on 22.10.16.

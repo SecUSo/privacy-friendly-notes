@@ -1,8 +1,10 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import org.secuso.privacyfriendlynotes.R;
 
 /**
  * Created by Robin on 11.06.2016.
@@ -10,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "allthenotes";
+    public static final String DATABASE_NAME = "allthenotes";
     Context context;
 
     private static final String NOTES_TABLE_CREATE =
@@ -34,7 +36,11 @@ public class DbOpenHelper extends SQLiteOpenHelper {
                     DbContract.NotificationEntry.COLUMN_TIME + " INTEGER NOT NULL);";
 
     DbOpenHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this(context, DATABASE_NAME, DATABASE_VERSION);
+    }
+
+    public DbOpenHelper(Context context, String name, int version) {
+        super(context, name, null, version);
         this.context = context;
     }
 
@@ -48,9 +54,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.NoteEntry.TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.CategoryEntry.TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS" + DbContract.NotificationEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.NoteEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.CategoryEntry.TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.NotificationEntry.TABLE_NAME + ";");
         onCreate(db);
     }
 }

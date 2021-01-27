@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes;
+package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,13 +8,14 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -31,7 +32,11 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import org.secuso.privacyfriendlynotes.fragments.WelcomeDialog;
+import org.secuso.privacyfriendlynotes.database.DbAccess;
+import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.fragments.WelcomeDialog;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -213,12 +218,12 @@ public class MainActivity extends AppCompatActivity
 
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
-        SharedPreferences sp = getSharedPreferences(Preferences.SP_DATA, Context.MODE_PRIVATE);
-        if (sp.getBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
+        SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
+        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
             WelcomeDialog welcomeDialog = new WelcomeDialog();
             welcomeDialog.show(getFragmentManager(), TAG_WELCOME_DIALOG);
             SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(Preferences.SP_DATA_DISPLAY_WELCOME_DIALOG, false);
+            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_WELCOME_DIALOG, false);
             editor.commit();
         }
     }
