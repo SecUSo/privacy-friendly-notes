@@ -27,9 +27,8 @@ public class NotesApplication extends Application implements Configuration.Provi
 
     @Override
     public @NonNull Configuration getWorkManagerConfiguration() {
-        return new Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build();
+        return new Configuration.Builder().setMinimumLoggingLevel(Log.INFO).build();
     }
-
 
     private AtomicBoolean lock = new AtomicBoolean(false);
 
