@@ -36,8 +36,8 @@ Target SDK: 29
 
 ## License
 
-Privacy Friendly Notes is licensed under the GPLv3.
-Copyright (C) 2016-2017  Robin Morawetz
+Privacy Friendly Notes is licensed under the GPLv3.<br />
+Copyright (C) 2016-2017  Robin Morawetz<br />
 Copyright (C) 2018-2021  Christopher Beckmann
 
 This program is free software: you can redistribute it and/or modify
