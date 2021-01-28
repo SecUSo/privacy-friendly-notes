@@ -27,17 +27,18 @@ Privacy Friendly Apps are group of Android applications which are optimized rega
 
 ## Building
 
-Further development requires Android Studio, we recommend to use at least version 2.2.2
+Further development requires Android Studio, we recommend to use the latest version.
  
 ### API Reference
 
-Mininum SDK: 17
-Target SDK: 25
+Mininum SDK: 21<br />
+Target SDK: 29
 
 ## License
 
 Privacy Friendly Notes is licensed under the GPLv3.
-Copyright (C) 2016  Robin Morawetz
+Copyright (C) 2016-2017  Robin Morawetz
+Copyright (C) 2018-2021  Christopher Beckmann
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,7 +53,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-This app uses icons licensed under the [CC BY 2.5] (http://creativecommons.org/licenses/by/2.5/). In addition, the app uses icons from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. All other images (the logo of Privacy Friendly Apps, the SECUSO logo, the app logos and the splash icon) copyright [Technische Universtität Darmstadt](www.tu-darmstadt.de) (2016).
+The app uses icons licensed under the the [CC BY 2.5] (http://creativecommons.org/licenses/by/2.5/) and from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. All other images (the logo of Privacy Friendly Apps, the SECUSO logo) copyright [SECUSO](www.secuso.org) (2021).
 
 ## Contributors
 
@@ -61,6 +62,7 @@ Markus Hau <br />
 
 Github-Users: <br />
 Rdlgrmpf <br />
+Kamuno <br />
 Yonjuni <br />
 naofum
 
