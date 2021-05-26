@@ -1,4 +1,4 @@
-Privacy Friendly Notes allows you to take and manage notes on Android devices. It belongs to the Privacy Friendly Apps group developed by the research group SECUSO at Technische Universität Darmstadt. More information can be found an secuso.org/pfa
+Privacy Friendly Notes allows you to take and manage notes on Android devices. It belongs to the Privacy Friendly Apps group developed by the research group SECUSO at Karlsruhe Institute of Technology. More information can be found an secuso.org/pfa
 
 The following four types of notes are available:
 1. Simple text notes
