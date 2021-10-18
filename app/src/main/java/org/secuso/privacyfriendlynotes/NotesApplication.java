@@ -26,6 +26,7 @@ public class NotesApplication extends Application implements Configuration.Provi
     }
 
     // just a comment
+    // and another
 
     @Override
     public @NonNull Configuration getWorkManagerConfiguration() {
