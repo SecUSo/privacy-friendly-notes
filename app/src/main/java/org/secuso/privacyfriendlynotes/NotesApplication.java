@@ -25,6 +25,8 @@ public class NotesApplication extends Application implements Configuration.Provi
         BackupManager.setBackupRestorer(new BackupRestorer());
     }
 
+    // just a comment
+
     @Override
     public @NonNull Configuration getWorkManagerConfiguration() {
         return new Configuration.Builder().setMinimumLoggingLevel(Log.INFO).build();

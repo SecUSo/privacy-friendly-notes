@@ -21,8 +21,6 @@ This app belongs to the group of Privacy Friendly Apps developed by the Technisc
 
 ## Motivation
 
-//test 
-
 Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.
 
 Privacy Friendly Apps are group of Android applications which are optimized regarding privacy. Further information can be found in the [here] (https://secuso.org/pfa).
