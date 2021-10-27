@@ -100,5 +100,7 @@
     <string name="about_affiliation">提携</string>
     <string name="about_privacy_friendly">このアプリケーションは、ダルムシュタット工科大学 (Technische Universität Darmstadt, Germany) が開発したプライバシーフレンドリーアプリのグループに属しています。ソースコードは GPLv3 の下でライセンスされます。画像の著作権は TU Darmstadt および Google Inc.</string>
     <string name="about_more_info">さらに詳しい情報は以下でご覧ください:</string>
+    <string name="action_underlined"><u>下線部</u></string>
+
 
 </resources>

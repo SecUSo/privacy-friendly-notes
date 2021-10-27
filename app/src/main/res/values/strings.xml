@@ -35,6 +35,10 @@
     <string name="action_update">Update</string>
     <string name="action_add">Add</string>
     <string name="action_share">Share</string>
+    <string name="action_underlined"><u>Underlined</u></string>
+
+
+
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
