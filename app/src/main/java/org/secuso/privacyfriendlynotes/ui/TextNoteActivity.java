@@ -27,6 +27,11 @@ import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,6 +87,11 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
+        findViewById(R.id.btn_bold).setOnClickListener(this);
+        findViewById(R.id.btn_italics).setOnClickListener(this);
+        findViewById(R.id.btn_underlined).setOnClickListener(this);
+
+
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
@@ -285,6 +295,34 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             case R.id.btn_save:
                 shouldSave = true; //safe on exit
                 finish();
+                break;
+            case R.id.btn_bold:
+
+                String inputString = etContent.getText().toString();
+                int selectionStart = etContent.getSelectionStart();
+                int selectionEnd = etContent.getSelectionEnd();
+                String selectedText = inputString.substring(selectionStart, selectionEnd);
+
+                if(!selectedText.isEmpty())
+                {
+                    //Modify the selected StringHere
+                    String modifiedString = selectedText;
+
+                    //If you wish to modify the selected text
+                    String selectionModifiedString = inputString.replace(selectedText,modifiedString);
+                    //etContent.setText(selectionModifiedString);
+
+                    SpannableStringBuilder span = new SpannableStringBuilder();
+                    span.append("First Part Not Bold ");
+                    int start = span.length();
+                    span.append(selectionModifiedString);
+                    //longDescription.setSpan(new ForegroundColorSpan(0xFFCC5500), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    span.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    span.append(" rest not bold");
+
+                    etContent.setText(span, EditText.BufferType.SPANNABLE);
+
+                }
                 break;
             default:
         }

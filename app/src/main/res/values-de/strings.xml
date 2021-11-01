@@ -86,4 +86,6 @@
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
+    <string name="action_underlined"><u>Unterstrichen</u></string>
+
 </resources>

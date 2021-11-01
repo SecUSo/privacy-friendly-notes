@@ -12,34 +12,35 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_height="513dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <EditText
+            android:id="@+id/etName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
+            android:hint="@string/hint_name"
+            android:singleLine="true" />
 
         <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/scrollView">
+            android:layout_weight="1">
+
             <EditText
+                android:id="@+id/etContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/etContent"
+                android:layout_marginTop="10dp"
                 android:background="@android:color/transparent"
+                android:ems="10"
                 android:hint="@string/hint_note"
-                android:layout_marginTop="10dp" />
+                android:inputType="textMultiLine" />
         </ScrollView>
     </LinearLayout>
 
-    <include layout="@layout/bottom_line"></include>
+    <include layout="@layout/bottom_line_text_note"></include>
 
 </LinearLayout>

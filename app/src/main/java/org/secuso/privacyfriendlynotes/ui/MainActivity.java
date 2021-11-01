@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -25,10 +27,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -37,6 +41,10 @@ import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.ui.fragments.WelcomeDialog;
+import org.secuso.privacyfriendlynotes.ui.util.RecyclerViewAdapter;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -46,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     FloatingActionsMenu fabMenu;
 
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
+    RecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +80,33 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // test data
+
+        ArrayList<String> test_items = new ArrayList<>();
+        test_items.add("H");
+        test_items.add("a");
+        test_items.add("l");
+        test_items.add("l");
+        test_items.add("o");
+
+        // set up the RecyclerView
+        RecyclerView recyclerView = findViewById(R.id.notes_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecyclerViewAdapter(this, test_items);
+        adapter.setClickListener(this);
+        recyclerView.setAdapter(adapter);
+        }
+
+        public void onItemClick(View view, int position) {
+            Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+        }
+
+
         //Fill the list from database
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        notesList.setAdapter(new CursorAdapter(getApplicationContext(), DbAccess.getCursorAllNotes(getBaseContext()), CursorAdapter.FLAG_AUTO_REQUERY) {
+        RecyclerView notesList = (RecyclerView) findViewById(R.id.notes_list);
+
+        /*
+        notesList.setAdapter(new Adapter(getApplicationContext(), DbAccess.getCursorAllNotes(getBaseContext()), CursorAdapter.FLAG_AUTO_REQUERY) {
             @Override
             public View newView(Context context, Cursor cursor, ViewGroup parent) {
                 LayoutInflater inflater = (LayoutInflater) context
@@ -227,7 +260,9 @@ public class MainActivity extends AppCompatActivity
             editor.commit();
         }
     }
+    */
 
+    /*
     @Override
     protected void onResume() {
         super.onResume();
@@ -375,6 +410,9 @@ public class MainActivity extends AppCompatActivity
             if(checkedItemPositions.valueAt(i)) {
                 DbAccess.trashNote(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
             }
+
         }
+
     }
+    */
 }

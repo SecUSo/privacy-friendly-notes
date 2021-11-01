@@ -3,6 +3,37 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/buttonRowText"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:weightSum="3">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:text="@string/action_cancel"
+            android:textStyle="bold"
+            android:id="@+id/btn_bold" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:text="@string/action_delete"
+            android:textStyle="italic"
+            android:id="@+id/btn_italics" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:text="@string/action_underlined"
+            android:id="@+id/btn_underlined"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
