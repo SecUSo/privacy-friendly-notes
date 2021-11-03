@@ -89,7 +89,26 @@
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
+    <string name="title_tutorial">Tutorial</string>
+
 
     <string name="note_item_title">Titel</string>
     <string name="note_item_description">Beschreibung</string>
+
+
+    <!-- ### TUTORIAL DIALOG ### -->
+    <string name="slide1_heading">Willkommen!</string>
+    <string name="slide1_text">Mit dieser App können Sie Notizen erstellen und verwalten.</string>
+
+    <string name="slide2_heading">Wesentliche Elemente</string>
+    <string name="slide2_text">Derzeit werden vier Arten von Notizen unterstützt: Text, Checkliste, Audio, Skizze.</string>
+
+    <string name="slide3_heading">Vorteile</string>
+    <string name="slide3_text">Die meisten Apps für Notizen benötigen eine Menge Berechtigungen und synchronisieren über das Internet. Daher verwenden sie einen Unternehmensdienst, dem Sie vertrauen müssen. Dies ist zwar eine praktische Funktion, schwächt aber Ihre Privatsphäre. Datenschutzfreundliche Apps sind eine Gruppe von Android-Anwendungen, die hinsichtlich des Datenschutzes optimiert sind.</string>
+
+    <string name="okay">Okay</string>
+    <string name="viewhelp">Hilfe anzeigen</string>
+    <string name="main_floating_button">Schwimmende Schaltfläche</string>
+    <string name="next">Weiter</string>
+    <string name="skip">Überspringen</string>
 </resources>

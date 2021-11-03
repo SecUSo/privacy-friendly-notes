@@ -107,5 +107,24 @@
 
     <string name="note_item_title">題名</string>
     <string name="note_item_description">説明</string>
+    <string name="title_tutorial">チュートリアル</string>
+
+
+
+    <!-- ### TUTORIAL DIALOG ### -->
+    <string name="slide1_heading">歓迎します。</string>
+    <string name="slide1_text">このアプリでは、ノートを作成・管理することができます。</string>
+
+    <string name="slide2_heading">主要な要素</string>
+    <string name="slide2_text"> 現在、4種類のノートをサポートしています。テキスト、チェックリスト、オーディオ、スケッチの4種類に対応しています。 </string>
+
+    <string name="slide3_heading">メリット</string>
+    <string name="slide3_text">ほとんどのノートアプリは、多くの許可を必要とし、インターネット上で同期します。そのため、信頼できる企業のサービスを利用することになります。Privacy Friendly Appsは、プライバシーに関して最適化されたAndroidアプリケーションのグループです。</string>
+
+    <string name="okay">オーケー</string>
+    <string name="viewhelp">ヘルプを表示</string>
+    <string name="main_floating_button">フローティングボタン</string>
+    <string name="next">次のページ</string>
+    <string name="skip">スキップ</string>
 
 </resources>

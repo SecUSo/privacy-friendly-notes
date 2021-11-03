@@ -72,6 +72,10 @@
             android:name=".ui.AboutActivity"
             android:label="@string/title_about"
             android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.TutorialActivity"
+            android:label="@string/title_tutorial"
+            android:parentActivityName=".ui.MainActivity" />
 
 
         <service android:name=".service.NotificationService" />
