@@ -34,6 +34,9 @@
     <string name="nav_all">Alle Notizen</string>
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="nav_help">Hilfe</string>
+    <string name="nav_about">Über</string>
     <string name="navigation_drawer_close">Navigation drawer schließen</string>
     <string name="navigation_drawer_open">Navigation drawer öffnen</string>
     <string name="title_audionote">Audio Notiz</string>
@@ -58,7 +61,7 @@
     <string name="title_about">Über</string>
     <string name="about_affiliation">In Zusammenarbeit mit</string>
     <string name="about_more_info">Mehr Informationen finden Sie unter:</string>
-    <string name="about_privacy_friendly">Diese App gehört zu einer Gruppe von Privacy Friendly Apps, welche von der Technischen Universität Darmstadt entwickelt werden.</string>
+    <string name="about_privacy_friendly">Diese App gehört zu einer Gruppe von Privacy Friendly Apps, welche von Karlsruher Institut für Technologie entwickelt werden.</string>
     <string name="about_author_contributors">und Beitragende.</string>
     <string name="note_standardname">Notiz %d</string>
     <string name="action_help">Hilfe</string>
@@ -86,4 +89,7 @@
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
+
+    <string name="note_item_title">Titel</string>
+    <string name="note_item_description">Beschreibung</string>
 </resources>

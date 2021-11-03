@@ -56,12 +56,10 @@
             android:name=".ui.AudioNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_audionote"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait"/>
+            android:parentActivityName=".ui.MainActivity" />
         <activity android:name=".ui.SketchActivity"
             android:label="@string/title_sketchnote"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:parentActivityName=".ui.MainActivity"></activity>
         <activity
             android:name=".ui.SettingsActivity"
             android:parentActivityName=".ui.MainActivity"

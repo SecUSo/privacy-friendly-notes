@@ -9,12 +9,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -34,9 +40,14 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.NoteAdapter;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.Note;
+import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 import org.secuso.privacyfriendlynotes.ui.fragments.WelcomeDialog;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -46,6 +57,9 @@ public class MainActivity extends AppCompatActivity
     FloatingActionsMenu fabMenu;
 
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
+
+    //New Room variables
+    private NoteViewModel noteViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +84,22 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //Fill from Room database
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        final NoteAdapter adapter = new NoteAdapter();
+        recyclerView.setAdapter(adapter);
+
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+        noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
 
         //Fill the list from database
         ListView notesList = (ListView) findViewById(R.id.notes_list);
@@ -264,12 +294,6 @@ public class MainActivity extends AppCompatActivity
             //switch to an alphabetically sorted cursor.
             updateListAlphabetical();
             return true;
-        } else if (id == R.id.action_help) {
-            startActivity(new Intent(getApplication(), HelpActivity.class));
-        } else if (id == R.id.action_settings) {
-            startActivity(new Intent(getApplication(), SettingsActivity.class));
-        } else if (id == R.id.action_about) {
-            startActivity(new Intent(getApplication(), AboutActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -289,6 +313,12 @@ public class MainActivity extends AppCompatActivity
             updateList();
         } else if (id == R.id.nav_manage_categories) {
             startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(getApplication(), SettingsActivity.class));
+        } else if (id == R.id.nav_help) {
+            startActivity(new Intent(getApplication(), HelpActivity.class));
+        } else if (id == R.id.nav_about) {
+            startActivity(new Intent(getApplication(), AboutActivity.class));
         } else {
             selectedCategory = id;
             updateList();

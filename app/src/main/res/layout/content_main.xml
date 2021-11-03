@@ -12,8 +12,15 @@
     tools:context="org.secuso.privacyfriendlynotes.ui.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem= "@layout/note_item"/>
+
     <ListView
         android:id="@+id/notes_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="match_parent"
+        android:visibility="invisible"></ListView>
 </RelativeLayout>

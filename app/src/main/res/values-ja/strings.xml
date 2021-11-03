@@ -19,6 +19,10 @@
     <string name="nav_all">すべてのメモ</string>
     <string name="nav_trash">ゴミ箱</string>
     <string name="nav_manage_categories">カテゴリーの管理</string>
+    <string name="nav_settings">設定</string>
+    <string name="nav_help">ヘルプ</string>
+    <string name="nav_about">その上</string>
+
 
     <string name="action_sort_alphabetical">アルファベット順に並び替え</string>
     <string name="action_settings">設定</string>
@@ -98,7 +102,10 @@
     <string name="about_author">作者: </string>
     <string name="about_author_contributors">および貢献者。</string>
     <string name="about_affiliation">提携</string>
-    <string name="about_privacy_friendly">このアプリケーションは、ダルムシュタット工科大学 (Technische Universität Darmstadt, Germany) が開発したプライバシーフレンドリーアプリのグループに属しています。ソースコードは GPLv3 の下でライセンスされます。画像の著作権は TU Darmstadt および Google Inc.</string>
+    <string name="about_privacy_friendly">このアプリケーションは、ダルムシュタット工科大学 (Karlsruhe Institute of Technology, Germany) が開発したプライバシーフレンドリーアプリのグループに属しています。ソースコードは GPLv3 の下でライセンスされます。画像の著作権は Karlsruhe Institute of Technology および Google Inc.</string>
     <string name="about_more_info">さらに詳しい情報は以下でご覧ください:</string>
+
+    <string name="note_item_title">題名</string>
+    <string name="note_item_description">説明</string>
 
 </resources>
