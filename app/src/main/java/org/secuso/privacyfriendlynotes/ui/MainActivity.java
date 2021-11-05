@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
         //Fill the list from database
         ListView notesList = (ListView) findViewById(R.id.notes_list);
         notesList.setAdapter(new CursorAdapter(getApplicationContext(), DbAccess.getCursorAllNotes(getBaseContext()), CursorAdapter.FLAG_AUTO_REQUERY) {

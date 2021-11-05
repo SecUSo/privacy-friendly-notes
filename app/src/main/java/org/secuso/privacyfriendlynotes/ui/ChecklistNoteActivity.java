@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -52,6 +53,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.Note;
+import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
@@ -87,6 +90,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private int currentCat;
     Cursor noteCursor = null;
     Cursor notificationCursor = null;
+
+    private NoteViewModel noteViewModel;
 
     private ArrayList<CheckListItem> itemNamesList = new ArrayList<>();
 
@@ -402,7 +407,12 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 jsonArray.put(jsonObject);
             }
             fillNameIfEmpty();
-            id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+            //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
+            noteViewModel.insert(note);
+
             Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -546,6 +556,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

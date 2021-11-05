@@ -10,11 +10,13 @@ public class Note {
     private String title;
     private String description;
     private int category;
+    private int type;
 
-    public Note(String title, String description, int category) {
+    public Note(String title, String description, int type, int category) {
         this.title = title;
         this.description = description;
         this.category = category;
+        this.type = type;
     }
 
     public void setId(int id) {
@@ -36,6 +38,11 @@ public class Note {
     public int getCategory() {
         return category;
     }
+
+    public int getType() {
+        return type;
+    }
+
 
 
 }
