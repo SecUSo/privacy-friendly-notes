@@ -2,7 +2,6 @@ package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
@@ -41,11 +40,9 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
-import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteViewModel;
-import org.secuso.privacyfriendlynotes.ui.fragments.WelcomeDialog;
 
 import java.util.List;
 
@@ -101,6 +98,37 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+
+                switch (note.getType()) {
+                    case DbContract.NoteEntry.TYPE_TEXT:
+                        Intent i = new Intent(getApplication(), TextNoteActivity.class);
+                        i.putExtra(TextNoteActivity.EXTRA_ID, note.getId());
+                        i.putExtra(TextNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i.putExtra(TextNoteActivity.EXTRA_CONTENT, note.getContent());
+                        i.putExtra(TextNoteActivity.EXTRA_CATEGORY, note.getCategory());
+                        startActivity(i);
+                        break;
+                    case DbContract.NoteEntry.TYPE_AUDIO:
+                        Intent i2 = new Intent(getApplication(), AudioNoteActivity.class);
+                        i2.putExtra(AudioNoteActivity.EXTRA_ID, note.getId());
+                        startActivity(i2);
+                        break;
+                    case DbContract.NoteEntry.TYPE_SKETCH:
+                        Intent i3 = new Intent(getApplication(), SketchActivity.class);
+                        i3.putExtra(SketchActivity.EXTRA_ID, note.getId());
+                        startActivity(i3);
+                        break;
+                    case DbContract.NoteEntry.TYPE_CHECKLIST:
+                        Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note.getId());
+                        startActivity(i4);
+                        break;
+                }
+            }
+        });
 
         //Fill the list from database
         ListView notesList = (ListView) findViewById(R.id.notes_list);
@@ -249,14 +277,6 @@ public class MainActivity extends AppCompatActivity
 
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
-        SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
-        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_WELCOME_DIALOG, true)) {
-            WelcomeDialog welcomeDialog = new WelcomeDialog();
-            welcomeDialog.show(getFragmentManager(), TAG_WELCOME_DIALOG);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_WELCOME_DIALOG, false);
-            editor.commit();
-        }
     }
 
     @Override

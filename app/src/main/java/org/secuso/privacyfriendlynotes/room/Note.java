@@ -8,13 +8,13 @@ public class Note {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String title;
-    private String description;
+    private String content;
     private int category;
     private int type;
 
-    public Note(String title, String description, int type, int category) {
+    public Note(String title, String content, int type, int category) {
         this.title = title;
-        this.description = description;
+        this.content = content;
         this.category = category;
         this.type = type;
     }
@@ -31,8 +31,8 @@ public class Note {
         return title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 
     public int getCategory() {
