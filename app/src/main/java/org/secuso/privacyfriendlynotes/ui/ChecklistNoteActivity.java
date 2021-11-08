@@ -479,7 +479,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             editor.commit();
         } else {
             shouldSave = false;
-            DbAccess.trashNote(getBaseContext(), id);
+            Intent intent = getIntent();
+            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
+            note.setId(id);
+            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            noteViewModel.delete(note);
             finish();
         }
     }
