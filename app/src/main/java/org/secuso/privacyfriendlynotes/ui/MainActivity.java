@@ -114,16 +114,28 @@ public class MainActivity extends AppCompatActivity
                     case DbContract.NoteEntry.TYPE_AUDIO:
                         Intent i2 = new Intent(getApplication(), AudioNoteActivity.class);
                         i2.putExtra(AudioNoteActivity.EXTRA_ID, note.getId());
+                        i2.putExtra(AudioNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i2.putExtra(AudioNoteActivity.EXTRA_CONTENT, note.getContent());
+                        i2.putExtra(AudioNoteActivity.EXTRA_CATEGORY, note.getCategory());
+
                         startActivity(i2);
                         break;
                     case DbContract.NoteEntry.TYPE_SKETCH:
                         Intent i3 = new Intent(getApplication(), SketchActivity.class);
                         i3.putExtra(SketchActivity.EXTRA_ID, note.getId());
+                        i3.putExtra(SketchActivity.EXTRA_TITLE, note.getTitle());
+                        i3.putExtra(SketchActivity.EXTRA_CONTENT, note.getContent());
+                        i3.putExtra(SketchActivity.EXTRA_CATEGORY, note.getCategory());
+
                         startActivity(i3);
                         break;
                     case DbContract.NoteEntry.TYPE_CHECKLIST:
                         Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
                         i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note.getId());
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_CONTENT, note.getContent());
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_CATEGORY, note.getCategory());
+
                         startActivity(i4);
                         break;
                 }

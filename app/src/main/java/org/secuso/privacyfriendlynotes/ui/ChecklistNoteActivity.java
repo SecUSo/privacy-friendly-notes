@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
@@ -70,6 +71,10 @@ import java.util.Date;
 
 public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
+    public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
+    public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
+    public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
+
 
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
@@ -200,11 +205,10 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            noteCursor = DbAccess.getNote(getBaseContext(), id);
-            noteCursor.moveToFirst();
-            etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
+            Intent intent = getIntent();
+            etName.setText(intent.getStringExtra(EXTRA_TITLE));
             try {
-                JSONArray content = new JSONArray(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)));
+                JSONArray content = new JSONArray(intent.getStringExtra(EXTRA_CONTENT));
                 for (int i=0; i < content.length(); i++) {
                     JSONObject o = content.getJSONObject(i);
                     itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
@@ -214,7 +218,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 e.printStackTrace();
             }
             //find the current category and set spinner to that
-            currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
+            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
             for (int i = 0; i < adapter.getCount(); i++){
                 c.moveToPosition(i);
@@ -387,7 +391,10 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 jsonArray.put(jsonObject);
             }
             fillNameIfEmpty();
-            DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), jsonArray.toString(), currentCat);
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            note.setId(id);
+            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            noteViewModel.update(note);
             Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();

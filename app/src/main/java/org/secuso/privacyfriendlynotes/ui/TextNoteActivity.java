@@ -308,7 +308,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateNote(){
         fillNameIfEmpty();
-        //DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), etContent.getText().toString(), currentCat);
         Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
         note.setId(id);
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);

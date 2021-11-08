@@ -31,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
@@ -71,6 +72,10 @@ import java.util.Date;
 
 public class AudioNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
+    public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
+    public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
+    public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
+
 
     private static final int REQUEST_CODE_AUDIO = 1;
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 2;
@@ -208,16 +213,16 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            noteCursor = DbAccess.getNote(getBaseContext(), id);
-            noteCursor.moveToFirst();
-            etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
-            mFileName = noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+
+            Intent intent = getIntent();
+            etName.setText(intent.getStringExtra(EXTRA_TITLE));
+            mFileName = intent.getStringExtra(EXTRA_CONTENT);
             mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
             btnPlayPause.setVisibility(View.VISIBLE);
             btnRecord.setVisibility(View.INVISIBLE);
             tvRecordingTime.setVisibility(View.INVISIBLE);
             //find the current category and set spinner to that
-            currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
+            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
             for (int i = 0; i < adapter.getCount(); i++){
                 c.moveToPosition(i);
@@ -517,15 +522,17 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     private void updateNote(){
         fillNameIfEmpty();
-        DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), mFileName, currentCat);
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
+        note.setId(id);
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+        noteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
         fillNameIfEmpty();
-        //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), mFileName, DbContract.NoteEntry.TYPE_AUDIO, currentCat);
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-        noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
         noteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
