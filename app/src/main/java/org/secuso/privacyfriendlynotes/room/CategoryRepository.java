@@ -6,10 +6,11 @@ import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CategoryRepository {
     private CategoryDao categoryDao;
-    private LiveData<List<String>> allCategories;
+    private LiveData<List<Category>> allCategories;
 
 
     public CategoryRepository(Application application) {
@@ -31,7 +32,17 @@ public class CategoryRepository {
         new CategoryRepository.DeleteCategoryAsyncTask(categoryDao).execute(category);
     }
 
-    public LiveData<List<String>> getAllCategories() {
+
+
+    int count(String categoryName){
+        AtomicInteger counter = new AtomicInteger();
+        CategoryDatabase.databaseWriteExecutor.execute(() ->{
+            counter.set(categoryDao.count(categoryName));
+        });
+        return counter.get();
+    }
+
+    public LiveData<List<Category>> getAllCategories() {
         return allCategories;
     }
 
@@ -76,4 +87,5 @@ public class CategoryRepository {
             return null;
         }
     }
+
 }

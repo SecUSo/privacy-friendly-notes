@@ -17,7 +17,7 @@ import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryHolder>{
 
-    private List<String> categoryNames = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
     private CategoryAdapter.OnItemClickListener listener;
 
     @NonNull
@@ -30,23 +30,23 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     @Override
     public void onBindViewHolder(@NonNull CategoryHolder holder, int position) {
-        String currentCategory = categoryNames.get(position);
-        holder.textViewCategoryName.setText(currentCategory);
+        Category currentCategory = categories.get(position);
+        holder.textViewCategoryName.setText(currentCategory.getName());
     }
 
     @Override
     public int getItemCount() {
-        return categoryNames.size();
+        return categories.size();
     }
 
-    public void setCategoryNames(List<String> categoryNames) {
-        this.categoryNames = categoryNames;
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
         notifyDataSetChanged();
     }
 
 
-    public String getCategoryAt(int position){
-        return categoryNames.get(position);
+    public Category getCategoryAt(int position){
+        return categories.get(position);
     }
 
 
@@ -62,7 +62,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if (listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(categoryNames.get(position));
+                        listener.onItemClick(categories.get(position));
                     }
                 }
             });
@@ -70,7 +70,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     }
 
     public interface OnItemClickListener {
-        void onItemClick(String category);
+        void onItemClick(Category category);
     }
 
     public void setOnItemClickListener(CategoryAdapter.OnItemClickListener listener) {

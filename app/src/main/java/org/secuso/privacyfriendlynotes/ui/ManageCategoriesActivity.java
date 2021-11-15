@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +29,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
@@ -45,7 +47,6 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
     ListView list;
     RecyclerView recycler_list;
-    NoteViewModel noteViewModel;
     CategoryViewModel categoryViewModel;
 
 
@@ -64,20 +65,35 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         recycler_list.setAdapter(adapter);
 
         categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-        categoryViewModel.getAllCategories().observe(this, new Observer<List<String>>() {
+        categoryViewModel.getAllCategories().observe(this, new Observer<List<Category>>() {
             @Override
-            public void onChanged(List<String> categoryNames) {
-                adapter.setCategoryNames(categoryNames);
+            public void onChanged(List<Category> categoryNames) {
+                adapter.setCategories(categoryNames);
             }
 
         });
 
         adapter.setOnItemClickListener(new CategoryAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(String category) {
-
+            public void onItemClick(Category currentCategory) {
+                new AlertDialog.Builder(ManageCategoriesActivity.this)
+                        .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.getName()))
+                        .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.getName()))
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do nothing
+                            }
+                        })
+                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteCategory(currentCategory);
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
-
         });
 
 
@@ -124,32 +140,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 updateList();
             }
         });
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                CursorAdapter adapter = (CursorAdapter) list.getAdapter();
-                Cursor cursor = adapter.getCursor();
-                cursor.moveToPosition(position);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
-                new AlertDialog.Builder(ManageCategoriesActivity.this)
-                        .setTitle(String.format(getString(R.string.dialog_delete_title), name))
-                        .setMessage(String.format(getString(R.string.dialog_delete_message), name))
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //do nothing
-                            }
-                        })
-                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                deleteItem(position);
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-            }
-        });
+
     }
 
     @Override
@@ -160,21 +151,12 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 if (!name.getText().toString().isEmpty()){
                     Category category = new Category(name.getText().toString());
                     categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-                    categoryViewModel.insert(category);
+                    if(categoryViewModel.count(category.getName())!= 0){ Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();} else {
+                        categoryViewModel.insert(category);
+                    }
                 }
                 break;
         }
-    }
-
-    private void deleteItem(int position) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean delNotes = sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false);
-        CursorAdapter adapter = (CursorAdapter) list.getAdapter();
-        if (delNotes) {
-            DbAccess.trashNotesByCategoryId(getBaseContext(), (int) (long) adapter.getItemId(position));
-        }
-        DbAccess.deleteCategory(getBaseContext(), (int) (long) adapter.getItemId(position));
-        updateList();
     }
 
     private void deleteSelectedItems(){
@@ -195,5 +177,9 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
     private void updateList(){
         CursorAdapter adapter = (CursorAdapter) list.getAdapter();
         adapter.changeCursor(DbAccess.getCategoriesWithoutDefault(getBaseContext()));
+    }
+    private void deleteCategory(Category cat){
+        categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+        categoryViewModel.delete(cat);
     }
 }

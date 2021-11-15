@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CategoryViewModel extends AndroidViewModel {
     private CategoryRepository repository;
-    private LiveData<List<String>> allCategories;
+    private LiveData<List<Category>> allCategories;
 
     public CategoryViewModel(@NonNull Application application) {
         super(application);
@@ -30,8 +30,10 @@ public class CategoryViewModel extends AndroidViewModel {
         repository.delete(category);
     }
 
+    public Integer count(String categoryName) { return repository.count(categoryName);}
 
-    public LiveData<List<String>> getAllCategories(){
+
+    public LiveData<List<Category>> getAllCategories(){
         return allCategories;
     }
 }

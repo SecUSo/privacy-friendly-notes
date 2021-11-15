@@ -21,7 +21,11 @@ public interface CategoryDao {
     @Delete
     void delete(Category category);
 
-    @Query("SELECT name FROM category_table GROUP BY name")
-    LiveData<List<String>>
+    @Query("SELECT * FROM category_table GROUP BY name")
+    LiveData<List<Category>>
     getAllCategories();
+
+    @Query("SELECT COUNT() FROM category_table WHERE name = :name")
+    int count(String name);
+
 }
