@@ -1,7 +1,7 @@
 package org.secuso.privacyfriendlynotes.room;
 
+
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -9,19 +9,17 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import org.secuso.privacyfriendlynotes.database.DbContract;
+@Database(entities = {Category.class}, version = 1)
+public abstract class CategoryDatabase extends RoomDatabase {
 
-@Database(entities = {Note.class}, version = 4)
-public abstract class NoteDatabase extends RoomDatabase {
+    private static CategoryDatabase instance;
 
-    private static NoteDatabase instance;
+    public abstract CategoryDao categoryDao();
 
-    public abstract NoteDao noteDao();
-
-    public static synchronized NoteDatabase getInstance(Context context){
+    public static synchronized CategoryDatabase getInstance(Context context){
         if (instance == null){
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    NoteDatabase.class, "note_database")
+                    CategoryDatabase.class, "category_database")
                     .fallbackToDestructiveMigration()
                     .addCallback(roomCallback)
                     .build();
@@ -35,4 +33,5 @@ public abstract class NoteDatabase extends RoomDatabase {
             super.onCreate(db);
         }
     };
+
 }

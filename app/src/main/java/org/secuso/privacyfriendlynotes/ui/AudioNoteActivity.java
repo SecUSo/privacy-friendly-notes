@@ -32,7 +32,6 @@ import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.Menu;
@@ -184,7 +183,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
         //CategorySpinner

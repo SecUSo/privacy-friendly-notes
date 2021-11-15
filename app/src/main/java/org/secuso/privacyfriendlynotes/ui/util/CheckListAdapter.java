@@ -45,7 +45,7 @@ public class CheckListAdapter extends ArrayAdapter <CheckListItem> {
             // Should we set a custom font size?
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
             if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-                textView.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+                textView.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
             }
         }
 

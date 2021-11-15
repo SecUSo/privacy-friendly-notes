@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
@@ -27,11 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.Menu;
@@ -50,8 +45,6 @@ import android.widget.Toast;
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteAdapter;
-import org.secuso.privacyfriendlynotes.room.NoteDao;
 import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
@@ -62,7 +55,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -120,8 +112,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etContent.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
-            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+            etContent.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
+            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
         //CategorySpinner

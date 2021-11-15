@@ -11,11 +11,13 @@ import java.util.List;
 public class NoteViewModel extends AndroidViewModel {
     private NoteRepository repository;
     private LiveData<List<Note>> allNotes;
+    private LiveData<List<Note>> allCategoryNotes;
 
     public NoteViewModel(@NonNull Application application) {
         super(application);
         repository = new NoteRepository(application);
         allNotes = repository.getAllNotes();
+        allCategoryNotes = repository.getAllCategoryNotes();
     }
 
     public void insert(Note note) {
@@ -33,5 +35,9 @@ public class NoteViewModel extends AndroidViewModel {
 
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
+    }
+
+    public LiveData<List<Note>> getAllCategories(){
+        return allCategoryNotes;
     }
 }

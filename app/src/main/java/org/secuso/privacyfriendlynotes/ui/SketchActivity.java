@@ -133,7 +133,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
         //CategorySpinner

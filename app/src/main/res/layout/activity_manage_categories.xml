@@ -14,24 +14,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <EditText
             android:id="@+id/etName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:hint="@string/hint_name"
             android:inputType="text"
-            android:singleLine="true"
-            android:hint="@string/hint_name"/>
+            android:singleLine="true" />
+
         <Button
             android:id="@+id/btn_add"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.Button.Colored"
             android:text="@string/action_add" />
     </LinearLayout>
-    <ListView
-        android:id="@+id/category_list"
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_category"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_category" />
+
+        <ListView
+            android:id="@+id/category_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            tools:visibility="invisible">
+
+        </ListView>
+    </FrameLayout>
 
 </LinearLayout>

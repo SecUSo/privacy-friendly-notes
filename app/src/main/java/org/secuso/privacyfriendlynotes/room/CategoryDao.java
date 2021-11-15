@@ -10,18 +10,18 @@ import androidx.room.Update;
 import java.util.List;
 
 @Dao
-public interface NoteDao {
+public interface CategoryDao {
 
     @Insert
-    void insert(Note note);
+    void insert(Category category);
 
     @Update
-    void update(Note note);
+    void update(Category category);
 
     @Delete
-    void delete(Note note);
+    void delete(Category category);
 
-    @Query("SELECT * FROM note_table ORDER BY category DESC")
-    LiveData<List<Note>> getAllNotes();
-
+    @Query("SELECT name FROM category_table GROUP BY name")
+    LiveData<List<String>>
+    getAllCategories();
 }

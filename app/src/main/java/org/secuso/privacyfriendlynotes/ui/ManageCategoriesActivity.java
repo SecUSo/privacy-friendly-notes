@@ -1,15 +1,22 @@
 package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -25,10 +32,22 @@ import android.widget.ListView;
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.Category;
+import org.secuso.privacyfriendlynotes.room.CategoryAdapter;
+import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
+import org.secuso.privacyfriendlynotes.room.Note;
+import org.secuso.privacyfriendlynotes.room.NoteAdapter;
+import org.secuso.privacyfriendlynotes.room.NoteViewModel;
+
+import java.util.List;
 
 public class ManageCategoriesActivity extends AppCompatActivity implements View.OnClickListener {
 
     ListView list;
+    RecyclerView recycler_list;
+    NoteViewModel noteViewModel;
+    CategoryViewModel categoryViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +55,32 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         setContentView(R.layout.activity_manage_categories);
 
         findViewById(R.id.btn_add).setOnClickListener(this);
+
+        recycler_list = (RecyclerView) findViewById(R.id.recyclerview_category);
+
+        recycler_list.setLayoutManager(new LinearLayoutManager(this));
+        recycler_list.setHasFixedSize(true);
+        final CategoryAdapter adapter = new CategoryAdapter();
+        recycler_list.setAdapter(adapter);
+
+        categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+        categoryViewModel.getAllCategories().observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> categoryNames) {
+                adapter.setCategoryNames(categoryNames);
+            }
+
+        });
+
+        adapter.setOnItemClickListener(new CategoryAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String category) {
+
+            }
+
+        });
+
+
         list = (ListView) findViewById(R.id.category_list);
         String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
         int[] to = {R.id.item_name};
@@ -113,12 +158,10 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
             case R.id.btn_add:
                 EditText name = (EditText) findViewById(R.id.etName);
                 if (!name.getText().toString().isEmpty()){
-                    if (!DbAccess.addCategory(getBaseContext(), name.getText().toString())){
-                        Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();
-                    }
-                    name.setText("");
+                    Category category = new Category(name.getText().toString());
+                    categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+                    categoryViewModel.insert(category);
                 }
-                updateList();
                 break;
         }
     }
