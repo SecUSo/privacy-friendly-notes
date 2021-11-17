@@ -1,31 +1,23 @@
-package org.secuso.privacyfriendlynotes.room;
+package org.secuso.privacyfriendlynotes.room
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.Query;
-import androidx.room.Update;
-
-import java.util.List;
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import androidx.room.OnConflictStrategy.REPLACE
 
 @Dao
-public interface CategoryDao {
+interface CategoryDao {
+    @Insert(onConflict = REPLACE)
+    fun insert(category: Category)
 
-    @Insert
-    void insert(Category category);
-
-    @Update
-    void update(Category category);
+    @Update(onConflict = REPLACE)
+    fun update(category: Category)
 
     @Delete
-    void delete(Category category);
+    fun delete(category: Category)
 
-    @Query("SELECT * FROM category_table GROUP BY name")
-    LiveData<List<Category>>
-    getAllCategories();
+    @get:Query("SELECT * FROM category_table GROUP BY name")
+    val allCategories: LiveData<List<Category>>
 
     @Query("SELECT COUNT() FROM category_table WHERE name = :name")
-    int count(String name);
-
+    fun count(name: String): Int
 }

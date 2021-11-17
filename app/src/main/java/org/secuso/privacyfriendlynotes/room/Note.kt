@@ -1,48 +1,26 @@
-package org.secuso.privacyfriendlynotes.room;
+package org.secuso.privacyfriendlynotes.room
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity(tableName = "note_table")
-public class Note {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    private String title;
-    private String content;
-    private int category;
-    private int type;
+data class Note(
+        @PrimaryKey(autoGenerate = true)
+        var id: Int = 0,
+        var title: String,
+        var content: String,
+        var type: Int,
+        var category: Int,
+        var isTrash: Int = 0) {
 
-    public Note(String title, String content, int type, int category) {
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.type = type;
-    }
+        constructor(title: String, content: String, type: Int, category: Int) : this(
+                title = title,
+                content = content,
+                type = type,
+                category = category,
+                isTrash = 0,
+                id = 0
+        ) {
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public int getCategory() {
-        return category;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-
-
+        }
 }

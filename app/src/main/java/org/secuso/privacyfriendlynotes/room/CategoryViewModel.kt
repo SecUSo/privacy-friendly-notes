@@ -1,39 +1,32 @@
-package org.secuso.privacyfriendlynotes.room;
+package org.secuso.privacyfriendlynotes.room
 
-import android.app.Application;
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-
-import java.util.List;
-
-public class CategoryViewModel extends AndroidViewModel {
-    private CategoryRepository repository;
-    private LiveData<List<Category>> allCategories;
-
-    public CategoryViewModel(@NonNull Application application) {
-        super(application);
-        repository = new CategoryRepository(application);
-        allCategories = repository.getAllCategories();
+class CategoryViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: NoteDatabase = NoteDatabase.getInstance(application)
+    val allCategories: LiveData<List<Category>> = repository.categoryDao().allCategories
+    fun insert(category: Category) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.categoryDao().insert(category)
+        }
     }
 
-    public void insert(Category category) {
-        repository.insert(category);
+    fun update(category: Category) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.categoryDao().update(category)
+        }
     }
 
-    public void update(Category category) {
-        repository.update(category);
+    fun delete(category: Category) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.categoryDao().delete(category)
+        }
     }
 
-    public void delete(Category category) {
-        repository.delete(category);
-    }
 
-    public Integer count(String categoryName) { return repository.count(categoryName);}
-
-
-    public LiveData<List<Category>> getAllCategories(){
-        return allCategories;
-    }
 }

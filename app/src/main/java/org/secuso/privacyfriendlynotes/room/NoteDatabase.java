@@ -11,12 +11,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlynotes.database.DbContract;
 
-@Database(entities = {Note.class}, version = 4)
+@Database(entities = {Note.class,Category.class}, version = 6)
 public abstract class NoteDatabase extends RoomDatabase {
 
     private static NoteDatabase instance;
 
     public abstract NoteDao noteDao();
+    public abstract CategoryDao categoryDao();
 
     public static synchronized NoteDatabase getInstance(Context context){
         if (instance == null){

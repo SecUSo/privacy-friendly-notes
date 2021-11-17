@@ -1,20 +1,16 @@
 package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,10 +22,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
@@ -37,9 +31,6 @@ import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryAdapter;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
-import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteAdapter;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 
 import java.util.List;
 
@@ -151,9 +142,8 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 if (!name.getText().toString().isEmpty()){
                     Category category = new Category(name.getText().toString());
                     categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-                    if(categoryViewModel.count(category.getName())!= 0){ Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();} else {
-                        categoryViewModel.insert(category);
-                    }
+                    categoryViewModel.insert(category);
+
                 }
                 break;
         }
