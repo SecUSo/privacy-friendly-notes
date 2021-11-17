@@ -578,9 +578,11 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            shouldSave = false;
-                            DbAccess.trashNote(getBaseContext(), id);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+                            editor.commit();
                             finish();
+                            displayTrashDialog();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -594,7 +596,15 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.setId(id);
             noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-            noteViewModel.delete(note);
+            if(note.isTrash() == 1){
+                noteViewModel.delete(note);
+            } else {
+                note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
+                note.setId(id);
+                note.setTrash(1);
+                noteViewModel.update(note);
+            }
+
             finish();
         }
     }

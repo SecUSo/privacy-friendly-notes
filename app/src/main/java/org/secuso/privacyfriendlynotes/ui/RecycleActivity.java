@@ -2,11 +2,18 @@ package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,15 +28,46 @@ import android.widget.TextView;
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.Note;
+import org.secuso.privacyfriendlynotes.room.NoteAdapter;
+import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 
 import java.io.File;
+import java.util.List;
 
 public class RecycleActivity extends AppCompatActivity {
+
+    NoteViewModel noteViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycle);
+
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewRecycle);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        final NoteAdapter adapter = new NoteAdapter();
+        recyclerView.setAdapter(adapter);
+
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+        noteViewModel.getTrashedNotes().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
+
+        adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+
+
+            }
+        });
+
+
 
         String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
         String[] selectionArgs = { "1" };

@@ -374,7 +374,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.setId(id);
             noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-            noteViewModel.delete(note);
+            if(note.isTrash() == 1){
+                noteViewModel.delete(note);
+            } else {
+                note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
+                note.setId(id);
+                note.setTrash(1);
+                noteViewModel.update(note);
+            }
             finish();
         }
 

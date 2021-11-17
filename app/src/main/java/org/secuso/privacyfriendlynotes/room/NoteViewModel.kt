@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 class NoteViewModel(application: Application) : AndroidViewModel(application) {
     private val database: NoteDatabase = NoteDatabase.getInstance(application)
     val allNotes: LiveData<List<Note>> = database.noteDao().allNotes
+    val activeNotes: LiveData<List<Note>> = database.noteDao().allActiveNotes
+    val trashedNotes: LiveData<List<Note>> = database.noteDao().allTrashedNotes
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
