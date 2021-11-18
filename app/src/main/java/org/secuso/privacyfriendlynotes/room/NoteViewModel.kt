@@ -12,6 +12,7 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
     val allNotes: LiveData<List<Note>> = database.noteDao().allNotes
     val activeNotes: LiveData<List<Note>> = database.noteDao().allActiveNotes
     val trashedNotes: LiveData<List<Note>> = database.noteDao().allTrashedNotes
+    val allNotesAlphabetical: LiveData<List<Note>> = database.noteDao().allNotesAlphabetical
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {

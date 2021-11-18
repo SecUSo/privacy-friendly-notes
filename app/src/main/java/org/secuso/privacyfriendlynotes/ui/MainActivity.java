@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity
 
     //New Room variables
     private NoteViewModel noteViewModel;
+    NoteAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-        final NoteAdapter adapter = new NoteAdapter();
+        adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
 
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatActivity
                         i.putExtra(TextNoteActivity.EXTRA_TITLE, note.getTitle());
                         i.putExtra(TextNoteActivity.EXTRA_CONTENT, note.getContent());
                         i.putExtra(TextNoteActivity.EXTRA_CATEGORY, note.getCategory());
+                        i.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
+
                         startActivity(i);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
@@ -117,6 +120,7 @@ public class MainActivity extends AppCompatActivity
                         i2.putExtra(AudioNoteActivity.EXTRA_TITLE, note.getTitle());
                         i2.putExtra(AudioNoteActivity.EXTRA_CONTENT, note.getContent());
                         i2.putExtra(AudioNoteActivity.EXTRA_CATEGORY, note.getCategory());
+                        i2.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
 
                         startActivity(i2);
                         break;
@@ -126,6 +130,7 @@ public class MainActivity extends AppCompatActivity
                         i3.putExtra(SketchActivity.EXTRA_TITLE, note.getTitle());
                         i3.putExtra(SketchActivity.EXTRA_CONTENT, note.getContent());
                         i3.putExtra(SketchActivity.EXTRA_CATEGORY, note.getCategory());
+                        i3.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
 
                         startActivity(i3);
                         break;
@@ -135,6 +140,7 @@ public class MainActivity extends AppCompatActivity
                         i4.putExtra(ChecklistNoteActivity.EXTRA_TITLE, note.getTitle());
                         i4.putExtra(ChecklistNoteActivity.EXTRA_CONTENT, note.getContent());
                         i4.putExtra(ChecklistNoteActivity.EXTRA_CATEGORY, note.getCategory());
+                        i4.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
 
                         startActivity(i4);
                         break;
@@ -196,7 +202,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(getApplication(), RecycleActivity.class));
         } else if (id == R.id.nav_all) {
             selectedCategory = CAT_ALL;
-            updateList();
+            // TODO show all notes
         } else if (id == R.id.nav_manage_categories) {
             startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
         } else if (id == R.id.nav_settings) {
@@ -207,7 +213,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(getApplication(), AboutActivity.class));
         } else {
             selectedCategory = id;
-            updateList();
+            // TODO only show selcted item
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -255,42 +261,14 @@ public class MainActivity extends AppCompatActivity
         c.close();
     }
 
-    private void updateList() {
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
-        if (selectedCategory == -1) { //show all
-            String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-            String[] selectionArgs = { "0" };
-            adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
-        } else {
-            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ? AND " + DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-            String[] selectionArgs = { String.valueOf(selectedCategory), "0" };
-            adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
-        }
-    }
 
     private void updateListAlphabetical() {
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
-        if (selectedCategory == -1) { //show all
-            String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-            String[] selectionArgs = { "0" };
-            adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext(), selection, selectionArgs));
-        } else {
-            String selection = DbContract.NoteEntry.COLUMN_CATEGORY + " = ? AND " + DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-            String[] selectionArgs = { String.valueOf(selectedCategory), "0" };
-            adapter.changeCursor(DbAccess.getCursorAllNotesAlphabetical(getBaseContext(), selection, selectionArgs));
-        }
+        noteViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
     }
 
-    private void deleteSelectedItems(){
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
-        SparseBooleanArray checkedItemPositions = notesList.getCheckedItemPositions();
-        for (int i=0; i < checkedItemPositions.size(); i++) {
-            if(checkedItemPositions.valueAt(i)) {
-                DbAccess.trashNote(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
-            }
-        }
-    }
 }

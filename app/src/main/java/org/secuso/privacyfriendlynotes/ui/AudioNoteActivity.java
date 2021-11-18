@@ -74,6 +74,8 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
     public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
     public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
+    public static final String EXTRA_ISTRASH = "org.secuso.privacyfriendlynotes.ISTRASH";
+
 
 
     private static final int REQUEST_CODE_AUDIO = 1;
@@ -595,6 +597,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             Intent intent = getIntent();
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.setId(id);
+            note.setTrash(intent.getIntExtra(EXTRA_ISTRASH,0));
             noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
             if(note.isTrash() == 1){
                 noteViewModel.delete(note);

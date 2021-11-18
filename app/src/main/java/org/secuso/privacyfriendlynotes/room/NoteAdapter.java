@@ -1,14 +1,21 @@
 package org.secuso.privacyfriendlynotes.room;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.ui.AudioNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.ChecklistNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.SketchActivity;
+import org.secuso.privacyfriendlynotes.ui.TextNoteActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +38,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         holder.textViewTitle.setText(currentNote.getTitle());
         holder.textViewDescription.setText(currentNote.getContent());
 
+        switch (currentNote.getType()) {
+            case DbContract.NoteEntry.TYPE_TEXT:
+                holder.imageViewcategory.setImageResource(R.drawable.ic_short_text_black_24dp);
+                break;
+            case DbContract.NoteEntry.TYPE_AUDIO:
+                holder.imageViewcategory.setImageResource(R.drawable.ic_mic_black_24dp);
+                break;
+            case DbContract.NoteEntry.TYPE_SKETCH:
+                holder.imageViewcategory.setImageResource(R.drawable.ic_photo_black_24dp);
+                break;
+            case DbContract.NoteEntry.TYPE_CHECKLIST:
+                holder.imageViewcategory.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
+        }
     }
 
     @Override
@@ -43,19 +63,17 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         notifyDataSetChanged();
     }
 
-    public Note getNoteAt(int position){
-        return notes.get(position);
-    }
-
-
     class NoteHolder extends RecyclerView.ViewHolder {
         private TextView textViewTitle;
         private TextView textViewDescription;
+        private ImageView imageViewcategory;
+
 
         public NoteHolder(@NonNull View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.text_view_title);
             textViewDescription = itemView.findViewById(R.id.text_view_description);
+            imageViewcategory = itemView.findViewById(R.id.imageView_category);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
