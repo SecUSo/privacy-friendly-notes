@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -32,6 +33,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -56,6 +59,8 @@ import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteViewModel;
+import org.secuso.privacyfriendlynotes.room.Notification;
+import org.secuso.privacyfriendlynotes.room.NotificationViewModel;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
@@ -64,8 +69,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -102,6 +110,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     Cursor notificationCursor = null;
     private NoteViewModel noteViewModel;
     private CategoryViewModel categoryViewModel;
+    private Notification notification;
+    private String title;
 
 
     @Override
@@ -130,6 +140,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         if (id == -1) {
             Intent intent = getIntent();
             id = intent.getIntExtra(EXTRA_ID, -1);
+
+
         }
         edit = (id != -1);
 
@@ -169,7 +181,9 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             Intent intent = getIntent();
-            etName.setText(intent.getStringExtra(EXTRA_TITLE));
+            id = intent.getIntExtra(EXTRA_ID, -1);
+            title = intent.getStringExtra(EXTRA_TITLE);
+            etName.setText(title);
             mFileName = intent.getStringExtra(EXTRA_CONTENT);
             mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
             //find the current category and set spinner to that
@@ -183,11 +197,23 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
             //fill the notificationCursor
+            notification = new Notification(-1,-1);
             notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
-            hasAlarm = notificationCursor.moveToFirst();
-            if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
-            }
+            NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
+            notificationViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+                @Override
+                public void onChanged(@Nullable List<Notification> notifications) {
+                    for(Notification currentNotification : notifications){
+                        if(currentNotification.getNoteid() == id){
+
+                            notification.setNoteid(id);
+                            notification.setTime(currentNotification.getTime());
+                        }
+                    }
+                }
+            });
+
+
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
             drawView.setBackground(new BitmapDrawable(getResources(), mFilePath));
@@ -203,6 +229,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         if(!initial) {
             invalidateOptionsMenu();
         }
+
 
     }
 
@@ -246,8 +273,17 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_reminder);
+
+        if(notification.getTime() != -1){
+            hasAlarm = true;
+        } else{
+            hasAlarm = false;
+        }
+
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        } else {
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -267,13 +303,10 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), this.id);
-            hasAlarm = notificationCursor.moveToFirst();
-            if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
-            }
+
 
             if (hasAlarm) {
+                notification_id = notification.getNoteid();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -490,7 +523,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
         TimePickerDialog tpd = new TimePickerDialog(SketchActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
@@ -500,19 +533,26 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
+        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, (int) alarmtime.getTimeInMillis());
 
         if (hasAlarm) {
             //Update the current alarm
-            DbAccess.updateNotificationTime(getBaseContext(), notification_id, alarmtime.getTimeInMillis());
+            notificationViewModel.update(notification);
+
         } else {
             //create new alarm
-            notification_id = (int) (long) DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+            notificationViewModel.insert(notification);
         }
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        i.putExtra(NotificationService.NOTIFICATION_TYPE, DbContract.NoteEntry.TYPE_SKETCH);
+        i.putExtra(NotificationService.NOTIFICATION_TITLE, title);
 
         PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -524,6 +564,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
         Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
+        hasAlarm = true;
+
         loadActivity(false);
     }
 
@@ -536,7 +578,16 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
-        DbAccess.deleteNotification(getBaseContext(), notification_id);
+
+        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, 0);
+        notificationViewModel.delete(notification);
+        hasAlarm = false;
+        notification = null;
+
+
         loadActivity(false);
     }
 
@@ -545,7 +596,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);

@@ -20,7 +20,5 @@ data class Note(
                 category = category,
                 isTrash = 0,
                 id = 0
-        ) {
-
-        }
+        )
 }

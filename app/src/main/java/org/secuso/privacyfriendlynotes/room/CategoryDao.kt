@@ -18,6 +18,5 @@ interface CategoryDao {
     @get:Query("SELECT * FROM category_table GROUP BY name")
     val allCategories: LiveData<List<Category>>
 
-    @Query("SELECT COUNT() FROM category_table WHERE name = :name")
-    fun count(name: String): Int
+
 }
