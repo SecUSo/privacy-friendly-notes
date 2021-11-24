@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -44,6 +46,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -56,6 +59,7 @@ import com.simplify.ink.InkView;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteViewModel;
@@ -112,6 +116,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private CategoryViewModel categoryViewModel;
     private Notification notification;
     private String title;
+    private MatrixCursor matrixCursor;
 
 
     @Override
@@ -145,7 +150,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
         edit = (id != -1);
 
-        SimpleCursorAdapter adapter = null;
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
@@ -153,22 +157,33 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         //CategorySpinner
+        CategoryViewModel categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
+        adapter.add(getString(R.string.default_category));
+
+        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                for(Category currentCat : categories){
+                    adapter.add(currentCat.getName());
+                }
+            }
+        });
 
 
-        Cursor c = DbAccess.getCategories(getBaseContext());
-        if (c.getCount() == 0) {
+
+        if (adapter.getCount() == 0) {
             displayCategoryDialog();
         } else {
             String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
             int[] to = {R.id.text1};
-            adapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.simple_spinner_item, c, from, to, CursorAdapter.FLAG_AUTO_REQUERY);
-            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Cursor c = (Cursor) parent.getItemAtPosition(position);
-                    currentCat = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
+                    String s = (String) parent.getItemAtPosition(position);
+                    //currentCat = s;
                 }
 
                 @Override
@@ -177,6 +192,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             });
         }
+
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -189,13 +205,15 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            for (int i = 0; i < adapter.getCount(); i++){
-                c.moveToPosition(i);
-                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-                    spinner.setSelection(i);
-                    break;
-                }
-            }
+            //TODO
+
+//            for (int i = 0; i < adapter.getCount(); i++){
+//                c.moveToPosition(i);
+//                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
+//                    spinner.setSelection(i);
+//                    break;
+//                }
+//            }
             //fill the notificationCursor
             notification = new Notification(-1,-1);
             notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
@@ -273,6 +291,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_reminder);
+
 
         if(notification.getTime() != -1){
             hasAlarm = true;

@@ -56,7 +56,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         recycler_list.setAdapter(adapter);
 
         categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-        categoryViewModel.getAllCategories().observe(this, new Observer<List<Category>>() {
+        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(List<Category> categoryNames) {
                 adapter.setCategories(categoryNames);

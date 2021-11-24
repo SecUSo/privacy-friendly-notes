@@ -16,7 +16,8 @@ interface CategoryDao {
     fun delete(category: Category)
 
     @get:Query("SELECT * FROM category_table GROUP BY name")
-    val allCategories: LiveData<List<Category>>
+    val allCategoriesLive: LiveData<List<Category>>
 
-
+    @Query("SELECT * FROM category_table GROUP BY name")
+    suspend fun getAllCategories(): List<Category>
 }
