@@ -17,12 +17,12 @@ interface NoteDao {
     @get:Query("SELECT * FROM note_table ORDER BY category DESC")
     val allNotes: LiveData<List<Note>>
 
-    @get:Query("SELECT * FROM note_table ORDER BY title DESC")
+    @get:Query("SELECT * FROM note_table ORDER BY name DESC")
     val allNotesAlphabetical: LiveData<List<Note>>
 
-    @get:Query("SELECT * FROM note_table WHERE isTrash = 0 ORDER BY category DESC")
+    @get:Query("SELECT * FROM note_table WHERE in_trash = 0 ORDER BY category DESC")
     val allActiveNotes: LiveData<List<Note>>
 
-    @get:Query("SELECT * FROM note_table WHERE isTrash = 1 ORDER BY category DESC")
+    @get:Query("SELECT * FROM note_table WHERE in_trash = 1 ORDER BY category DESC")
     val allTrashedNotes: LiveData<List<Note>>
 }

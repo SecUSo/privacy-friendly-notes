@@ -524,7 +524,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private void updateNote(){
         fillNameIfEmpty();
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-        note.setId(id);
+        note.set_id(id);
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
         noteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
@@ -596,15 +596,15 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             shouldSave = false;
             Intent intent = getIntent();
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
-            note.setId(id);
-            note.setTrash(intent.getIntExtra(EXTRA_ISTRASH,0));
+            note.set_id(id);
+            note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
             noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-            if(note.isTrash() == 1){
+            if(note.getIn_trash() == 1){
                 noteViewModel.delete(note);
             } else {
                 note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-                note.setId(id);
-                note.setTrash(1);
+                note.set_id(id);
+                note.setIn_trash(1);
                 noteViewModel.update(note);
             }
 

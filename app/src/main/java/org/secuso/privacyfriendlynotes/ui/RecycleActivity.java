@@ -1,30 +1,17 @@
 package org.secuso.privacyfriendlynotes.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
@@ -64,8 +51,8 @@ public class RecycleActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Note note) {
                 new AlertDialog.Builder(RecycleActivity.this)
-                        .setTitle(String.format(getString(R.string.dialog_restore_title), note.getTitle()))
-                        .setMessage(String.format(getString(R.string.dialog_restore_message), note.getTitle()))
+                        .setTitle(String.format(getString(R.string.dialog_restore_title), note.getName()))
+                        .setMessage(String.format(getString(R.string.dialog_restore_message), note.getName()))
                         .setNegativeButton(R.string.dialog_option_delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -87,7 +74,7 @@ public class RecycleActivity extends AppCompatActivity {
                         .setPositiveButton(R.string.dialog_option_restore, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                note.setTrash(0);
+                                note.setIn_trash(0);
                                 noteViewModel.update(note);
                             }
                         })

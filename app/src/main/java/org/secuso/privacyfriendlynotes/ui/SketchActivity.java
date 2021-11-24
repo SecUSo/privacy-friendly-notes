@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -33,9 +32,6 @@ import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -73,11 +69,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -165,7 +159,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 for(Category currentCat : categories){
-                    adapter.add(currentCat.getName());
+                    adapter.add(currentCat.get_name());
                 }
             }
         });
@@ -222,9 +216,9 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 @Override
                 public void onChanged(@Nullable List<Notification> notifications) {
                     for(Notification currentNotification : notifications){
-                        if(currentNotification.getNoteid() == id){
+                        if(currentNotification.get_noteid() == id){
 
-                            notification.setNoteid(id);
+                            notification.set_noteid(id);
                             notification.setTime(currentNotification.getTime());
                         }
                     }
@@ -292,17 +286,19 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_reminder);
 
-
-        if(notification.getTime() != -1){
-            hasAlarm = true;
-        } else{
-            hasAlarm = false;
+        if(notification != null) {
+            if (notification.getTime() != 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
         }
-
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         } else {
-            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            if(notification != null) {
+                item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -325,7 +321,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
 
             if (hasAlarm) {
-                notification_id = notification.getNoteid();
+                notification_id = notification.get_noteid();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -409,7 +405,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             e.printStackTrace();
         }
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
-        note.setId(id);
+        note.set_id(id);
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
         noteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
@@ -491,15 +487,15 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             shouldSave = false;
             Intent intent = getIntent();
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
-            note.setId(id);
-            note.setTrash(intent.getIntExtra(EXTRA_ISTRASH,0));
+            note.set_id(id);
+            note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
             noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-            if(note.isTrash() == 1){
+            if(note.getIn_trash() == 1){
                 noteViewModel.delete(note);
             } else {
                 note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
-                note.setId(id);
-                note.setTrash(1);
+                note.set_id(id);
+                note.setIn_trash(1);
                 noteViewModel.update(note);
             }
             finish();

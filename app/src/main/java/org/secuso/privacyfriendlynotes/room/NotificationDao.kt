@@ -15,9 +15,9 @@ interface NotificationDao {
     @Delete
     fun delete(notification: Notification)
 
-    @Query("SELECT * FROM notification_table WHERE noteid=:thisNoteid ")
+    @Query("SELECT * FROM notification_table WHERE _noteid=:thisNoteid ")
     suspend fun notificationFromNoteId(thisNoteid: Integer): Notification
 
-    @get:Query("SELECT * FROM notification_table ORDER BY noteid DESC")
+    @get:Query("SELECT * FROM notification_table ORDER BY _noteid DESC")
     val allNotifications: LiveData<List<Notification>>
 }

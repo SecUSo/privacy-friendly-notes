@@ -1,10 +1,7 @@
 package org.secuso.privacyfriendlynotes.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
@@ -14,26 +11,16 @@ import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.SparseBooleanArray;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -106,41 +93,41 @@ public class MainActivity extends AppCompatActivity
                 switch (note.getType()) {
                     case DbContract.NoteEntry.TYPE_TEXT:
                         Intent i = new Intent(getApplication(), TextNoteActivity.class);
-                        i.putExtra(TextNoteActivity.EXTRA_ID, note.getId());
-                        i.putExtra(TextNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i.putExtra(TextNoteActivity.EXTRA_ID, note.get_id());
+                        i.putExtra(TextNoteActivity.EXTRA_TITLE, note.getName());
                         i.putExtra(TextNoteActivity.EXTRA_CONTENT, note.getContent());
                         i.putExtra(TextNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
+                        i.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
 
                         startActivity(i);
                         break;
                     case DbContract.NoteEntry.TYPE_AUDIO:
                         Intent i2 = new Intent(getApplication(), AudioNoteActivity.class);
-                        i2.putExtra(AudioNoteActivity.EXTRA_ID, note.getId());
-                        i2.putExtra(AudioNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i2.putExtra(AudioNoteActivity.EXTRA_ID, note.get_id());
+                        i2.putExtra(AudioNoteActivity.EXTRA_TITLE, note.getName());
                         i2.putExtra(AudioNoteActivity.EXTRA_CONTENT, note.getContent());
                         i2.putExtra(AudioNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i2.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
+                        i2.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
 
                         startActivity(i2);
                         break;
                     case DbContract.NoteEntry.TYPE_SKETCH:
                         Intent i3 = new Intent(getApplication(), SketchActivity.class);
-                        i3.putExtra(SketchActivity.EXTRA_ID, note.getId());
-                        i3.putExtra(SketchActivity.EXTRA_TITLE, note.getTitle());
+                        i3.putExtra(SketchActivity.EXTRA_ID, note.get_id());
+                        i3.putExtra(SketchActivity.EXTRA_TITLE, note.getName());
                         i3.putExtra(SketchActivity.EXTRA_CONTENT, note.getContent());
                         i3.putExtra(SketchActivity.EXTRA_CATEGORY, note.getCategory());
-                        i3.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
+                        i3.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
 
                         startActivity(i3);
                         break;
                     case DbContract.NoteEntry.TYPE_CHECKLIST:
                         Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note.getId());
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_TITLE, note.getTitle());
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note.get_id());
+                        i4.putExtra(ChecklistNoteActivity.EXTRA_TITLE, note.getName());
                         i4.putExtra(ChecklistNoteActivity.EXTRA_CONTENT, note.getContent());
                         i4.putExtra(ChecklistNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i4.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.isTrash());
+                        i4.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
 
                         startActivity(i4);
                         break;

@@ -1,6 +1,5 @@
 package org.secuso.privacyfriendlynotes.room;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.database.DbContract;
-import org.secuso.privacyfriendlynotes.ui.AudioNoteActivity;
-import org.secuso.privacyfriendlynotes.ui.ChecklistNoteActivity;
-import org.secuso.privacyfriendlynotes.ui.SketchActivity;
-import org.secuso.privacyfriendlynotes.ui.TextNoteActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +30,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     @Override
     public void onBindViewHolder(@NonNull NoteHolder holder, int position) {
         Note currentNote = notes.get(position);
-        holder.textViewTitle.setText(currentNote.getTitle());
+        holder.textViewTitle.setText(currentNote.getName());
         holder.textViewDescription.setText(currentNote.getContent());
 
         switch (currentNote.getType()) {

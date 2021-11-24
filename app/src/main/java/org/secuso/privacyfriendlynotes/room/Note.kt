@@ -6,19 +6,19 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "note_table")
 data class Note(
         @PrimaryKey(autoGenerate = true)
-        var id: Int = 0,
-        var title: String,
+        var _id: Int = 0,
+        var name: String,
         var content: String,
         var type: Int,
         var category: Int,
-        var isTrash: Int = 0) {
+        var in_trash: Int = 0) {
 
-        constructor(title: String, content: String, type: Int, category: Int) : this(
-                title = title,
+        constructor(name: String, content: String, type: Int, category: Int) : this(
+                name = name,
                 content = content,
                 type = type,
                 category = category,
-                isTrash = 0,
-                id = 0
+                in_trash = 0,
+                _id = 0
         )
 }
