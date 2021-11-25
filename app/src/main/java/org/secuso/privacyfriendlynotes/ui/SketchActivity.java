@@ -110,8 +110,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private CategoryViewModel categoryViewModel;
     private Notification notification;
     private String title;
-    private MatrixCursor matrixCursor;
-
+    List<Category> allCategories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,6 +157,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
+                allCategories = categories;
                 for(Category currentCat : categories){
                     adapter.add(currentCat.getName());
                 }
@@ -176,8 +176,12 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String s = (String) parent.getItemAtPosition(position);
-                    //currentCat = s;
+                    String catName = (String) parent.getItemAtPosition(position);
+                    for(Category cat :allCategories){
+                        if(catName == cat.getName()){
+                            currentCat = cat.get_id();
+                        }
+                    }
                 }
 
                 @Override
@@ -199,13 +203,14 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            //TODO
+            //TODO set right category in the beginning for already existing notes
 
 //            for (int i = 0; i < adapter.getCount(); i++){
-//                c.moveToPosition(i);
-//                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-//                    spinner.setSelection(i);
-//                    break;
+//                for(Category cat :allCategories){
+//                    if(currentCat == cat.get_id()){
+//                        spinner.setSelection(i);
+//                        break;
+//                    }
 //                }
 //            }
             //fill the notificationCursor
