@@ -3,7 +3,7 @@ package org.secuso.privacyfriendlynotes.room
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "note_table")
+@Entity(tableName = "notes")
 data class Note(
         @PrimaryKey(autoGenerate = true)
         var _id: Int = 0,

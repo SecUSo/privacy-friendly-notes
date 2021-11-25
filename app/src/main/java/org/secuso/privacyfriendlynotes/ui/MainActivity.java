@@ -21,11 +21,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.Category;
+import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
@@ -238,14 +241,23 @@ public class MainActivity extends AppCompatActivity
         //Inflate the standard stuff
         MenuInflater menuInflater = new MenuInflater(getApplicationContext());
         menuInflater.inflate(R.menu.activity_main_drawer, navMenu);
+
         //Get the rest from the database
-        Cursor c = DbAccess.getCategories(getBaseContext());
-        while (c.moveToNext()){
-            String name = c.getString(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_NAME));
-            int id = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
-            navMenu.add(R.id.drawer_group2, id, Menu.NONE, name).setIcon(R.drawable.ic_label_black_24dp);
-        }
-        c.close();
+
+        CategoryViewModel categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+
+        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                navMenu.add(R.id.drawer_group2, 0, Menu.NONE, getString(R.string.default_category)).setIcon(R.drawable.ic_label_black_24dp);
+
+                for(Category currentCat : categories){
+                    // TODO Delete id for categories (?), change id (0)
+                    navMenu.add(R.id.drawer_group2, 0, Menu.NONE, currentCat.get_name()).setIcon(R.drawable.ic_label_black_24dp);
+                }
+            }
+        });
+
     }
 
 
