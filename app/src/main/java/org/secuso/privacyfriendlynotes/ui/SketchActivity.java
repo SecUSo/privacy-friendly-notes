@@ -159,7 +159,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 for(Category currentCat : categories){
-                    adapter.add(currentCat.get_name());
+                    adapter.add(currentCat.getName());
                 }
             }
         });
@@ -210,15 +210,14 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 //            }
             //fill the notificationCursor
             notification = new Notification(-1,-1);
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
             NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
             notificationViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
                 @Override
                 public void onChanged(@Nullable List<Notification> notifications) {
                     for(Notification currentNotification : notifications){
-                        if(currentNotification.get_noteid() == id){
+                        if(currentNotification.getNoteid() == id){
 
-                            notification.set_noteid(id);
+                            notification.setNoteid(id);
                             notification.setTime(currentNotification.getTime());
                         }
                     }
@@ -321,7 +320,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
 
             if (hasAlarm) {
-                notification_id = notification.get_noteid();
+                notification_id = notification.getNoteid();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);

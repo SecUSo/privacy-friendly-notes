@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity
 
                 for(Category currentCat : categories){
                     // TODO Delete id for categories (?), change id (0)
-                    navMenu.add(R.id.drawer_group2, 0, Menu.NONE, currentCat.get_name()).setIcon(R.drawable.ic_label_black_24dp);
+                    navMenu.add(R.id.drawer_group2, 0, Menu.NONE, currentCat.getName()).setIcon(R.drawable.ic_label_black_24dp);
                 }
             }
         });

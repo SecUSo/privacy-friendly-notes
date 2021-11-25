@@ -67,8 +67,8 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
             @Override
             public void onItemClick(Category currentCategory) {
                 new AlertDialog.Builder(ManageCategoriesActivity.this)
-                        .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.get_name()))
-                        .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.get_name()))
+                        .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.getName()))
+                        .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.getName()))
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
