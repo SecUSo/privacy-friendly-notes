@@ -20,4 +20,7 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories GROUP BY name")
     suspend fun getAllCategories(): List<Category>
+
+    @Query("SELECT name FROM categories WHERE _id=:thisCategoryId ")
+    fun categoryNameFromId(thisCategoryId: Integer): LiveData<String?>
 }

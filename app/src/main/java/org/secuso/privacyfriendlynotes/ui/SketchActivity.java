@@ -57,6 +57,7 @@ import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
+import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Notification;
@@ -111,6 +112,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private Notification notification;
     private String title;
     List<Category> allCategories;
+    ArrayAdapter<CharSequence> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +131,34 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         drawView.setColor(Color.BLACK);
         drawView.setMinStrokeWidth(1.5f);
         drawView.setMaxStrokeWidth(6f);
+
+        //CategorySpinner
+        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
+        adapter.add(getString(R.string.default_category));
+
+        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                allCategories = categories;
+                for(Category currentCat : categories){
+                    adapter.add(currentCat.getName());
+                }
+            }
+        });
+
+
+        Intent intent = getIntent();
+        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+
+        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Integer position = adapter.getPosition(s);
+                spinner.setSelection(position);
+            }
+        });
 
         loadActivity(true);
     }
@@ -149,20 +179,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
-        //CategorySpinner
-        CategoryViewModel categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
-        adapter.add(getString(R.string.default_category));
-
-        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
-            @Override
-            public void onChanged(@Nullable List<Category> categories) {
-                allCategories = categories;
-                for(Category currentCat : categories){
-                    adapter.add(currentCat.getName());
-                }
-            }
-        });
 
 
 
@@ -203,16 +219,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            //TODO set right category in the beginning for already existing notes
 
-//            for (int i = 0; i < adapter.getCount(); i++){
-//                for(Category cat :allCategories){
-//                    if(currentCat == cat.get_id()){
-//                        spinner.setSelection(i);
-//                        break;
-//                    }
-//                }
-//            }
             //fill the notificationCursor
             notification = new Notification(-1,-1);
             NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
