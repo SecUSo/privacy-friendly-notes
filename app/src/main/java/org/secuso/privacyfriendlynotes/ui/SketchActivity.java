@@ -193,6 +193,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String catName = (String) parent.getItemAtPosition(position);
+                    currentCat = 0;
                     for(Category cat :allCategories){
                         if(catName == cat.getName()){
                             currentCat = cat.get_id();
