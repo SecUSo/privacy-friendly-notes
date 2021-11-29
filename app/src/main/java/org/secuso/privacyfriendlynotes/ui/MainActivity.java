@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_about) {
             startActivity(new Intent(getApplication(), AboutActivity.class));
         } else {
-            // TODO get correct id
             selectedCategory = id;
             mainActivityViewModel.getNotesFromCategory(selectedCategory).observe(this, new Observer<List<Note>>() {
                 @Override
