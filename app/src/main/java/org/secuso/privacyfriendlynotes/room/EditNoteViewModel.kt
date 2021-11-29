@@ -35,25 +35,25 @@ class EditNoteViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun getNotificationFromNoteId(noteId: Integer): LiveData<Notification?> {
-
-        viewModelScope.launch(Dispatchers.Default){
-            withContext(Dispatchers.Main){
-                if(_notificationLiveDataLast != null){
-                    _notificationLiveData.removeSource(_notificationLiveDataLast!!)
-                }
-            }
-            _notificationLiveDataLast = repository.notificationDao().notificationFromNoteId(noteId)
-
-            withContext(Dispatchers.Main){
-                _notificationLiveData.addSource(_notificationLiveDataLast!!){
-                    _notificationLiveData.postValue(it)
-                }
-            }
-
-        }
-        return _notificationLiveData
-    }
+//    fun getNotificationFromNoteId(noteId: Integer): LiveData<Notification?> {
+//
+//        viewModelScope.launch(Dispatchers.Default){
+//            withContext(Dispatchers.Main){
+//                if(_notificationLiveDataLast != null){
+//                    _notificationLiveData.removeSource(_notificationLiveDataLast!!)
+//                }
+//            }
+//            _notificationLiveDataLast = repository.notificationDao().notificationFromNoteId(noteId)
+//
+//            withContext(Dispatchers.Main){
+//                _notificationLiveData.addSource(_notificationLiveDataLast!!){
+//                    _notificationLiveData.postValue(it)
+//                }
+//            }
+//
+//        }
+//        return _notificationLiveData
+//    }
 
 
 

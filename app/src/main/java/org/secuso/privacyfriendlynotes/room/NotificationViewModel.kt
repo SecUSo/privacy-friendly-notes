@@ -31,24 +31,24 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun getNotificationFromNoteId(noteId: Integer): LiveData<Notification?> {
-
-        viewModelScope.launch(Dispatchers.Default){
-            withContext(Main){
-                if(_notificationLiveDataLast != null){
-                    _notificationLiveData.removeSource(_notificationLiveDataLast!!)
-                }
-            }
-            _notificationLiveDataLast = repository.notificationDao().notificationFromNoteId(noteId)
-
-            withContext(Main){
-                _notificationLiveData.addSource(_notificationLiveDataLast!!){
-                    _notificationLiveData.postValue(it)
-                }
-            }
-
-        }
-        return _notificationLiveData
-    }
+//    fun getNotificationFromNoteId(noteId: Integer): LiveData<Notification?> {
+//
+//        viewModelScope.launch(Dispatchers.Default){
+//            withContext(Main){
+//                if(_notificationLiveDataLast != null){
+//                    _notificationLiveData.removeSource(_notificationLiveDataLast!!)
+//                }
+//            }
+//            _notificationLiveDataLast = repository.notificationDao().notificationFromNoteId(noteId)
+//
+//            withContext(Main){
+//                _notificationLiveData.addSource(_notificationLiveDataLast!!){
+//                    _notificationLiveData.postValue(it)
+//                }
+//            }
+//
+//        }
+//        return _notificationLiveData
+//    }
 
 }

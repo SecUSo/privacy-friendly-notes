@@ -113,6 +113,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
+    private Menu menu;
+    private MenuItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +149,23 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
+        //fill the notificationCursor
+        notification = new Notification(-1,-1);
+        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
+        notificationViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(@Nullable List<Notification> notifications) {
+                for(Notification currentNotification : notifications){
+                    if(currentNotification.get_noteId() == id){
+                        notification.set_noteId(id);
+                        notification.setTime(currentNotification.getTime());
+                    }
+                }
+
+            }
+        });
+
+
 
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
@@ -164,6 +183,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void loadActivity(boolean initial){
+
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
             Intent intent = getIntent();
@@ -221,21 +241,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
 
-            //fill the notificationCursor
-            notification = new Notification(-1,-1);
-            NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
-            notificationViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
-                @Override
-                public void onChanged(@Nullable List<Notification> notifications) {
-                    for(Notification currentNotification : notifications){
-                        if(currentNotification.getNoteid() == id){
-
-                            notification.setNoteid(id);
-                            notification.setTime(currentNotification.getTime());
-                        }
-                    }
-                }
-            });
 
 
             findViewById(R.id.btn_delete).setEnabled(true);
@@ -296,19 +301,18 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_reminder);
-
-        if(notification != null) {
-            if (notification.getTime() != 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
+        this.menu = menu;
+        item = menu.findItem(R.id.action_reminder);
+        if(notification.get_noteId() >= 0) {
+            hasAlarm = true;
+        } else {
+            hasAlarm = false;
         }
+
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         } else {
-            if(notification != null) {
+            if(edit){
                 item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             }
         }
@@ -331,9 +335,13 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
             //fill the notificationCursor
 
-
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
             if (hasAlarm) {
-                notification_id = notification.getNoteid();
+                notification_id = notification.get_noteId();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -438,7 +446,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
-        noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
         noteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
@@ -563,15 +571,19 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
-        Notification notification = new Notification(id, (int) alarmtime.getTimeInMillis());
+        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
 
         if (hasAlarm) {
             //Update the current alarm
-            notificationViewModel.update(notification);
+            notificationViewModel.update(notificationTimeSet);
 
         } else {
             //create new alarm
-            notificationViewModel.insert(notification);
+            notificationViewModel.insert(notificationTimeSet);
+            hasAlarm = true;
+            // TODO change image after creating an alarm
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+
         }
         //Store a reference for the notification in the database. This is later used by the service.
 
@@ -591,7 +603,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
         Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
-        hasAlarm = true;
 
         loadActivity(false);
     }
@@ -612,7 +623,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         Notification notification = new Notification(id, 0);
         notificationViewModel.delete(notification);
         hasAlarm = false;
-        notification = null;
 
 
         loadActivity(false);
@@ -633,6 +643,9 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             return true;
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
+            notification = new Notification(-1,-1);
+            //TODO change alarm after deleting Notification
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
         return false;

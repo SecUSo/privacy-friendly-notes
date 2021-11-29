@@ -16,7 +16,7 @@ import org.secuso.privacyfriendlynotes.database.DbContract;
 
 @Database(
         entities = {Note.class,Category.class,Notification.class},
-        version = 6
+        version = 7
 //        ,autoMigrations = { @AutoMigration(
 //                from = 1,
 //                to = 2
@@ -51,6 +51,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
+            // TODO delete Notification _id and set _noteId to primary key
 //            database.execSQL(
 //                    "CREATE TABLE notes_new (_id INTEGER NOT NULL,"
 //                            + "name TEXT,"
