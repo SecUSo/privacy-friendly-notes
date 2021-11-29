@@ -29,6 +29,7 @@ import org.secuso.privacyfriendlynotes.database.DbAccess;
 import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
+import org.secuso.privacyfriendlynotes.room.MainActivityViewModel;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
 
     //New Room variables
-    private NoteViewModel noteViewModel;
+    private MainActivityViewModel mainActivityViewModel;
     NoteAdapter adapter;
 
     @Override
@@ -81,8 +82,8 @@ public class MainActivity extends AppCompatActivity
         adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
 
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
                 adapter.setNotes(notes);
@@ -191,8 +192,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_trash) {
             startActivity(new Intent(getApplication(), RecycleActivity.class));
         } else if (id == R.id.nav_all) {
-            selectedCategory = CAT_ALL;
-            // TODO show all notes
+            mainActivityViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                    adapter.setNotes(notes);
+                }
+            });
         } else if (id == R.id.nav_manage_categories) {
             startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
         } else if (id == R.id.nav_settings) {
@@ -202,8 +207,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_about) {
             startActivity(new Intent(getApplication(), AboutActivity.class));
         } else {
+            // TODO get correct id
             selectedCategory = id;
-            // TODO only show selcted item
+            mainActivityViewModel.getNotesFromCategory(selectedCategory).observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                    adapter.setNotes(notes);
+                }
+            });
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -252,8 +263,7 @@ public class MainActivity extends AppCompatActivity
                 navMenu.add(R.id.drawer_group2, 0, Menu.NONE, getString(R.string.default_category)).setIcon(R.drawable.ic_label_black_24dp);
 
                 for(Category currentCat : categories){
-                    // TODO Delete id for categories (?), change id (0)
-                    navMenu.add(R.id.drawer_group2, 0, Menu.NONE, currentCat.getName()).setIcon(R.drawable.ic_label_black_24dp);
+                    navMenu.add(R.id.drawer_group2, currentCat.get_id(), Menu.NONE, currentCat.getName()).setIcon(R.drawable.ic_label_black_24dp);
                 }
             }
         });
@@ -262,7 +272,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void updateListAlphabetical() {
-        noteViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
+        mainActivityViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
                 adapter.setNotes(notes);
