@@ -28,4 +28,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE category=:thisCategory ")
     fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
+
+    @Query("SELECT * FROM notes")
+    fun getNotesDebug() : List<Note>
 }

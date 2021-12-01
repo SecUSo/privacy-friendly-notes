@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.JsonReader;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -54,7 +55,15 @@ public class BackupRestorer implements IBackupRestorer {
         if(!n2.equals("content")) {
             throw new RuntimeException("Unknown value " + n2);
         }
-        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath("restoreDatabase"), null);
+
+        // delete if file already exists
+        File restoreDatabase = context.getDatabasePath("restoreDatabase");
+        if(restoreDatabase.exists()) {
+            restoreDatabase.delete();
+        }
+
+        // create new restore database
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(restoreDatabase, null);
         db.beginTransaction();
         db.setVersion(version);
 
@@ -67,10 +76,27 @@ public class BackupRestorer implements IBackupRestorer {
         reader.endObject();
 
         // copy file to correct location
-        File databaseFile = context.getDatabasePath("restoreDatabase");
-        File oldDBFile = context.getDatabasePath(DATABASE_NAME);
-        FileUtil.copyFile(databaseFile, context.getDatabasePath(DATABASE_NAME));
-        databaseFile.delete();
+        File restoreDatabaseFile = context.getDatabasePath("restoreDatabase");
+        File actualDatabaseFile = context.getDatabasePath(DATABASE_NAME);
+
+        if(version >= 2) {
+            DatabaseUtil.deleteRoomDatabase(context, DATABASE_NAME);
+        } else {
+            actualDatabaseFile.delete(); // delete the old instance
+        }
+
+        FileUtil.copyFile(restoreDatabaseFile, actualDatabaseFile);
+        Log.d("NoteRestore", "Backup Restored");
+
+        // set checkpoint
+        if(version >= 2) {
+            SQLiteDatabase actualDatabase = SQLiteDatabase.openOrCreateDatabase(actualDatabaseFile, null);
+            actualDatabase.execSQL("PRAGMA schema.wal_checkpoint(FULL)");
+        }
+
+        // delete restore database
+        restoreDatabaseFile.delete();
+
     }
 
     private void readPreferences(@NonNull JsonReader reader, @NonNull Context context) throws IOException {

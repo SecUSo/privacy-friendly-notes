@@ -47,17 +47,14 @@ public abstract class NoteDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-//            database.execSQL(
-//                    "CREATE TABLE notifications_new (_noteId INTEGER NOT NULL,"
-//                            + "time INTEGER,"
-//                            + "PRIMARY KEY(_noteId))");
-//            database.execSQL("INSERT INTO notifications_new(_noteId, time)"
-//                + "SELECT note, time FROM notifications");
-//            database.execSQL("DROP TABLE notifications");
-//            database.execSQL("ALTER TABLE notifications_new RENAME TO notifications");
-
-
-
+            database.execSQL(
+                    "CREATE TABLE notifications_new (_noteId INTEGER NOT NULL,"
+                            + "time INTEGER,"
+                            + "PRIMARY KEY(_noteId))");
+            database.execSQL("INSERT INTO notifications_new(_noteId, time)"
+                + "SELECT note, time FROM notifications");
+            database.execSQL("DROP TABLE notifications");
+            database.execSQL("ALTER TABLE notifications_new RENAME TO notifications");
         }
     };
 
