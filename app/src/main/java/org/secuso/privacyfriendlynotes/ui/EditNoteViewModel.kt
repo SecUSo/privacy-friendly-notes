@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.room
+package org.secuso.privacyfriendlynotes.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -8,6 +8,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.secuso.privacyfriendlynotes.room.Category
+import org.secuso.privacyfriendlynotes.room.Note
+import org.secuso.privacyfriendlynotes.room.NoteDatabase
+import org.secuso.privacyfriendlynotes.room.Notification
 
 class EditNoteViewModel(application: Application) : AndroidViewModel(application){
 

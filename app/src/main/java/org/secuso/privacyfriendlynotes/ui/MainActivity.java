@@ -25,8 +25,6 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
-import org.secuso.privacyfriendlynotes.room.MainActivityViewModel;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
@@ -250,9 +248,9 @@ public class MainActivity extends AppCompatActivity
 
         //Get the rest from the database
 
-        CategoryViewModel categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
-        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+        mainActivityViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 navMenu.add(R.id.drawer_group2, 0, Menu.NONE, getString(R.string.default_category)).setIcon(R.drawable.ic_label_black_24dp);

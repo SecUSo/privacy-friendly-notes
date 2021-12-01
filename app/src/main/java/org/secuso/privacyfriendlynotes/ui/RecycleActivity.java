@@ -17,14 +17,13 @@ import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 
 import java.io.File;
 import java.util.List;
 
 public class RecycleActivity extends AppCompatActivity {
 
-    NoteViewModel noteViewModel;
+    MainActivityViewModel mainActivityViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +37,8 @@ public class RecycleActivity extends AppCompatActivity {
         final NoteAdapter adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
 
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.getTrashedNotes().observe(this, new Observer<List<Note>>() {
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mainActivityViewModel.getTrashedNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
                 adapter.setNotes(notes);
@@ -55,7 +54,7 @@ public class RecycleActivity extends AppCompatActivity {
                         .setNegativeButton(R.string.dialog_option_delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                noteViewModel.delete(note);
+                                mainActivityViewModel.delete(note);
                                 if (note.getType() == DbContract.NoteEntry.TYPE_AUDIO) {
                                     new File(getFilesDir().getPath()+"/audio_notes"+note.getContent() ).delete();
                                 } else if (note.getType() == DbContract.NoteEntry.TYPE_SKETCH) {
@@ -74,7 +73,7 @@ public class RecycleActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 note.setIn_trash(0);
-                                noteViewModel.update(note);
+                                mainActivityViewModel.update(note);
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -84,6 +83,4 @@ public class RecycleActivity extends AppCompatActivity {
         });
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
     }
-    
-
 }

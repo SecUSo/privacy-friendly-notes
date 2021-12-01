@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Build;
 import android.widget.ArrayAdapter;
 
@@ -15,11 +14,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
+import org.secuso.privacyfriendlynotes.ui.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
-import org.secuso.privacyfriendlynotes.room.DbContract;
 
 import java.util.List;
 

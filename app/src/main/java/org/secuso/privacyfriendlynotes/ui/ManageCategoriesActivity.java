@@ -1,19 +1,15 @@
 package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,7 +17,6 @@ import android.widget.ListView;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryAdapter;
-import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 
 import java.util.List;
 
@@ -29,7 +24,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
     ListView list;
     RecyclerView recycler_list;
-    CategoryViewModel categoryViewModel;
+    ManageCategoriesViewModel manageCategoriesViewModel;
 
 
     @Override
@@ -46,8 +41,8 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         final CategoryAdapter adapter = new CategoryAdapter();
         recycler_list.setAdapter(adapter);
 
-        categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-        categoryViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+        manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
+        manageCategoriesViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(List<Category> categoryNames) {
                 adapter.setCategories(categoryNames);
@@ -88,8 +83,8 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 EditText name = (EditText) findViewById(R.id.etName);
                 if (!name.getText().toString().isEmpty()){
                     Category category = new Category(name.getText().toString());
-                    categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-                    categoryViewModel.insert(category);
+                    manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
+                    manageCategoriesViewModel.insert(category);
 
                 }
                 break;
@@ -98,7 +93,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
 
     private void deleteCategory(Category cat){
-        categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
-        categoryViewModel.delete(cat);
+        manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
+        manageCategoriesViewModel.delete(cat);
     }
 }

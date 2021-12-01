@@ -52,7 +52,6 @@ import com.simplify.ink.InkView;
 
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;

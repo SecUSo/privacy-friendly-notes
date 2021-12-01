@@ -53,7 +53,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
