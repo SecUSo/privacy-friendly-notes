@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.database;
+package org.secuso.privacyfriendlynotes.room;
 
 import android.provider.BaseColumns;
 

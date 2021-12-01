@@ -1,22 +1,17 @@
 package org.secuso.privacyfriendlynotes.room;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
-import androidx.room.AutoMigration;
 import androidx.room.Database;
-import androidx.room.RenameTable;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import org.secuso.privacyfriendlynotes.database.DbContract;
-
 @Database(
         entities = {Note.class,Category.class,Notification.class},
-        version = 7
+        version = 2
 //        ,autoMigrations = { @AutoMigration(
 //                from = 1,
 //                to = 2
@@ -24,6 +19,7 @@ import org.secuso.privacyfriendlynotes.database.DbContract;
         )
 public abstract class NoteDatabase extends RoomDatabase {
 
+    public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
     public abstract NoteDao noteDao();
     public abstract CategoryDao categoryDao();
@@ -51,15 +47,19 @@ public abstract class NoteDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            // TODO delete Notification _id and set _noteId to primary key
 //            database.execSQL(
-//                    "CREATE TABLE notes_new (_id INTEGER NOT NULL,"
-//                            + "name TEXT,"
-//                            + "content TEXT,"
-//                            + "type INTEGER"
-//                            + "PRIMARY KEY(_id))");
+//                    "CREATE TABLE notifications_new (_noteId INTEGER NOT NULL,"
+//                            + "time INTEGER,"
+//                            + "PRIMARY KEY(_noteId))");
+//            database.execSQL("INSERT INTO notifications_new(_noteId, time)"
+//                + "SELECT note, time FROM notifications");
+//            database.execSQL("DROP TABLE notifications");
+//            database.execSQL("ALTER TABLE notifications_new RENAME TO notifications");
+
+
 
         }
     };
+
 
 }

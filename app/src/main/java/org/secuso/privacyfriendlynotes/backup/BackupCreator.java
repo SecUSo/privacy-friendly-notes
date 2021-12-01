@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.secuso.privacyfriendlynotes.database.DbOpenHelper.DATABASE_NAME;
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 
 public class BackupCreator implements IBackupCreator {
 
@@ -42,6 +42,7 @@ public class BackupCreator implements IBackupCreator {
         try {
             writer.beginObject();
             SQLiteDatabase dataBase = SQLiteDatabase.openDatabase(context.getDatabasePath(DATABASE_NAME).getPath(), null, SQLiteDatabase.OPEN_READONLY);
+
 
             Log.d("PFA BackupCreator", "Writing database");
             writer.name("database");

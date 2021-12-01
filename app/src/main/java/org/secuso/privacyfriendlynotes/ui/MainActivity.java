@@ -1,7 +1,6 @@
 package org.secuso.privacyfriendlynotes.ui;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
@@ -21,19 +20,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 import org.secuso.privacyfriendlynotes.room.MainActivityViewModel;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 
 import java.util.List;
 

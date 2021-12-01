@@ -8,24 +8,16 @@ import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.SparseBooleanArray;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Category;
 import org.secuso.privacyfriendlynotes.room.CategoryAdapter;
@@ -104,25 +96,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         }
     }
 
-    private void deleteSelectedItems(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean delNotes = sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false);
-        CursorAdapter adapter = (CursorAdapter) list.getAdapter();
-        SparseBooleanArray checkedItemPositions = list.getCheckedItemPositions();
-        for (int i=0; i < checkedItemPositions.size(); i++) {
-            if(checkedItemPositions.valueAt(i)) {
-                if (delNotes) {
-                    DbAccess.trashNotesByCategoryId(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
-                }
-                DbAccess.deleteCategory(getBaseContext(), (int) (long) adapter.getItemId(checkedItemPositions.keyAt(i)));
-            }
-        }
-    }
 
-    private void updateList(){
-        CursorAdapter adapter = (CursorAdapter) list.getAdapter();
-        adapter.changeCursor(DbAccess.getCategoriesWithoutDefault(getBaseContext()));
-    }
     private void deleteCategory(Category cat){
         categoryViewModel = new ViewModelProvider(this).get(CategoryViewModel.class);
         categoryViewModel.delete(cat);

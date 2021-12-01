@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.database.DbContract;
 
 import java.util.ArrayList;
 import java.util.List;

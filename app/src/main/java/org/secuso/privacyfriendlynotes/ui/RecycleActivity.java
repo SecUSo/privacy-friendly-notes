@@ -13,8 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.preference.PreferenceManager;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.Note;
 import org.secuso.privacyfriendlynotes.room.NoteAdapter;
@@ -85,40 +84,6 @@ public class RecycleActivity extends AppCompatActivity {
         });
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
     }
-
-    private void displayRestoreDialog(final int id, final String name, final String content, final int type) {
-
-        new AlertDialog.Builder(RecycleActivity.this)
-                .setTitle(String.format(getString(R.string.dialog_restore_title), name))
-                .setMessage(String.format(getString(R.string.dialog_restore_message), name))
-                .setNegativeButton(R.string.dialog_option_delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DbAccess.deleteNote(getBaseContext(), id);
-                        if (type == DbContract.NoteEntry.TYPE_AUDIO) {
-                            new File(getFilesDir().getPath()+"/audio_notes"+content).delete();
-                        } else if (type == DbContract.NoteEntry.TYPE_SKETCH) {
-                            new File(getFilesDir().getPath()+"/sketches"+content).delete();
-                            new File(getFilesDir().getPath()+"/sketches"+content.substring(0, content.length()-3) + "jpg").delete();
-                        }
-                    }
-                })
-                .setNeutralButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                })
-                .setPositiveButton(R.string.dialog_option_restore, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DbAccess.restoreNote(getBaseContext(), id);
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
-
+    
 
 }

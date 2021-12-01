@@ -18,6 +18,11 @@ class EditNoteViewModel(application: Application) : AndroidViewModel(application
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
     private val _categoryName: MediatorLiveData<String?> = MediatorLiveData<String?>()
     private var _categoryNameLast: LiveData<String?>? = null
+    private val database: NoteDatabase = NoteDatabase.getInstance(application)
+    val allNotes: LiveData<List<Note>> = database.noteDao().allNotes
+    val activeNotes: LiveData<List<Note>> = database.noteDao().allActiveNotes
+    val trashedNotes: LiveData<List<Note>> = database.noteDao().allTrashedNotes
+    val allNotesAlphabetical: LiveData<List<Note>> = database.noteDao().allNotesAlphabetical
 
     fun insert(notification: Notification){
         viewModelScope.launch(Dispatchers.Default){
@@ -100,4 +105,23 @@ class EditNoteViewModel(application: Application) : AndroidViewModel(application
         return _categoryName
     }
 
+
+    fun insert(note: Note) {
+        viewModelScope.launch(Dispatchers.Default) {
+            database.noteDao().insert(note)
+        }
+    }
+
+    fun update(note: Note) {
+        viewModelScope.launch(Dispatchers.Default) {
+            database.noteDao().update(note)
+
+        }
+    }
+
+    fun delete(note: Note) {
+        viewModelScope.launch(Dispatchers.Default) {
+            database.noteDao().delete(note)
+        }
+    }
 }

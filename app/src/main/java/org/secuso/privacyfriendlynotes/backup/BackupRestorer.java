@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.secuso.privacyfriendlynotes.database.DbOpenHelper.DATABASE_NAME;
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 
 public class BackupRestorer implements IBackupRestorer {
 

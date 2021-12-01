@@ -10,8 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -34,7 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.Menu;
@@ -53,15 +50,11 @@ import android.widget.Toast;
 
 import com.simplify.ink.InkView;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.CategoryViewModel;
 import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Notification;
-import org.secuso.privacyfriendlynotes.room.NotificationViewModel;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
@@ -105,16 +98,15 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private int id = -1;
     private int notification_id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
-    Cursor notificationCursor = null;
-    private NoteViewModel noteViewModel;
-    private CategoryViewModel categoryViewModel;
+
     private Notification notification;
     private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
     private Menu menu;
     private MenuItem item;
+    private EditNoteViewModel editNoteViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +127,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         drawView.setMaxStrokeWidth(6f);
 
         //CategorySpinner
-        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
         adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
         adapter.add(getString(R.string.default_category));
 
@@ -149,10 +141,20 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
+        Intent intent = getIntent();
+        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Integer position = adapter.getPosition(s);
+                spinner.setSelection(position);
+            }
+        });
+
         //fill the notificationCursor
         notification = new Notification(-1,-1);
-        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
-        notificationViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(@Nullable List<Notification> notifications) {
                 for(Notification currentNotification : notifications){
@@ -166,18 +168,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         });
 
 
-
-        Intent intent = getIntent();
-        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
-
-
-        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Integer position = adapter.getPosition(s);
-                spinner.setSelection(position);
-            }
-        });
 
         loadActivity(true);
     }
@@ -426,8 +416,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
         note.set_id(id);
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.update(note);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        editNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
@@ -446,8 +436,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.insert(note);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        editNoteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
@@ -493,11 +483,11 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            shouldSave = false;
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
                             finish();
-                            displayTrashDialog();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -509,14 +499,14 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
             if(note.getIn_trash() == 1){
-                noteViewModel.delete(note);
+                editNoteViewModel.delete(note);
             } else {
                 note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
                 note.set_id(id);
                 note.setIn_trash(1);
-                noteViewModel.update(note);
+                editNoteViewModel.update(note);
             }
             finish();
         }
@@ -568,23 +558,22 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
-        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
 
         if (hasAlarm) {
             //Update the current alarm
-            notificationViewModel.update(notificationTimeSet);
+            editNoteViewModel.update(notificationTimeSet);
 
         } else {
             //create new alarm
-            notificationViewModel.insert(notificationTimeSet);
+            editNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
             // TODO change image after creating an alarm
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
-
         }
+
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
@@ -617,11 +606,10 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
 
-        NotificationViewModel notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
-        notificationViewModel.delete(notification);
+        editNoteViewModel.delete(notification);
         hasAlarm = false;
 
 

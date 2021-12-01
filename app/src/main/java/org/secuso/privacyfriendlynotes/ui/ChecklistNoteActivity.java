@@ -18,16 +18,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -52,10 +51,11 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
+import org.secuso.privacyfriendlynotes.room.Category;
+import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
+import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
@@ -68,6 +68,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -98,7 +99,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     Cursor noteCursor = null;
     Cursor notificationCursor = null;
 
-    private NoteViewModel noteViewModel;
+    private Notification notification;
+    private String title;
+    List<Category> allCategories;
+    ArrayAdapter<CharSequence> adapter;
+    private Menu menu;
+    private MenuItem item;
+    private EditNoteViewModel editNoteViewModel;
 
     private ArrayList<CheckListItem> itemNamesList = new ArrayList<>();
 
@@ -117,6 +124,47 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         lvItemList = (ListView) findViewById(R.id.itemList);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
+        //CategorySpinner
+        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
+        adapter.add(getString(R.string.default_category));
+
+        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                allCategories = categories;
+                for(Category currentCat : categories){
+                    adapter.add(currentCat.getName());
+                }
+            }
+        });
+
+        Intent intent = getIntent();
+        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Integer position = adapter.getPosition(s);
+                spinner.setSelection(position);
+            }
+        });
+
+        //fill the notificationCursor
+        notification = new Notification(-1,-1);
+        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(@Nullable List<Notification> notifications) {
+                for(Notification currentNotification : notifications){
+                    if(currentNotification.get_noteId() == id){
+                        notification.set_noteId(id);
+                        notification.setTime(currentNotification.getTime());
+                    }
+                }
+
+            }
+        });
+
         loadActivity(true);
     }
 
@@ -131,7 +179,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         }
         edit = (id != -1);
 
-        SimpleCursorAdapter adapter = null;
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
@@ -139,21 +186,24 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             etNewItem.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
-        //CategorySpinner
-        Cursor c = DbAccess.getCategories(getBaseContext());
-        if (c.getCount() == 0) {
+        // Fill category spinner
+        if (adapter.getCount() == 0) {
             displayCategoryDialog();
         } else {
             String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
             int[] to = {R.id.text1};
-            adapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.simple_spinner_item, c, from, to, CursorAdapter.FLAG_AUTO_REQUERY);
-            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Cursor c = (Cursor) parent.getItemAtPosition(position);
-                    currentCat = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
+                    String catName = (String) parent.getItemAtPosition(position);
+                    currentCat = 0;
+                    for(Category cat :allCategories){
+                        if(catName == cat.getName()){
+                            currentCat = cat.get_id();
+                        }
+                    }
                 }
 
                 @Override
@@ -162,6 +212,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 }
             });
         }
+
+
+
         lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         lvItemList.setOnItemClickListener(this);
         lvItemList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
@@ -222,16 +275,14 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            for (int i = 0; i < adapter.getCount(); i++){
-                c.moveToPosition(i);
-                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-                    spinner.setSelection(i);
-                    break;
-                }
-            }
+
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
-            hasAlarm = notificationCursor.moveToFirst();
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
+
             if (hasAlarm) {
                 notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
@@ -278,9 +329,20 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_reminder);
+        this.menu = menu;
+        item = menu.findItem(R.id.action_reminder);
+        if(notification.get_noteId() >= 0) {
+            hasAlarm = true;
+        } else {
+            hasAlarm = false;
+        }
+
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        } else {
+            if(edit){
+                item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -300,8 +362,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), this.id);
-            hasAlarm = notificationCursor.moveToFirst();
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
             if (hasAlarm) {
                 notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
@@ -395,8 +460,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             fillNameIfEmpty();
             Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
             note.set_id(id);
-            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-            noteViewModel.update(note);
+            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+            editNoteViewModel.update(note);
             Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -419,8 +484,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
 
             Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
-            noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
-            noteViewModel.insert(note);
+            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+            editNoteViewModel.insert(note);
 
             Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
@@ -470,7 +535,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;
-                            DbAccess.trashNote(getBaseContext(), id);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+                            editor.commit();
                             finish();
                         }
                     })
@@ -485,13 +552,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
             if(note.getIn_trash() == 1){
-                noteViewModel.delete(note);
+                editNoteViewModel.delete(note);
             } else {
                 note.set_id(id);
                 note.setIn_trash(1);
-                noteViewModel.update(note);
+                editNoteViewModel.update(note);
             }
             finish();
         }
@@ -515,12 +582,22 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
 
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+
+
         if (hasAlarm) {
             //Update the current alarm
-            DbAccess.updateNotificationTime(getBaseContext(), notification_id, alarmtime.getTimeInMillis());
+            editNoteViewModel.update(notificationTimeSet);
+
         } else {
             //create new alarm
-            notification_id = (int) (long) DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+            editNoteViewModel.insert(notificationTimeSet);
+            hasAlarm = true;
+            // TODO change image after creating an alarm
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
         //Store a reference for the notification in the database. This is later used by the service.
 
@@ -550,8 +627,10 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
-        DbAccess.deleteNotification(getBaseContext(), notification_id);
-        loadActivity(false);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, 0);
+        editNoteViewModel.delete(notification);        loadActivity(false);
     }
 
     @Override

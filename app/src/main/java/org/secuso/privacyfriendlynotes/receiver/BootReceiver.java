@@ -7,23 +7,46 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
+import android.widget.ArrayAdapter;
 
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
+
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.Category;
+import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
+import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
+
+import java.util.List;
 
 public class BootReceiver extends BroadcastReceiver {
+    List<Notification> allNotifications;
     public BootReceiver() {
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Cursor c = DbAccess.getAllNotifications(context);
 
-        while (c.moveToNext()) {
-            int notification_id = c.getInt(c.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
-            long alarmTime = c.getLong(c.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME));
+        EditNoteViewModel editNoteViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(EditNoteViewModel.class);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(context, R.layout.simple_spinner_item);
+
+        editNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(List<Notification> notifications) {
+                allNotifications = notifications;
+            }
+        });
+
+
+        for(Notification currentNot: allNotifications){
+
+            int notification_id = currentNot.get_noteId();
+            long alarmTime = currentNot.getTime();
             //Create the intent that is fired by AlarmManager
             Intent i = new Intent(context, NotificationService.class);
             i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);

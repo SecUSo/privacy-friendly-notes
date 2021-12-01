@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -18,14 +17,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
@@ -34,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -42,10 +42,11 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
+import org.secuso.privacyfriendlynotes.room.Category;
+import org.secuso.privacyfriendlynotes.room.EditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteViewModel;
+import org.secuso.privacyfriendlynotes.room.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
@@ -55,6 +56,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -81,9 +83,15 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private int id = -1;
     private int notification_id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
-    Cursor notificationCursor = null;
-    private NoteViewModel noteViewModel;
+
+
+    private Notification notification;
+    private String title;
+    List<Category> allCategories;
+    ArrayAdapter<CharSequence> adapter;
+    private Menu menu;
+    private MenuItem item;
+    private EditNoteViewModel editNoteViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +104,47 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
         spinner = (Spinner) findViewById(R.id.spinner_category);
+
+        //CategorySpinner
+        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
+        adapter.add(getString(R.string.default_category));
+
+        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                allCategories = categories;
+                for(Category currentCat : categories){
+                    adapter.add(currentCat.getName());
+                }
+            }
+        });
+
+        Intent intent = getIntent();
+        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Integer position = adapter.getPosition(s);
+                spinner.setSelection(position);
+            }
+        });
+
+        //fill the notificationCursor
+        notification = new Notification(-1,-1);
+        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(@Nullable List<Notification> notifications) {
+                for(Notification currentNotification : notifications){
+                    if(currentNotification.get_noteId() == id){
+                        notification.set_noteId(id);
+                        notification.setTime(currentNotification.getTime());
+                    }
+                }
+
+            }
+        });
 
         loadActivity(true);
 
@@ -110,7 +159,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         }
         edit = (id != -1);
 
-        SimpleCursorAdapter adapter = null;
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
@@ -118,21 +166,24 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
-        //CategorySpinner
-        Cursor c = DbAccess.getCategories(getBaseContext());
-        if (c.getCount() == 0) {
+        // Fill category spinner
+        if (adapter.getCount() == 0) {
             displayCategoryDialog();
         } else {
             String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
             int[] to = {R.id.text1};
-            adapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.simple_spinner_item, c, from, to, CursorAdapter.FLAG_AUTO_REQUERY);
-            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Cursor c = (Cursor) parent.getItemAtPosition(position);
-                    currentCat = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
+                    String catName = (String) parent.getItemAtPosition(position);
+                    currentCat = 0;
+                    for(Category cat :allCategories){
+                        if(catName == cat.getName()){
+                            currentCat = cat.get_id();
+                        }
+                    }
                 }
 
                 @Override
@@ -141,6 +192,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
             });
         }
+
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -150,18 +202,15 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            for (int i = 0; i < adapter.getCount(); i++){
-                c.moveToPosition(i);
-                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-                    spinner.setSelection(i);
-                    break;
-                }
-            }
+
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
-            hasAlarm = notificationCursor.moveToFirst();
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
             if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
+                notification_id = notification.get_noteId();
             }
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
@@ -206,9 +255,20 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_reminder);
+        this.menu = menu;
+        item = menu.findItem(R.id.action_reminder);
+        if(notification.get_noteId() >= 0) {
+            hasAlarm = true;
+        } else {
+            hasAlarm = false;
+        }
+
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        } else {
+            if(edit){
+                item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -228,10 +288,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), this.id);
-            hasAlarm = notificationCursor.moveToFirst();
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
             if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
+                notification_id = notification.get_noteId();
             }
 
             if (hasAlarm) {
@@ -304,8 +367,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         fillNameIfEmpty();
         Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
         note.set_id(id);
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.update(note);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        editNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
@@ -313,8 +376,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         fillNameIfEmpty();
         //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
         Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.insert(note);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        editNoteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
@@ -361,7 +424,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;
-                            DbAccess.trashNote(getBaseContext(), id);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+                            editor.commit();
                             finish();
                         }
                     })
@@ -376,41 +441,20 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
             if(note.getIn_trash() == 1){
-                noteViewModel.delete(note);
+                editNoteViewModel.delete(note);
             } else {
                 note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
                 note.set_id(id);
                 note.setIn_trash(1);
-                noteViewModel.update(note);
+                editNoteViewModel.update(note);
             }
             finish();
         }
 
     }
 
-    private void displayDeleteDialog() {
-        new AlertDialog.Builder(TextNoteActivity.this)
-                .setTitle(String.format(getString(R.string.dialog_delete_title), etName.getText().toString()))
-                .setMessage(String.format(getString(R.string.dialog_delete_message), etName.getText().toString()))
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                })
-                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        shouldSave = false;
-                        DbAccess.trashNote(getBaseContext(), id);
-                        finish();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -419,7 +463,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
         TimePickerDialog tpd = new TimePickerDialog(TextNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
@@ -427,16 +471,27 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+
 
         if (hasAlarm) {
             //Update the current alarm
-            DbAccess.updateNotificationTime(getBaseContext(), notification_id, alarmtime.getTimeInMillis());
+            editNoteViewModel.update(notificationTimeSet);
+
         } else {
             //create new alarm
-            notification_id = (int) (long) DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+            editNoteViewModel.insert(notificationTimeSet);
+            hasAlarm = true;
+            // TODO change image after creating an alarm
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
+
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
@@ -465,7 +520,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
-        DbAccess.deleteNotification(getBaseContext(), notification_id);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, 0);
+        editNoteViewModel.delete(notification);
         loadActivity(false);
     }
 
@@ -474,7 +532,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
