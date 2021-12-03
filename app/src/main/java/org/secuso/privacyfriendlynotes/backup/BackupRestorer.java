@@ -79,11 +79,7 @@ public class BackupRestorer implements IBackupRestorer {
         File restoreDatabaseFile = context.getDatabasePath("restoreDatabase");
         File actualDatabaseFile = context.getDatabasePath(DATABASE_NAME);
 
-        if(version >= 2) {
-            DatabaseUtil.deleteRoomDatabase(context, DATABASE_NAME);
-        } else {
-            actualDatabaseFile.delete(); // delete the old instance
-        }
+        DatabaseUtil.deleteRoomDatabase(context, DATABASE_NAME);
 
         FileUtil.copyFile(restoreDatabaseFile, actualDatabaseFile);
         Log.d("NoteRestore", "Backup Restored");
@@ -149,6 +145,7 @@ public class BackupRestorer implements IBackupRestorer {
             // END
 
             // stop app to trigger migration on wakeup
+            Log.d("NoteRestore", "Restore completed successfully.");
             System.exit(0);
             return true;
         } catch (Exception e) {
