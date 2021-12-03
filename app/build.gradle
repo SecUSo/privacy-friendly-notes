@@ -10,6 +10,12 @@ android {
         targetSdkVersion 29
         versionCode 3
         versionName "1.0.2"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {

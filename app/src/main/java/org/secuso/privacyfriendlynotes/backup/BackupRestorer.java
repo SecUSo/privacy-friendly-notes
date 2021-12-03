@@ -88,12 +88,6 @@ public class BackupRestorer implements IBackupRestorer {
         FileUtil.copyFile(restoreDatabaseFile, actualDatabaseFile);
         Log.d("NoteRestore", "Backup Restored");
 
-        // set checkpoint
-        if(version >= 2) {
-            SQLiteDatabase actualDatabase = SQLiteDatabase.openOrCreateDatabase(actualDatabaseFile, null);
-            actualDatabase.execSQL("PRAGMA schema.wal_checkpoint(FULL)");
-        }
-
         // delete restore database
         restoreDatabaseFile.delete();
 
@@ -154,18 +148,8 @@ public class BackupRestorer implements IBackupRestorer {
             reader.endObject();
             // END
 
-
-            /*
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = restoreData.read(buffer)) != -1) {
-                result.write(buffer, 0, length);
-            }
-
-            String resultString = result.toString("UTF-8");
-            Log.d("PFA BackupRestorer", resultString);
-             */
+            // stop app to trigger migration on wakeup
+            System.exit(0);
             return true;
         } catch (Exception e) {
             return false;
