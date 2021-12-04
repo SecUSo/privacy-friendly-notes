@@ -256,7 +256,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave ) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
@@ -486,6 +486,12 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
+                            Intent intent = getIntent();
+                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+                            note.set_id(id);
+                            note.setIn_trash(1);
+                            editNoteViewModel.update(note);
+
                             finish();
                         }
                     })
@@ -502,7 +508,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             if(note.getIn_trash() == 1){
                 editNoteViewModel.delete(note);
             } else {
-                note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
                 note.set_id(id);
                 note.setIn_trash(1);
                 editNoteViewModel.update(note);

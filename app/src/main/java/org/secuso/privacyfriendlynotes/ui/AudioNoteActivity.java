@@ -635,6 +635,11 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
+                            Intent intent = getIntent();
+                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+                            note.set_id(id);
+                            note.setIn_trash(1);
+                            editNoteViewModel.update(note);
                             finish();
                         }
                     })
