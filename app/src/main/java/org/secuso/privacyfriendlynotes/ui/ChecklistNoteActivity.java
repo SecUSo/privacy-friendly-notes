@@ -525,6 +525,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     private void displayTrashDialog() {
         SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        Intent intent = getIntent();
+        Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
+        note.set_id(id);
+
         if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
             new AlertDialog.Builder(ChecklistNoteActivity.this)
@@ -537,9 +542,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
-                            Intent intent = getIntent();
-                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
-                            note.set_id(id);
                             note.setIn_trash(1);
                             editNoteViewModel.update(note);
                             finish();
@@ -552,11 +554,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             editor.commit();
         } else {
             shouldSave = false;
-            Intent intent = getIntent();
-            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
             if(note.getIn_trash() == 1){
                 editNoteViewModel.delete(note);
             } else {
