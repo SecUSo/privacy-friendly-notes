@@ -26,7 +26,7 @@ interface NoteDao {
     @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY name DESC")
     val allTrashedNotes: LiveData<List<Note>>
 
-    @Query("SELECT * FROM notes WHERE category=:thisCategory ")
+    @Query("SELECT * FROM notes WHERE category=:thisCategory AND in_trash='0'")
     fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
 
     @Query("SELECT * FROM notes")
