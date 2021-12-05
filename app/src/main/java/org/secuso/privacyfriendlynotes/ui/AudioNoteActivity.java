@@ -107,7 +107,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private boolean hasAlarm = false;
     private boolean shouldSave = true;
     private int id = -1;
-    private int notification_id = -1;
     private int currentCat;
     Cursor noteCursor = null;
     Cursor notificationCursor = null;
@@ -201,7 +200,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        //fill the notificationCursor
+        // observe notifications
         notification = new Notification(-1,-1);
         EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
         editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
@@ -380,9 +379,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 hasAlarm = true;
             } else {
                 hasAlarm = false;
-            }
-            if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
             }
 
             if (hasAlarm) {
@@ -730,9 +726,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
         //Create the intent that is fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notificationTimeSet.get_noteId());
 
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notificationTimeSet.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -748,16 +744,20 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private void cancelNotification(){
         //Create the intent that would be fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification.get_noteId());
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
 
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pi = PendingIntent.getService(this, notification.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
-        editNoteViewModel.delete(notification);        loadActivity(false);
+        editNoteViewModel.delete(notification);
+        hasAlarm = false;
+        loadActivity(false);
     }
 
     @Override
@@ -775,6 +775,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             return true;
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
+            notification = new Notification(-1,-1);
+            //TODO change alarm after deleting Notification
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
         return false;

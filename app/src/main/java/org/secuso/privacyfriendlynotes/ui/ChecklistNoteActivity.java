@@ -149,7 +149,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        //fill the notificationCursor
+        // observe notifications
         notification = new Notification(-1,-1);
         editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
@@ -283,7 +283,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             }
 
             if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
+                notification_id = notification.get_noteId();
             }
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
@@ -367,7 +367,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 hasAlarm = false;
             }
             if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
+                notification_id = notification.get_noteId();
             }
 
             if (hasAlarm) {
@@ -625,6 +625,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         //Create the intent that would be fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+
 
         PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -633,7 +635,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
-        editNoteViewModel.delete(notification);        loadActivity(false);
+        editNoteViewModel.delete(notification);
+        hasAlarm = false;
+        loadActivity(false);
     }
 
     @Override
@@ -651,6 +655,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             return true;
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
+            notification = new Notification(-1,-1);
+            //TODO change alarm after deleting Notification
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
         return false;

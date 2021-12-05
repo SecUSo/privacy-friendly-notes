@@ -151,7 +151,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        //fill the notificationCursor
+        // observe notifications
         notification = new Notification(-1,-1);
         editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
@@ -615,8 +615,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         Notification notification = new Notification(id, 0);
         editNoteViewModel.delete(notification);
         hasAlarm = false;
-
-
         loadActivity(false);
     }
 
