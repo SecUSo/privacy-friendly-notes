@@ -599,7 +599,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             //create new alarm
             editNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
-            // TODO change image after creating an alarm
+            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
         //Store a reference for the notification in the database. This is later used by the service.
@@ -656,7 +656,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
             notification = new Notification(-1,-1);
-            //TODO change alarm after deleting Notification
             item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }

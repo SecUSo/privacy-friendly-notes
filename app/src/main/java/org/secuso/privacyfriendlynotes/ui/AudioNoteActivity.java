@@ -718,8 +718,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             //create new alarm
             editNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
-            // TODO change image after creating an alarm
-            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
         }
 
         //Store a reference for the notification in the database. This is later used by the service.

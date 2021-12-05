@@ -574,7 +574,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             //create new alarm
             editNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
-            // TODO change image after creating an alarm
+            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
 
@@ -634,7 +634,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
             notification = new Notification(-1,-1);
-            //TODO change alarm after deleting Notification
             item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
