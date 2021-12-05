@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import org.secuso.privacyfriendlynotes.ui.helper.FirstLaunchManager
+import org.secuso.privacyfriendlynotes.ui.main.MainActivity
 
 /**
  * Created by yonjuni on 22.10.16.

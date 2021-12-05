@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui
+package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -8,12 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.secuso.privacyfriendlynotes.room.Category
-import org.secuso.privacyfriendlynotes.room.Note
+import org.secuso.privacyfriendlynotes.room.model.Category
+import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
-import org.secuso.privacyfriendlynotes.room.Notification
+import org.secuso.privacyfriendlynotes.room.model.Notification
 
-class EditNoteViewModel(application: Application) : AndroidViewModel(application){
+class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application){
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotifications

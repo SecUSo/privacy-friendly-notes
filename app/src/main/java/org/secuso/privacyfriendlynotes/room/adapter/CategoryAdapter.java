@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.room;
+package org.secuso.privacyfriendlynotes.room.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.model.Category;
 
 import java.util.ArrayList;
 import java.util.List;

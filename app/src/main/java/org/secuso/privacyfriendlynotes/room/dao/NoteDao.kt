@@ -1,7 +1,8 @@
-package org.secuso.privacyfriendlynotes.room
+package org.secuso.privacyfriendlynotes.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import org.secuso.privacyfriendlynotes.room.model.Note
 
 @Dao
 interface NoteDao {

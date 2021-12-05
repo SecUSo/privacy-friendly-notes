@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui;
+package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -11,21 +11,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,44 +29,49 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
+import android.widget.AbsListView;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.Notification;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListAdapter;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class AudioNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
+public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
     public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
@@ -80,26 +80,14 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
 
 
-    private static final int REQUEST_CODE_AUDIO = 1;
-    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 2;
+    private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
     EditText etName;
-    ImageButton btnPlayPause;
-    ImageButton btnRecord;
-    TextView tvRecordingTime;
-    SeekBar seekBar;
+    EditText etNewItem;
+    ListView lvItemList;
     Spinner spinner;
 
     private ShareActionProvider mShareActionProvider = null;
-
-    private MediaRecorder mRecorder = null;
-    private MediaPlayer mPlayer = null;
-    private Handler mHandler = new Handler();
-    private String mFileName = "finde_die_datei.mp4";
-    private String mFilePath;
-    private boolean recording = false;
-    private boolean playing = false;
-    private long startTime = System.currentTimeMillis();
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -107,79 +95,42 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private boolean hasAlarm = false;
     private boolean shouldSave = true;
     private int id = -1;
+    private int notification_id = -1;
     private int currentCat;
     Cursor noteCursor = null;
     Cursor notificationCursor = null;
 
-    private EditNoteViewModel editNoteViewModel;
+    private Notification notification;
+    private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
     private Menu menu;
     private MenuItem item;
-    private Notification notification;
+    private CreateEditNoteViewModel createEditNoteViewModel;
+
+    private ArrayList<CheckListItem> itemNamesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_audio_note);
+        setContentView(R.layout.activity_checklist_note);
+
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
+        findViewById(R.id.btn_add).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
-        btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
-        seekBar = (SeekBar) findViewById(R.id.seekbar);
-        btnRecord = (ImageButton) findViewById(R.id.btn_record);
-        tvRecordingTime = (TextView) findViewById(R.id.recording_time);
+        etNewItem = (EditText) findViewById(R.id.etNewItem);
+        lvItemList = (ListView) findViewById(R.id.itemList);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
-        findViewById(R.id.btn_record).setOnClickListener(this);
-        btnPlayPause.setOnClickListener(this);
-
-        if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
-                Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
-                    Manifest.permission.RECORD_AUDIO)) {
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                ActivityCompat.requestPermissions(AudioNoteActivity.this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        REQUEST_CODE_AUDIO);
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(AudioNoteActivity.this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        REQUEST_CODE_AUDIO);
-            }
-        }
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mPlayer != null && fromUser) {
-                    mPlayer.seekTo(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
         //CategorySpinner
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
         adapter.add(getString(R.string.default_category));
-        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 allCategories = categories;
@@ -192,7 +143,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 Integer position = adapter.getPosition(s);
@@ -202,8 +153,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
         // observe notifications
         notification = new Notification(-1,-1);
-        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+        createEditNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(@Nullable List<Notification> notifications) {
                 for(Notification currentNotification : notifications){
@@ -217,10 +167,12 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         });
 
         loadActivity(true);
-
     }
 
     private void loadActivity(boolean initial){
+        //get rid of the old data. Otherwise we would have duplicates.
+        itemNamesList.clear();
+
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
             Intent intent = getIntent();
@@ -232,6 +184,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
+            etNewItem.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
         // Fill category spinner
@@ -261,31 +214,83 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             });
         }
 
+
+
+        lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        lvItemList.setOnItemClickListener(this);
+        lvItemList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Inflate the menu for the CAB
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.checklist_cab, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Respond to clicks on the actions in the CAB
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
+                a.notifyDataSetChanged();
+
+            }
+        });
+        lvItemList.setAdapter(new CheckListAdapter(getBaseContext(), R.layout.item_checklist, itemNamesList));
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
             Intent intent = getIntent();
             etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            mFileName = intent.getStringExtra(EXTRA_CONTENT);
-            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
-            btnPlayPause.setVisibility(View.VISIBLE);
-            btnRecord.setVisibility(View.INVISIBLE);
-            tvRecordingTime.setVisibility(View.INVISIBLE);
+            try {
+                JSONArray content = new JSONArray(intent.getStringExtra(EXTRA_CONTENT));
+                for (int i=0; i < content.length(); i++) {
+                    JSONObject o = content.getJSONObject(i);
+                    itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
+                }
+                ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
+
+            //fill the notificationCursor
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
+
+            if (hasAlarm) {
+                notification_id = notification.get_noteId();
+            }
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
-            mFileName = "/recording_" + System.currentTimeMillis() + ".aac";
-            mFilePath = getFilesDir().getPath() + "/audio_notes";
-            new File(mFilePath).mkdirs(); //ensure that the file exists
-            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
-            seekBar.setEnabled(false);
-            tvRecordingTime.setVisibility(View.VISIBLE);
-            shouldSave = false; // will be set to true, once we have a recording
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -296,15 +301,11 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave ) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
                 saveNote();
-            }
-        } else {
-            if(!edit) {
-                new File(mFilePath).delete();
             }
         }
     }
@@ -316,23 +317,10 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-            if (recording) {
-                stopRecording();
-                finish();
-            } else if (playing) {
-                pausePlaying();
-            }
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
-            getMenuInflater().inflate(R.menu.audio, menu);
+            getMenuInflater().inflate(R.menu.checklist, menu);
             MenuItem item = menu.findItem(R.id.action_share);
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
             setShareIntent();
@@ -380,6 +368,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             } else {
                 hasAlarm = false;
             }
+            if (hasAlarm) {
+                notification_id = notification.get_noteId();
+            }
 
             if (hasAlarm) {
                 //ask whether to delete or update the current alarm
@@ -393,27 +384,27 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
+                DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
                 dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
             }
             return true;
         } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
+            if (ContextCompat.checkSelfPermission(ChecklistNoteActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ChecklistNoteActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     // Show an expanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 } else {
                     // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 }
@@ -443,147 +434,64 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 shouldSave = true; //safe on exit
                 finish();
                 break;
-            case R.id.btn_record:
-                if (!recording) {
-                    startRecording();
-                } else {
-                    stopRecording();
-                }
-                break;
-            case R.id.btn_play_pause:
-                if (!playing) {
-                    startPlaying();
-                } else {
-                    pausePlaying();
+            case R.id.btn_add:
+                if (!etNewItem.getText().toString().isEmpty()) {
+                    itemNamesList.add(new CheckListItem(false, etNewItem.getText().toString()));
+                    etNewItem.setText("");
+                    ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
                 }
                 break;
             default:
         }
     }
 
-    private void startRecording() {
-        recording = true;
-        mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-        mRecorder.setOutputFile(mFilePath);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        try {
-            mRecorder.prepare();
-            final Animation animation = new AlphaAnimation(1, (float)0.5); // Change alpha from fully visible to invisible
-            animation.setDuration(500); // duration - half a second
-            animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
-            animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
-            animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
-            btnRecord.startAnimation(animation);
-            startTime = System.currentTimeMillis();
-            AudioNoteActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mRecorder != null) {
-                        long time = System.currentTimeMillis() - startTime;
-                        int seconds = (int) time / 1000;
-                        int minutes = seconds / 60;
-                        seconds = seconds % 60;
-                        tvRecordingTime.setText(String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
-                        mHandler.postDelayed(this, 100);
-                    }
-                }
-            });
+    private void updateNote(){
+        Adapter a = lvItemList.getAdapter();
+        JSONArray jsonArray = new JSONArray();
 
-            mRecorder.start();
-        } catch (IOException e) {
-            recording = false;
+        try {
+            CheckListItem temp;
+            for (int i = 0; i < itemNamesList.size(); i++) {
+                temp = (CheckListItem) a.getItem(i);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("name", temp.getName());
+                jsonObject.put("checked", temp.isChecked());
+                jsonArray.put(jsonObject);
+            }
+            fillNameIfEmpty();
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            note.set_id(id);
+            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+            createEditNoteViewModel.update(note);
+            Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void stopRecording() {
-        Log.d("LALALA", "Stopped recording");
-        mRecorder.stop();
-        mRecorder.release();
-        btnRecord.clearAnimation();
-        mRecorder = null;
-        recording = false;
-        recordingFinished();
-    }
-
-    private void startPlaying() {
-        playing = true;
-        if (mPlayer == null) {
-            mPlayer = new MediaPlayer();
-            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            try {
-                mPlayer.setDataSource(mFilePath);
-                mPlayer.prepare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                playing = false;
-                togglePlayPauseButton();
-                seekBar.setProgress(0);
-                mPlayer.release();
-                mPlayer = null;
-            }
-        });
-
-        togglePlayPauseButton();
-        seekBar.setMax(mPlayer.getDuration());
-        AudioNoteActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mPlayer != null) {
-                    seekBar.setProgress(mPlayer.getCurrentPosition());
-                    mHandler.postDelayed(this, 100);
-                }
-            }
-        });
-        mPlayer.start();
-    }
-
-    private void pausePlaying() {
-        playing = false;
-        togglePlayPauseButton();
-        try {
-            mPlayer.pause();
-        } catch (RuntimeException stopException) {
-        }
-    }
-
-    private void recordingFinished() {
-        shouldSave = true;
-        btnRecord.setVisibility(View.INVISIBLE);
-        btnPlayPause.setVisibility(View.VISIBLE);
-        seekBar.setEnabled(true);
-    }
-
-    private void togglePlayPauseButton(){
-        if (playing) {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_black_24dp);
-        } else {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
-        }
-    }
-
-    private void updateNote(){
-        fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-        note.set_id(id);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        editNoteViewModel.update(note);
-        Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
-    }
-
     private void saveNote(){
-        fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        editNoteViewModel.insert(note);
-        Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
+        Adapter a = lvItemList.getAdapter();
+        JSONArray jsonArray = new JSONArray();
+        try {
+            CheckListItem temp;
+            for (int i = 0; i < itemNamesList.size(); i++) {
+                temp = (CheckListItem) a.getItem(i);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("name", temp.getName());
+                jsonObject.put("checked", temp.isChecked());
+                jsonArray.put(jsonObject);
+            }
+            fillNameIfEmpty();
+            //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+            createEditNoteViewModel.insert(note);
+
+            Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void fillNameIfEmpty(){
@@ -598,7 +506,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void displayCategoryDialog() {
-        new AlertDialog.Builder(AudioNoteActivity.this)
+        new AlertDialog.Builder(ChecklistNoteActivity.this)
                 .setTitle(getString(R.string.dialog_need_category_title))
                 .setMessage(getString(R.string.dialog_need_category_message))
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -610,7 +518,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(AudioNoteActivity.this, ManageCategoriesActivity.class));
+                        startActivity(new Intent(ChecklistNoteActivity.this, ManageCategoriesActivity.class));
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -619,9 +527,14 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     private void displayTrashDialog() {
         SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        Intent intent = getIntent();
+        Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
+        note.set_id(id);
+
         if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
-            new AlertDialog.Builder(AudioNoteActivity.this)
+            new AlertDialog.Builder(ChecklistNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
@@ -631,11 +544,8 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
-                            Intent intent = getIntent();
-                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
-                            note.set_id(id);
                             note.setIn_trash(1);
-                            editNoteViewModel.update(note);
+                            createEditNoteViewModel.update(note);
                             finish();
                         }
                     })
@@ -646,44 +556,16 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             editor.commit();
         } else {
             shouldSave = false;
-            Intent intent = getIntent();
-            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
             if(note.getIn_trash() == 1){
-                editNoteViewModel.delete(note);
+                createEditNoteViewModel.delete(note);
             } else {
-                note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
                 note.set_id(id);
                 note.setIn_trash(1);
-                editNoteViewModel.update(note);
+                createEditNoteViewModel.update(note);
             }
-
             finish();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_CODE_AUDIO:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Do nothing. App should work
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_audio, Toast.LENGTH_LONG).show();
-                    finish();
-                }
-                break;
-            case REQUEST_CODE_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Save the file
-                    saveToExternalStorage();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
-                }
-                break;
         }
     }
 
@@ -696,7 +578,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         if (hasAlarm) {
             c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
         }
-        TimePickerDialog tpd = new TimePickerDialog(AudioNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
+        TimePickerDialog tpd = new TimePickerDialog(ChecklistNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
     }
 
@@ -704,30 +586,31 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
+
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
 
         if (hasAlarm) {
             //Update the current alarm
-            editNoteViewModel.update(notificationTimeSet);
+            createEditNoteViewModel.update(notificationTimeSet);
 
         } else {
             //create new alarm
-            editNoteViewModel.insert(notificationTimeSet);
+            createEditNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
             notification = new Notification(id, (int) alarmtime.getTimeInMillis());
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
-
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notificationTimeSet.get_noteId());
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
 
-        PendingIntent pi = PendingIntent.getService(this, notificationTimeSet.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -743,18 +626,18 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private void cancelNotification(){
         //Create the intent that would be fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification.get_noteId());
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
 
-        PendingIntent pi = PendingIntent.getService(this, notification.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
-        editNoteViewModel.delete(notification);
+        createEditNoteViewModel.delete(notification);
         hasAlarm = false;
         loadActivity(false);
     }
@@ -768,18 +651,32 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
+            DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
             dpd.getDatePicker().setMinDate(new Date().getTime());
             dpd.show();
             return true;
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
             notification = new Notification(-1,-1);
-            //TODO change alarm after deleting Notification
             item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Save the file
+                    saveToExternalStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_need_permission_write_external, Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 
     private void saveToExternalStorage(){
@@ -792,21 +689,16 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             } else{
                 path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
             }
-            File file = new File(path, "/" + etName.getText().toString() + ".aac");
+            File file = new File(path, "/checklist_" + etName.getText().toString() + ".txt");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
-                    FileChannel source = null;
-                    FileChannel destination = null;
-                    try {
-                        source = new FileInputStream(new File(mFilePath)).getChannel();
-                        destination = new FileOutputStream(file).getChannel();
-                        destination.transferFrom(source, 0, source.size());
-                    } finally {
-                        source.close();
-                        destination.close();
-                    }
+                    PrintWriter out = new PrintWriter(file);
+                    out.println(etName.getText().toString());
+                    out.println();
+                    out.println(getContentString());
+                    out.close();
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
                     MediaScannerConnection.scanFile(this,
@@ -832,14 +724,45 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     private void setShareIntent(){
         if (mShareActionProvider != null) {
-            File audioFile = new File(mFilePath);
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("audio/*");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
             mShareActionProvider.setShareIntent(sendIntent);
+        }
+    }
+
+    private String getContentString(){
+        StringBuilder content = new StringBuilder();
+        Adapter a = lvItemList.getAdapter();
+        CheckListItem temp;
+        for (int i=0; i < itemNamesList.size(); i++) {
+            temp = (CheckListItem) a.getItem(i);
+            content.append("- " + temp.getName() + " [" + (temp.isChecked() ? "✓" : "   ") + "]\n");
+        }
+        return content.toString();
+    }
+
+    //Click on a listitem
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
+        CheckListItem temp = (CheckListItem) a.getItem(position);
+        temp.setChecked(!temp.isChecked());
+        a.notifyDataSetChanged();
+    }
+
+    private void deleteSelectedItems(){
+        ArrayAdapter adapter = (ArrayAdapter) lvItemList.getAdapter();
+        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
+        ArrayList<CheckListItem> temp = new ArrayList<>();
+        for (int i=0; i < checkedItemPositions.size(); i++) {
+            if(checkedItemPositions.valueAt(i)) {
+                temp.add((CheckListItem) adapter.getItem(checkedItemPositions.keyAt(i)));
+            }
+        }
+        if (temp.size() > 0) {
+            itemNamesList.removeAll(temp);
         }
     }
 }

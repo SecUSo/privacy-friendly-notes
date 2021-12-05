@@ -3,15 +3,21 @@ package org.secuso.privacyfriendlynotes.room;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import org.secuso.privacyfriendlynotes.room.dao.CategoryDao;
+import org.secuso.privacyfriendlynotes.room.dao.NoteDao;
+import org.secuso.privacyfriendlynotes.room.dao.NotificationDao;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
+
 @Database(
-        entities = {Note.class,Category.class,Notification.class},
+        entities = {Note.class, Category.class, Notification.class},
         version = 2
         )
 public abstract class NoteDatabase extends RoomDatabase {

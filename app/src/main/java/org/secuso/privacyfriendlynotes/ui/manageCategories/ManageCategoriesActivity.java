@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui;
+package org.secuso.privacyfriendlynotes.ui.manageCategories;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -15,8 +15,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.CategoryAdapter;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.adapter.CategoryAdapter;
 
 import java.util.List;
 

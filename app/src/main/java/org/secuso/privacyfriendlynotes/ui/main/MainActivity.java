@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui;
+package org.secuso.privacyfriendlynotes.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,10 +24,19 @@ import android.view.View;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.secuso.privacyfriendlynotes.room.DbContract;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.NoteAdapter;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.room.Note;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.ui.AboutActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.HelpActivity;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
+import org.secuso.privacyfriendlynotes.ui.RecycleActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 import java.util.List;
 

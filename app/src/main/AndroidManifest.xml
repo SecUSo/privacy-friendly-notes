@@ -30,52 +30,52 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".ui.TextNoteActivity"
+            android:name=".ui.notes.TextNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_textnote"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".ui.ChecklistNoteActivity"
+            android:name=".ui.notes.ChecklistNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_checklistnote"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".ui.ManageCategoriesActivity"
+            android:name=".ui.manageCategories.ManageCategoriesActivity"
             android:label="@string/title_manage_categories"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.RecycleActivity"
             android:label="@string/title_recycle_bin"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".ui.AudioNoteActivity"
+            android:name=".ui.notes.AudioNoteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_audionote"
-            android:parentActivityName=".ui.MainActivity" />
-        <activity android:name=".ui.SketchActivity"
+            android:parentActivityName=".ui.main.MainActivity" />
+        <activity android:name=".ui.notes.SketchActivity"
             android:label="@string/title_sketchnote"
-            android:parentActivityName=".ui.MainActivity"></activity>
+            android:parentActivityName=".ui.main.MainActivity"></activity>
         <activity
             android:name=".ui.SettingsActivity"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main.MainActivity"
             android:label="@string/title_settings"/>
         <activity
             android:name=".ui.HelpActivity"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main.MainActivity"
             android:label="@string/title_help" />
         <activity
             android:name=".ui.AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.TutorialActivity"
             android:label="@string/title_tutorial"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
 
 
         <service android:name=".service.NotificationService" />

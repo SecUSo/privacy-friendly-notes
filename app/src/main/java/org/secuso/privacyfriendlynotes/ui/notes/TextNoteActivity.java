@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui;
+package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -29,47 +28,38 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.view.ActionMode;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AbsListView;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.Notification;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.ui.util.CheckListAdapter;
-import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ChecklistNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, AdapterView.OnItemClickListener {
+public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
     public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
@@ -81,8 +71,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
     EditText etName;
-    EditText etNewItem;
-    ListView lvItemList;
+    EditText etContent;
     Spinner spinner;
 
     private ShareActionProvider mShareActionProvider = null;
@@ -95,8 +84,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private int id = -1;
     private int notification_id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
-    Cursor notificationCursor = null;
+
 
     private Notification notification;
     private String title;
@@ -104,31 +92,26 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     ArrayAdapter<CharSequence> adapter;
     private Menu menu;
     private MenuItem item;
-    private EditNoteViewModel editNoteViewModel;
-
-    private ArrayList<CheckListItem> itemNamesList = new ArrayList<>();
+    private CreateEditNoteViewModel createEditNoteViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_checklist_note);
-
+        setContentView(R.layout.activity_text_note);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
-        findViewById(R.id.btn_add).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
-        etNewItem = (EditText) findViewById(R.id.etNewItem);
-        lvItemList = (ListView) findViewById(R.id.itemList);
+        etContent = (EditText) findViewById(R.id.etContent);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
         //CategorySpinner
-        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
         adapter.add(getString(R.string.default_category));
 
-        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 allCategories = categories;
@@ -141,7 +124,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 Integer position = adapter.getPosition(s);
@@ -151,7 +134,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
         // observe notifications
         notification = new Notification(-1,-1);
-        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+        createEditNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(@Nullable List<Notification> notifications) {
                 for(Notification currentNotification : notifications){
@@ -165,12 +148,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         });
 
         loadActivity(true);
+
+
     }
 
     private void loadActivity(boolean initial){
-        //get rid of the old data. Otherwise we would have duplicates.
-        itemNamesList.clear();
-
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
             Intent intent = getIntent();
@@ -181,8 +163,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
+            etContent.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
-            etNewItem.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
         // Fill category spinner
@@ -212,65 +194,12 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             });
         }
 
-
-
-        lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        lvItemList.setOnItemClickListener(this);
-        lvItemList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-            @Override
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
-            }
-
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                // Inflate the menu for the CAB
-                MenuInflater inflater = mode.getMenuInflater();
-                inflater.inflate(R.menu.checklist_cab, menu);
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                // Respond to clicks on the actions in the CAB
-                switch (item.getItemId()) {
-                    case R.id.action_delete:
-                        deleteSelectedItems();
-                        mode.finish(); // Action picked, so close the CAB
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
-                a.notifyDataSetChanged();
-
-            }
-        });
-        lvItemList.setAdapter(new CheckListAdapter(getBaseContext(), R.layout.item_checklist, itemNamesList));
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             Intent intent = getIntent();
             etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            try {
-                JSONArray content = new JSONArray(intent.getStringExtra(EXTRA_CONTENT));
-                for (int i=0; i < content.length(); i++) {
-                    JSONObject o = content.getJSONObject(i);
-                    itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
-                }
-                ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            etContent.setText(intent.getStringExtra(EXTRA_CONTENT));
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
@@ -281,7 +210,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             } else {
                 hasAlarm = false;
             }
-
             if (hasAlarm) {
                 notification_id = notification.get_noteId();
             }
@@ -318,7 +246,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
-            getMenuInflater().inflate(R.menu.checklist, menu);
+            getMenuInflater().inflate(R.menu.text, menu);
             MenuItem item = menu.findItem(R.id.action_share);
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
             setShareIntent();
@@ -382,27 +310,27 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
+                DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
                 dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
             }
             return true;
         } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(ChecklistNoteActivity.this,
+            if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ChecklistNoteActivity.this,
+                if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     // Show an expanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
+                    ActivityCompat.requestPermissions(TextNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 } else {
                     // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
+                    ActivityCompat.requestPermissions(TextNoteActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 }
@@ -432,64 +360,27 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 shouldSave = true; //safe on exit
                 finish();
                 break;
-            case R.id.btn_add:
-                if (!etNewItem.getText().toString().isEmpty()) {
-                    itemNamesList.add(new CheckListItem(false, etNewItem.getText().toString()));
-                    etNewItem.setText("");
-                    ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
-                }
-                break;
             default:
         }
     }
 
     private void updateNote(){
-        Adapter a = lvItemList.getAdapter();
-        JSONArray jsonArray = new JSONArray();
-
-        try {
-            CheckListItem temp;
-            for (int i = 0; i < itemNamesList.size(); i++) {
-                temp = (CheckListItem) a.getItem(i);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("name", temp.getName());
-                jsonObject.put("checked", temp.isChecked());
-                jsonArray.put(jsonObject);
-            }
-            fillNameIfEmpty();
-            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
-            note.set_id(id);
-            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-            editNoteViewModel.update(note);
-            Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        fillNameIfEmpty();
+        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        note.set_id(id);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.update(note);
+        Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
-        Adapter a = lvItemList.getAdapter();
-        JSONArray jsonArray = new JSONArray();
-        try {
-            CheckListItem temp;
-            for (int i = 0; i < itemNamesList.size(); i++) {
-                temp = (CheckListItem) a.getItem(i);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("name", temp.getName());
-                jsonObject.put("checked", temp.isChecked());
-                jsonArray.put(jsonObject);
-            }
-            fillNameIfEmpty();
-            //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
+        fillNameIfEmpty();
+        //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
+        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.insert(note);
 
-            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
-            editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-            editNoteViewModel.insert(note);
-
-            Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
     private void fillNameIfEmpty(){
@@ -504,7 +395,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     }
 
     private void displayCategoryDialog() {
-        new AlertDialog.Builder(ChecklistNoteActivity.this)
+        new AlertDialog.Builder(TextNoteActivity.this)
                 .setTitle(getString(R.string.dialog_need_category_title))
                 .setMessage(getString(R.string.dialog_need_category_message))
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -516,7 +407,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(ChecklistNoteActivity.this, ManageCategoriesActivity.class));
+                        startActivity(new Intent(TextNoteActivity.this, ManageCategoriesActivity.class));
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -525,14 +416,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     private void displayTrashDialog() {
         SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         Intent intent = getIntent();
-        Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
+        Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
         note.set_id(id);
-
         if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
-            new AlertDialog.Builder(ChecklistNoteActivity.this)
+            new AlertDialog.Builder(TextNoteActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
@@ -543,7 +433,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
                             note.setIn_trash(1);
-                            editNoteViewModel.update(note);
+                            createEditNoteViewModel.update(note);
                             finish();
                         }
                     })
@@ -554,18 +444,18 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             editor.commit();
         } else {
             shouldSave = false;
-            note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
             if(note.getIn_trash() == 1){
-                editNoteViewModel.delete(note);
+                createEditNoteViewModel.delete(note);
             } else {
-                note.set_id(id);
                 note.setIn_trash(1);
-                editNoteViewModel.update(note);
+                createEditNoteViewModel.update(note);
             }
             finish();
         }
+
     }
+
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -574,34 +464,35 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
-        TimePickerDialog tpd = new TimePickerDialog(ChecklistNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
+        TimePickerDialog tpd = new TimePickerDialog(TextNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
-
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
 
         if (hasAlarm) {
             //Update the current alarm
-            editNoteViewModel.update(notificationTimeSet);
+            createEditNoteViewModel.update(notificationTimeSet);
 
         } else {
             //create new alarm
-            editNoteViewModel.insert(notificationTimeSet);
+            createEditNoteViewModel.insert(notificationTimeSet);
             hasAlarm = true;
             notification = new Notification(id, (int) alarmtime.getTimeInMillis());
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
+
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
@@ -625,8 +516,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         //Create the intent that would be fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
         PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -635,8 +525,9 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
-        editNoteViewModel.delete(notification);
+        createEditNoteViewModel.delete(notification);
         hasAlarm = false;
+
         loadActivity(false);
     }
 
@@ -645,11 +536,11 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
+            DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
             dpd.getDatePicker().setMinDate(new Date().getTime());
             dpd.show();
             return true;
@@ -687,15 +578,17 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             } else{
                 path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
             }
-            File file = new File(path, "/checklist_" + etName.getText().toString() + ".txt");
+
+            File file = new File(path, "/text_" + etName.getText().toString() + ".txt");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
+
                     PrintWriter out = new PrintWriter(file);
                     out.println(etName.getText().toString());
                     out.println();
-                    out.println(getContentString());
+                    out.println(etContent.getText().toString());
                     out.close();
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
@@ -725,42 +618,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
             mShareActionProvider.setShareIntent(sendIntent);
-        }
-    }
-
-    private String getContentString(){
-        StringBuilder content = new StringBuilder();
-        Adapter a = lvItemList.getAdapter();
-        CheckListItem temp;
-        for (int i=0; i < itemNamesList.size(); i++) {
-            temp = (CheckListItem) a.getItem(i);
-            content.append("- " + temp.getName() + " [" + (temp.isChecked() ? "✓" : "   ") + "]\n");
-        }
-        return content.toString();
-    }
-
-    //Click on a listitem
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ArrayAdapter a = (ArrayAdapter)lvItemList.getAdapter();
-        CheckListItem temp = (CheckListItem) a.getItem(position);
-        temp.setChecked(!temp.isChecked());
-        a.notifyDataSetChanged();
-    }
-
-    private void deleteSelectedItems(){
-        ArrayAdapter adapter = (ArrayAdapter) lvItemList.getAdapter();
-        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
-        ArrayList<CheckListItem> temp = new ArrayList<>();
-        for (int i=0; i < checkedItemPositions.size(); i++) {
-            if(checkedItemPositions.valueAt(i)) {
-                temp.add((CheckListItem) adapter.getItem(checkedItemPositions.keyAt(i)));
-            }
-        }
-        if (temp.size() > 0) {
-            itemNamesList.removeAll(temp);
         }
     }
 }

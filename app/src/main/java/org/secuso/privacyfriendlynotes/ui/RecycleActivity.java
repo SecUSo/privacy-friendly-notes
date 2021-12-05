@@ -15,8 +15,9 @@ import android.preference.PreferenceManager;
 
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.NoteAdapter;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
+import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel;
 
 import java.io.File;
 import java.util.List;

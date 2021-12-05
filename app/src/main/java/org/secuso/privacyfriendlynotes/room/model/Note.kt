@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.room
+package org.secuso.privacyfriendlynotes.room.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

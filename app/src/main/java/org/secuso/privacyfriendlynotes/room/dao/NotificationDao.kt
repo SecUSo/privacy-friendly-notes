@@ -1,8 +1,9 @@
-package org.secuso.privacyfriendlynotes.room
+package org.secuso.privacyfriendlynotes.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
+import org.secuso.privacyfriendlynotes.room.model.Notification
 
 @Dao
 interface NotificationDao {

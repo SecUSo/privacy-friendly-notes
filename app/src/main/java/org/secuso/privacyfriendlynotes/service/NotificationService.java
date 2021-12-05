@@ -8,10 +8,10 @@ import androidx.core.app.NotificationCompat;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.DbContract;
-import org.secuso.privacyfriendlynotes.ui.AudioNoteActivity;
-import org.secuso.privacyfriendlynotes.ui.ChecklistNoteActivity;
-import org.secuso.privacyfriendlynotes.ui.SketchActivity;
-import org.secuso.privacyfriendlynotes.ui.TextNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 /**
  * Created by Robin on 26.06.2016.

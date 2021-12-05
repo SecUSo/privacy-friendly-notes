@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.ui.helper.FirstLaunchManager;
+import org.secuso.privacyfriendlynotes.ui.main.MainActivity;
 
 /**
  * Class structure taken from tutorial at http://www.androidhive.info/2016/05/android-build-intro-slider-app/

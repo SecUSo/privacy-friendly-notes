@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.ui.EditNoteViewModel;
-import org.secuso.privacyfriendlynotes.room.Notification;
+import org.secuso.privacyfriendlynotes.ui.notes.CreateEditNoteViewModel;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 
 import java.util.List;
@@ -29,10 +29,10 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        EditNoteViewModel editNoteViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(EditNoteViewModel.class);
+        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(CreateEditNoteViewModel.class);
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter(context, R.layout.simple_spinner_item);
 
-        editNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
+        createEditNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
             @Override
             public void onChanged(List<Notification> notifications) {
                 allNotifications = notifications;

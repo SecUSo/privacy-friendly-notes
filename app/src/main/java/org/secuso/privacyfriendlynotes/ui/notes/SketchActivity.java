@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui;
+package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -10,6 +10,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,22 +48,29 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.simplify.ink.InkView;
+
 import org.secuso.privacyfriendlynotes.room.DbContract;
-import org.secuso.privacyfriendlynotes.room.Category;
-import org.secuso.privacyfriendlynotes.room.Note;
-import org.secuso.privacyfriendlynotes.room.Notification;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
+import petrov.kristiyan.colorpicker.ColorPicker;
+
+public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
     public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
@@ -69,10 +82,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
     EditText etName;
-    EditText etContent;
+    InkView drawView;
+    Button btnColorSelector;
     Spinner spinner;
 
     private ShareActionProvider mShareActionProvider = null;
+
+    private String mFileName = "finde_die_datei.mp4";
+    private String mFilePath;
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -83,33 +100,39 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private int notification_id = -1;
     private int currentCat;
 
-
     private Notification notification;
     private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
     private Menu menu;
     private MenuItem item;
-    private EditNoteViewModel editNoteViewModel;
+    private CreateEditNoteViewModel createEditNoteViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_note);
+        setContentView(R.layout.activity_sketch);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
-        etContent = (EditText) findViewById(R.id.etContent);
+        drawView = (InkView) findViewById(R.id.draw_view);
+        btnColorSelector = (Button) findViewById(R.id.btn_color_selector);
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
+        btnColorSelector.setOnClickListener(this);
+        drawView.setColor(Color.BLACK);
+        drawView.setMinStrokeWidth(1.5f);
+        drawView.setMaxStrokeWidth(6f);
+
         //CategorySpinner
-        EditNoteViewModel editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
         adapter.add(getString(R.string.default_category));
 
-        editNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 allCategories = categories;
@@ -122,7 +145,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-        editNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 Integer position = adapter.getPosition(s);
@@ -132,7 +155,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
         // observe notifications
         notification = new Notification(-1,-1);
-        editNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+        createEditNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(@Nullable List<Notification> notifications) {
                 for(Notification currentNotification : notifications){
@@ -145,27 +168,31 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+
+
         loadActivity(true);
-
-
     }
 
     private void loadActivity(boolean initial){
+
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
             Intent intent = getIntent();
             id = intent.getIntExtra(EXTRA_ID, -1);
+
+
         }
         edit = (id != -1);
 
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etContent.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
             etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
-        // Fill category spinner
+
+
+
         if (adapter.getCount() == 0) {
             displayCategoryDialog();
         } else {
@@ -196,30 +223,36 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             Intent intent = getIntent();
-            etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            etContent.setText(intent.getStringExtra(EXTRA_CONTENT));
+            id = intent.getIntExtra(EXTRA_ID, -1);
+            title = intent.getStringExtra(EXTRA_TITLE);
+            etName.setText(title);
+            mFileName = intent.getStringExtra(EXTRA_CONTENT);
+            mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
 
-            //fill the notificationCursor
-            if(notification.get_noteId() >= 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
-            if (hasAlarm) {
-                notification_id = notification.get_noteId();
-            }
+
+
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+            drawView.setBackground(new BitmapDrawable(getResources(), mFilePath));
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
+            mFileName = "/sketch_" + System.currentTimeMillis() + ".PNG";
+            mFilePath = getFilesDir().getPath() + "/sketches";
+            new File(mFilePath).mkdirs(); //ensure that the file exists
+            mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
+
+            // = false; // will be set to true, once we have a drawing
         }
         if(!initial) {
             invalidateOptionsMenu();
         }
+
+
     }
+
 
     @Override
     protected void onPause() {
@@ -230,6 +263,11 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 updateNote();
             } else {
                 saveNote();
+            }
+        } else {
+            if(!edit) {
+                //TODO do nothing here
+                //new File(mFilePath).delete();
             }
         }
     }
@@ -244,7 +282,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
-            getMenuInflater().inflate(R.menu.text, menu);
+            getMenuInflater().inflate(R.menu.audio, menu);
             MenuItem item = menu.findItem(R.id.action_share);
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
             setShareIntent();
@@ -287,6 +325,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
+
             if(notification.get_noteId() >= 0) {
                 hasAlarm = true;
             } else {
@@ -294,9 +333,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             }
             if (hasAlarm) {
                 notification_id = notification.get_noteId();
-            }
-
-            if (hasAlarm) {
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -308,27 +344,27 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+                DatePickerDialog dpd = new DatePickerDialog(SketchActivity.this, this, year, month, day);
                 dpd.getDatePicker().setMinDate(c.getTimeInMillis());
                 dpd.show();
             }
             return true;
         } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
+            if (ContextCompat.checkSelfPermission(SketchActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
+                if (ActivityCompat.shouldShowRequestPermissionRationale(SketchActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     // Show an expanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                    ActivityCompat.requestPermissions(SketchActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 } else {
                     // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
+                    ActivityCompat.requestPermissions(SketchActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_CODE_EXTERNAL_STORAGE);
                 }
@@ -358,25 +394,51 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 shouldSave = true; //safe on exit
                 finish();
                 break;
+            case R.id.btn_color_selector:
+                displayColorDialog();
+                break;
             default:
         }
     }
 
     private void updateNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        Bitmap oldSketch = new BitmapDrawable(getResources(), mFilePath).getBitmap();
+        Bitmap newSketch = drawView.getBitmap();
+        try {
+            FileOutputStream fo = new FileOutputStream(new File(mFilePath));
+            overlay(oldSketch, newSketch).compress(Bitmap.CompressFormat.PNG, 0, fo);
+            fo.flush();
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
         note.set_id(id);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        editNoteViewModel.update(note);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     private void saveNote(){
         fillNameIfEmpty();
-        //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
-        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        editNoteViewModel.insert(note);
+        Bitmap bitmap = drawView.getBitmap();
+        try {
+            FileOutputStream fo = new FileOutputStream(new File(mFilePath));
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, fo);
+            fo.flush();
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
@@ -393,7 +455,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void displayCategoryDialog() {
-        new AlertDialog.Builder(TextNoteActivity.this)
+        new AlertDialog.Builder(SketchActivity.this)
                 .setTitle(getString(R.string.dialog_need_category_title))
                 .setMessage(getString(R.string.dialog_need_category_message))
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -405,7 +467,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(TextNoteActivity.this, ManageCategoriesActivity.class));
+                        startActivity(new Intent(SketchActivity.this, ManageCategoriesActivity.class));
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -414,13 +476,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void displayTrashDialog() {
         SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-        Intent intent = getIntent();
-        Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_TEXT,intent.getIntExtra(EXTRA_CATEGORY,-1));
-        note.set_id(id);
         if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)){
             //we never displayed the message before, so show it now
-            new AlertDialog.Builder(TextNoteActivity.this)
+            new AlertDialog.Builder(SketchActivity.this)
                     .setTitle(getString(R.string.dialog_trash_title))
                     .setMessage(getString(R.string.dialog_trash_message))
                     .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
@@ -430,125 +488,48 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
                             editor.commit();
+                            Intent intent = getIntent();
+                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+                            note.set_id(id);
                             note.setIn_trash(1);
-                            editNoteViewModel.update(note);
+                            createEditNoteViewModel.update(note);
+
                             finish();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
-            editor.commit();
+
         } else {
             shouldSave = false;
+            Intent intent = getIntent();
+            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+            note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
+            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
             if(note.getIn_trash() == 1){
-                editNoteViewModel.delete(note);
+                createEditNoteViewModel.delete(note);
             } else {
+                note.set_id(id);
                 note.setIn_trash(1);
-                editNoteViewModel.update(note);
+                createEditNoteViewModel.update(note);
             }
             finish();
         }
-
     }
 
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
-        this.monthOfYear = monthOfYear;
-        this.year = year;
-        final Calendar c = Calendar.getInstance();
-        if (hasAlarm) {
-            c.setTimeInMillis(notification.getTime());
-        }
-        TimePickerDialog tpd = new TimePickerDialog(TextNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
-        tpd.show();
-    }
-
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
-        Calendar alarmtime = Calendar.getInstance();
-        alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
-        Intent intent = getIntent();
-        id = intent.getIntExtra(EXTRA_ID, -1);
-        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-
-
-        if (hasAlarm) {
-            //Update the current alarm
-            editNoteViewModel.update(notificationTimeSet);
-
-        } else {
-            //create new alarm
-            editNoteViewModel.insert(notificationTimeSet);
-            hasAlarm = true;
-            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
-            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
-        }
-
-        //Store a reference for the notification in the database. This is later used by the service.
-
-        //Create the intent that is fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        }
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
-        loadActivity(false);
-    }
-
-    private void cancelNotification(){
-        //Create the intent that would be fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-        editNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
-
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pi);
-        Intent intent = getIntent();
-        id = intent.getIntExtra(EXTRA_ID, -1);
-        Notification notification = new Notification(id, 0);
-        editNoteViewModel.delete(notification);
-        hasAlarm = false;
-
-        loadActivity(false);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_reminder_edit) {
-            final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notification.getTime());
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
-            dpd.getDatePicker().setMinDate(new Date().getTime());
-            dpd.show();
-            return true;
-        } else if (id == R.id.action_reminder_delete) {
-            cancelNotification();
-            notification = new Notification(-1,-1);
-            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
-            return true;
-        }
-        return false;
+    private void displayColorDialog() {
+        new ColorPicker(this)
+                .setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+                    @Override
+                    public void setOnFastChooseColorListener(int position, int color) {
+                        drawView.setColor(color);
+                        btnColorSelector.setBackgroundColor(color);
+                    }
+                })
+                .setColors(R.array.mdcolor_500)
+                .setTitle("")
+                .show();
     }
 
     @Override
@@ -566,6 +547,101 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        this.dayOfMonth = dayOfMonth;
+        this.monthOfYear = monthOfYear;
+        this.year = year;
+        final Calendar c = Calendar.getInstance();
+        if (hasAlarm) {
+            c.setTimeInMillis(notification.getTime());
+        }
+        TimePickerDialog tpd = new TimePickerDialog(SketchActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
+        tpd.show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Calendar alarmtime = Calendar.getInstance();
+        alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
+
+        if (hasAlarm) {
+            //Update the current alarm
+            createEditNoteViewModel.update(notificationTimeSet);
+
+        } else {
+            //create new alarm
+            createEditNoteViewModel.insert(notificationTimeSet);
+            hasAlarm = true;
+            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        }
+
+        //Store a reference for the notification in the database. This is later used by the service.
+
+        //Create the intent that is fired by AlarmManager
+        Intent i = new Intent(this, NotificationService.class);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        i.putExtra(NotificationService.NOTIFICATION_TYPE, DbContract.NoteEntry.TYPE_SKETCH);
+        i.putExtra(NotificationService.NOTIFICATION_TITLE, title);
+
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
+        }
+        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
+
+        loadActivity(false);
+    }
+
+    private void cancelNotification(){
+        //Create the intent that would be fired by AlarmManager
+        Intent i = new Intent(this, NotificationService.class);
+        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pi);
+
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, 0);
+        createEditNoteViewModel.delete(notification);
+        hasAlarm = false;
+        loadActivity(false);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_reminder_edit) {
+            final Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(notification.getTime());
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dpd = new DatePickerDialog(SketchActivity.this, this, year, month, day);
+            dpd.getDatePicker().setMinDate(new Date().getTime());
+            dpd.show();
+            return true;
+        } else if (id == R.id.action_reminder_delete) {
+            cancelNotification();
+            notification = new Notification(-1,-1);
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            return true;
+        }
+        return false;
+    }
+
     private void saveToExternalStorage(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -576,18 +652,17 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             } else{
                 path = new File(Environment.getExternalStorageDirectory(), "/PrivacyFriendlyNotes");
             }
-
-            File file = new File(path, "/text_" + etName.getText().toString() + ".txt");
+            File file = new File(path, "/" + etName.getText().toString() + ".jpeg");
             try {
                 // Make sure the directory exists.
                 boolean path_exists = path.exists() || path.mkdirs();
                 if (path_exists) {
+                    Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+                    Canvas canvas = new Canvas(bm);
+                    canvas.drawColor(Color.WHITE);
+                    canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
 
-                    PrintWriter out = new PrintWriter(file);
-                    out.println(etName.getText().toString());
-                    out.println();
-                    out.println(etContent.getText().toString());
-                    out.close();
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
                     MediaScannerConnection.scanFile(this,
@@ -613,11 +688,34 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void setShareIntent(){
         if (mShareActionProvider != null) {
+            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
+            File sketchFile = new File(tempPath);
+
+            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+            Canvas canvas = new Canvas(bm);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+            try {
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
+            sendIntent.setType("image/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             mShareActionProvider.setShareIntent(sendIntent);
         }
+    }
+    //taken from http://stackoverflow.com/a/10616868
+    public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        canvas.drawBitmap(bmp2, 0, 0, null);
+        return bmOverlay;
     }
 }

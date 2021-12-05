@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlynotes.ui
+package org.secuso.privacyfriendlynotes.ui.manageCategories
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.secuso.privacyfriendlynotes.room.Category
+import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 
 class ManageCategoriesViewModel (application: Application) : AndroidViewModel(application) {
