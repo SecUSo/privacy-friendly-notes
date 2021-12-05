@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private static final int CAT_ALL = -1;
     private static final String TAG_WELCOME_DIALOG = "welcome_dialog";
     FloatingActionsMenu fabMenu;
+    Boolean alphabeticalAsc = false;
 
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
 
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_sort_alphabetical) {
-            //switch to an alphabetically sorted cursor.
+            //switch to an alphabetically ascending or descending order
             updateListAlphabetical();
             return true;
         }
@@ -274,12 +275,24 @@ public class MainActivity extends AppCompatActivity
 
 
     private void updateListAlphabetical() {
-        mainActivityViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                adapter.setNotes(notes);
-            }
-        });
+        if(!alphabeticalAsc){
+            mainActivityViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                    adapter.setNotes(notes);
+                }
+            });
+            alphabeticalAsc = true;
+        } else {
+            mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                    adapter.setNotes(notes);
+                }
+            });
+            alphabeticalAsc = false;
+        }
+
     }
 
 }
