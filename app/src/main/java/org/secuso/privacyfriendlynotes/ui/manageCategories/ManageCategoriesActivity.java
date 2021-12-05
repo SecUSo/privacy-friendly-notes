@@ -1,8 +1,10 @@
 package org.secuso.privacyfriendlynotes.ui.manageCategories;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -10,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -17,6 +20,8 @@ import android.widget.ListView;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.adapter.CategoryAdapter;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.util.List;
 
@@ -101,6 +106,24 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
 
     private void deleteCategory(Category cat){
+
+
+
+        // Delete all notes from category if the option is set
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {
+            manageCategoriesViewModel.getAllNotesLiveData().observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                    for(Note currentNote: notes){
+                        if(currentNote.getCategory() == cat.get_id()){
+                            manageCategoriesViewModel.delete(currentNote);
+                        }
+                    }
+                }
+            });
+        }
+
         manageCategoriesViewModel.delete(cat);
     }
 }
