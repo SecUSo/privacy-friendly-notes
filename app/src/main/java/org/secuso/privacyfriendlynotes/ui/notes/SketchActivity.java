@@ -264,11 +264,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 saveNote();
             }
-        } else {
-            if(!edit) {
-                //TODO do nothing here
-                //new File(mFilePath).delete();
-            }
         }
     }
 

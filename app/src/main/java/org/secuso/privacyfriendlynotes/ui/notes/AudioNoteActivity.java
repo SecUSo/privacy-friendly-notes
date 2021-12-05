@@ -777,7 +777,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
             notification = new Notification(-1,-1);
-            //TODO change alarm after deleting Notification
             item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
