@@ -25,6 +25,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
     ListView list;
     RecyclerView recycler_list;
     ManageCategoriesViewModel manageCategoriesViewModel;
+    List<Category> allCategories;
 
 
     @Override
@@ -44,10 +45,11 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
         manageCategoriesViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
-            public void onChanged(List<Category> categoryNames) {
-                adapter.setCategories(categoryNames);
-            }
+            public void onChanged(List<Category> categories) {
+                adapter.setCategories(categories);
+                allCategories = categories;
 
+            }
         });
 
         adapter.setOnItemClickListener(new CategoryAdapter.OnItemClickListener() {
@@ -83,9 +85,15 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                 EditText name = (EditText) findViewById(R.id.etName);
                 if (!name.getText().toString().isEmpty()){
                     Category category = new Category(name.getText().toString());
-                    manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
-                    manageCategoriesViewModel.insert(category);
-
+                    boolean duplicate = false;
+                    for(Category currentCat: allCategories){
+                        if(currentCat.getName().equals(category.getName())){
+                            duplicate = true;
+                        }
+                    }
+                    if(!duplicate){
+                        manageCategoriesViewModel.insert(category);
+                    }
                 }
                 break;
         }
@@ -93,7 +101,6 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
 
     private void deleteCategory(Category cat){
-        manageCategoriesViewModel = new ViewModelProvider(this).get(ManageCategoriesViewModel.class);
         manageCategoriesViewModel.delete(cat);
     }
 }
