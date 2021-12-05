@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_trash) {
             startActivity(new Intent(getApplication(), RecycleActivity.class));
         } else if (id == R.id.nav_all) {
-            mainActivityViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+            mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
                 @Override
                 public void onChanged(@Nullable List<Note> notes) {
                     adapter.setNotes(notes);
