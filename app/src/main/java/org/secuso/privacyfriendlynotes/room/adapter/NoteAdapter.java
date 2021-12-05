@@ -1,5 +1,7 @@
 package org.secuso.privacyfriendlynotes.room.adapter;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         Note currentNote = notes.get(position);
         holder.textViewTitle.setText(currentNote.getName());
         holder.textViewDescription.setText(currentNote.getContent());
+        holder.textViewDescription.setMaxLines(3);
+
 
         switch (currentNote.getType()) {
             case DbContract.NoteEntry.TYPE_TEXT:
