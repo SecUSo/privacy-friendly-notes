@@ -247,9 +247,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.text, menu);
-            MenuItem item = menu.findItem(R.id.action_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            setShareIntent();
         }
         return true;
     }
@@ -281,7 +278,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -338,6 +334,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 saveToExternalStorage();
             }
             return true;
+        } else if (id == R.id.action_share){
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
+            startActivity(Intent.createChooser(sendIntent, null));
         }
 
         return super.onOptionsItemSelected(item);
@@ -613,13 +615,4 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void setShareIntent(){
-        if (mShareActionProvider != null) {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
-            mShareActionProvider.setShareIntent(sendIntent);
-        }
-    }
 }

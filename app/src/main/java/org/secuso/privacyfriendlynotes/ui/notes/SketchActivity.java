@@ -278,9 +278,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.audio, menu);
-            MenuItem item = menu.findItem(R.id.action_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            setShareIntent();
         }
         return true;
     }
@@ -311,8 +308,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -367,6 +362,27 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 saveToExternalStorage();
             }
             return true;
+        } else if (id == R.id.action_share){
+            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
+            File sketchFile = new File(tempPath);
+
+            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+            Canvas canvas = new Canvas(bm);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+            try {
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("image/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(sendIntent, null));
         }
 
         return super.onOptionsItemSelected(item);
@@ -681,30 +697,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void setShareIntent(){
-        if (mShareActionProvider != null) {
-            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
-            File sketchFile = new File(tempPath);
-
-            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
-            Canvas canvas = new Canvas(bm);
-            canvas.drawColor(Color.WHITE);
-            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
-            try {
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("image/*");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            mShareActionProvider.setShareIntent(sendIntent);
-        }
-    }
     //taken from http://stackoverflow.com/a/10616868
     public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());

@@ -335,9 +335,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.audio, menu);
-            MenuItem item = menu.findItem(R.id.action_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            setShareIntent();
+
         }
         return true;
     }
@@ -369,7 +367,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -423,6 +420,16 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 saveToExternalStorage();
             }
             return true;
+        } else if (id == R.id.action_share) {
+
+            File audioFile = new File(mFilePath);
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("audio/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(sendIntent, null));
         }
 
         return super.onOptionsItemSelected(item);
@@ -831,16 +838,4 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void setShareIntent(){
-        if (mShareActionProvider != null) {
-            File audioFile = new File(mFilePath);
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("audio/*");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            mShareActionProvider.setShareIntent(sendIntent);
-        }
-    }
 }

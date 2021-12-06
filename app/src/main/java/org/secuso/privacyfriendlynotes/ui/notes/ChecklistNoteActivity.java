@@ -321,9 +321,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.checklist, menu);
-            MenuItem item = menu.findItem(R.id.action_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            setShareIntent();
         }
         return true;
     }
@@ -355,7 +352,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        setShareIntent();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
@@ -412,6 +408,12 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 saveToExternalStorage();
             }
             return true;
+        } else if (id == R.id.action_share){
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
+            startActivity(Intent.createChooser(sendIntent, null));
         }
 
         return super.onOptionsItemSelected(item);
@@ -719,16 +721,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.toast_external_storage_not_mounted, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void setShareIntent(){
-        if (mShareActionProvider != null) {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
-            mShareActionProvider.setShareIntent(sendIntent);
         }
     }
 
