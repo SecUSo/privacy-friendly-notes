@@ -86,8 +86,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     Button btnColorSelector;
     Spinner spinner;
 
-    private ShareActionProvider mShareActionProvider = null;
-
     private String mFileName = "finde_die_datei.mp4";
     private String mFilePath;
 
