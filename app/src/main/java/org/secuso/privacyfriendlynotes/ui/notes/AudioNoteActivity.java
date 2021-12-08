@@ -92,8 +92,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     SeekBar seekBar;
     Spinner spinner;
 
-    private ShareActionProvider mShareActionProvider = null;
-
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
     private Handler mHandler = new Handler();
@@ -110,7 +108,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private boolean shouldSave = true;
     private int id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
     Cursor notificationCursor = null;
 
     private CreateEditNoteViewModel createEditNoteViewModel;
@@ -298,7 +295,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave ) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
@@ -449,8 +446,12 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 }
                 break;
             case R.id.btn_save:
-                shouldSave = true; //safe on exit
-                finish();
+                if(seekBar.isEnabled()){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_record:
                 if (!recording) {

@@ -53,6 +53,8 @@
     <string name="toast_need_permission_write_external">Berichtigung um externen Speicher zu schreiben wird für diese Funktion benötigt</string>
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
+    <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
+
     <string name="action_reminder_delete">Erinnerung löschen</string>
     <string name="action_reminder_edit">Erinnerung bearbeiten</string>
     <string name="action_share">Teilen</string>

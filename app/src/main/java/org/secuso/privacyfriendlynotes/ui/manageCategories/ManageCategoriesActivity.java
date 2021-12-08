@@ -107,8 +107,6 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
 
     private void deleteCategory(Category cat){
 
-
-
         // Delete all notes from category if the option is set
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {

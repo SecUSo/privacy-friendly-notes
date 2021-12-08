@@ -58,6 +58,7 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class TextNoteActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
@@ -359,9 +360,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_save:
-                shouldSave = true; //safe on exit
-                finish();
-                break;
+                if(!Objects.equals(etContent.getText().toString(),"")){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                    break;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
+
             default:
         }
     }
@@ -377,11 +383,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void saveNote(){
         fillNameIfEmpty();
-        //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), etContent.getText().toString(), DbContract.NoteEntry.TYPE_TEXT, currentCat);
         Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.insert(note);
-
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 

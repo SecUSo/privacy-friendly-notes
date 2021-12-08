@@ -53,6 +53,8 @@
     <string name="toast_need_permission_write_external">この機能は外部ストレージの書き込みアクセス許可が必要です</string>
     <string name="toast_external_storage_not_mounted">エラー: 外部ストレージに書き込みできません</string>
     <string name="toast_file_exported_to">%1s にメモをエクスポートしました</string>
+    <string name="toast_emptyNote">空のノートは保存できない</string>
+
 
     <string name="dialog_delete_title">%1s を削除しますか?</string>
     <string name="dialog_delete_message">%1s を削除してもよろしいですか?</string>

@@ -433,9 +433,14 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 }
                 break;
             case R.id.btn_save:
-                shouldSave = true; //safe on exit
-                finish();
-                break;
+                if(!itemNamesList.isEmpty()){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                    break;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
+
             case R.id.btn_add:
                 if (!etNewItem.getText().toString().isEmpty()) {
                     itemNamesList.add(new CheckListItem(false, etNewItem.getText().toString()));

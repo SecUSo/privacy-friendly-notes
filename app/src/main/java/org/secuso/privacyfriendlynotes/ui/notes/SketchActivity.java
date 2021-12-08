@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -400,8 +401,14 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 break;
             case R.id.btn_save:
-                shouldSave = true; //safe on exit
-                finish();
+                Bitmap emptyBitmap = Bitmap.createBitmap(drawView.getBitmap().getWidth(), drawView.getBitmap().getHeight(), drawView.getBitmap().getConfig());
+                if(!drawView.getBitmap().sameAs(emptyBitmap)){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                    break;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_color_selector:
                 displayColorDialog();
