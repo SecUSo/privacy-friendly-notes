@@ -39,6 +39,8 @@
     <string name="action_update">更新</string>
     <string name="action_add">追加</string>
     <string name="action_share">共有</string>
+    <string name="action_edit">エディット</string>
+
 
     <string name="hint_name">名前</string>
     <string name="hint_note">複数行\nメモ</string>
@@ -54,6 +56,8 @@
     <string name="toast_external_storage_not_mounted">エラー: 外部ストレージに書き込みできません</string>
     <string name="toast_file_exported_to">%1s にメモをエクスポートしました</string>
     <string name="toast_emptyNote">空のノートは保存できない</string>
+    <string name="toast_checklist_oneItem">修正できるのは項目のみです。</string>
+
 
 
     <string name="dialog_delete_title">%1s を削除しますか?</string>
@@ -72,6 +76,8 @@
 
     <string name="dialog_option_delete">削除</string>
     <string name="dialog_option_restore">復元</string>
+    <string name="dialog_checklist_edit">アイテムを変更します。 </string>
+
 
     <string name="fab_text">新しいテキスト</string>
     <string name="fab_audio">新しいオーディオ</string>

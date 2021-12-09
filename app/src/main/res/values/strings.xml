@@ -40,6 +40,8 @@
     <string name="action_update">Update</string>
     <string name="action_add">Add</string>
     <string name="action_share">Share</string>
+    <string name="action_edit">Edit</string>
+
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
@@ -55,6 +57,8 @@
     <string name="toast_external_storage_not_mounted">Error: Cannot write to external storage</string>
     <string name="toast_file_exported_to">Exported note to %1s</string>
     <string name="toast_emptyNote">Empty note cannot be saved</string>
+    <string name="toast_checklist_oneItem">Only one item can be modified.</string>
+
 
 
     <string name="dialog_delete_title">Delete %1s?</string>
@@ -74,6 +78,8 @@
 
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
+    <string name="dialog_checklist_edit">You change the item: </string>
+
 
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>

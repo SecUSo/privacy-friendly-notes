@@ -87,8 +87,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     ListView lvItemList;
     Spinner spinner;
 
-    private ShareActionProvider mShareActionProvider = null;
-
     private int dayOfMonth, monthOfYear, year;
 
     private boolean edit = false;
@@ -97,14 +95,12 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private int id = -1;
     private int notification_id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
     Cursor notificationCursor = null;
 
     private Notification notification;
     private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
-    private Menu menu;
     private MenuItem item;
     private CreateEditNoteViewModel createEditNoteViewModel;
 
@@ -245,6 +241,40 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                         deleteSelectedItems();
                         mode.finish(); // Action picked, so close the CAB
                         return true;
+                    case R.id.action_edit:
+                        ArrayAdapter adapter = (ArrayAdapter) lvItemList.getAdapter();
+                        SparseBooleanArray checkedItemPositions = lvItemList.getCheckedItemPositions();
+                        ArrayList<CheckListItem> temp = new ArrayList<>();
+                        for (int i=0; i < checkedItemPositions.size(); i++) {
+                            if(checkedItemPositions.valueAt(i)) {
+                                temp.add((CheckListItem) adapter.getItem(checkedItemPositions.keyAt(i)));
+                            }
+                        }
+                        if (temp.size() > 1) {
+                            Toast.makeText(getApplicationContext(), R.string.toast_checklist_oneItem, Toast.LENGTH_SHORT).show();
+                            return false;
+                        } else {
+                            final EditText taskEditText = new EditText(ChecklistNoteActivity.this);
+                            AlertDialog dialog = new AlertDialog.Builder(ChecklistNoteActivity.this)
+                                    .setTitle(getString(R.string.dialog_checklist_edit) +" "+ temp.get(0).getName())
+                                    .setView(taskEditText)
+                                    .setPositiveButton(R.string.action_edit, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            String text = taskEditText.getText().toString();
+                                            Integer pos = adapter.getPosition(temp.get(0));
+                                            CheckListItem newItem = new CheckListItem(temp.get(0).isChecked(),text);
+                                            adapter.remove(temp.get(0));
+                                            adapter.insert(newItem,pos);
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.action_cancel, null)
+                                    .create();
+                            dialog.show();
+                            return true;
+                        }
+
+
                     default:
                         return false;
                 }
@@ -258,6 +288,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             }
         });
         lvItemList.setAdapter(new CheckListAdapter(getBaseContext(), R.layout.item_checklist, itemNamesList));
+
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -327,7 +358,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        this.menu = menu;
         item = menu.findItem(R.id.action_reminder);
         if(notification.get_noteId() >= 0) {
             hasAlarm = true;

@@ -54,10 +54,13 @@
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
+    <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
+
 
     <string name="action_reminder_delete">Erinnerung löschen</string>
     <string name="action_reminder_edit">Erinnerung bearbeiten</string>
     <string name="action_share">Teilen</string>
+    <string name="action_edit">Bearbeiten</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version 1.0.1</string>
     <string name="title_about">Über</string>
@@ -81,6 +84,7 @@
     <string name="dialog_help">Hilfe anzeigen</string>
     <string name="dialog_welcome_text">Mit dieser App ist es möglich Notizen in Form von Text, Checklisten, Memos oder Skizzen zu erstellen und zu teilen.</string>
     <string name="dialog_welcome">Willkommen</string>
+    <string name="dialog_checklist_edit">Sie verändern den Punkt: </string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_general_heading">Allgemein</string>
