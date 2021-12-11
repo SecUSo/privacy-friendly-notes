@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -27,6 +28,14 @@ import androidx.appcompat.widget.ShareActionProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.Editable;
+import android.text.Html;
+import android.text.InputFilter;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.SpannedString;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,6 +48,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -91,7 +101,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private String title;
     List<Category> allCategories;
     ArrayAdapter<CharSequence> adapter;
-    private Menu menu;
     private MenuItem item;
     private CreateEditNoteViewModel createEditNoteViewModel;
 
@@ -102,6 +111,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.btn_cancel).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
+        findViewById(R.id.btn_bold).setOnClickListener(this);
+        findViewById(R.id.btn_italics).setOnClickListener(this);
+        findViewById(R.id.btn_underline).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
@@ -200,7 +212,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             Intent intent = getIntent();
             etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            etContent.setText(intent.getStringExtra(EXTRA_CONTENT));
+            etContent.setText(Html.fromHtml(intent.getStringExtra(EXTRA_CONTENT)));
             //find the current category and set spinner to that
             currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
@@ -254,7 +266,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        this.menu = menu;
         item = menu.findItem(R.id.action_reminder);
         if(notification.get_noteId() >= 0) {
             hasAlarm = true;
@@ -339,7 +350,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText().toString());
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + Html.toHtml(etContent.getText()));
             startActivity(Intent.createChooser(sendIntent, null));
         }
 
@@ -348,7 +359,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        int startSelection;
+        int endSelection;
+        final StyleSpan normal;
+        SpannableStringBuilder totalText;
+        StyleSpan[] spans;
         switch (v.getId()) {
+
             case R.id.btn_cancel:
                 Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
                 shouldSave = false;
@@ -360,21 +377,79 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_save:
-                if(!Objects.equals(etContent.getText().toString(),"")){ //safe only if note is not empty
+                if(!Objects.equals(Html.toHtml(etContent.getText()),"")){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
-                    break;
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
                 }
-
+                break;
+            case R.id.btn_bold:
+                normal = new StyleSpan(Typeface.NORMAL);
+                startSelection = etContent.getSelectionStart();
+                endSelection = etContent.getSelectionEnd();
+                totalText = (SpannableStringBuilder) etContent.getText();
+                final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
+                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
+                Boolean alreadyBold = false;
+                for (StyleSpan span : spans) {
+                    if (span == bold) {
+                        alreadyBold = true;
+                    }
+                }
+                if(alreadyBold){
+                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                } else {
+                    totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                }
+                etContent.setText(totalText);
+                break;
+            case R.id.btn_italics:
+                normal = new StyleSpan(Typeface.NORMAL);
+                startSelection = etContent.getSelectionStart();
+                endSelection = etContent.getSelectionEnd();
+                totalText = (SpannableStringBuilder) etContent.getText();
+                final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
+                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
+                Boolean alreadyItalics = false;
+                for (StyleSpan span : spans) {
+                    if (span == italic) {
+                        alreadyItalics = true;
+                    }
+                }
+                if(alreadyItalics  ){
+                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                } else {
+                    totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                }
+                etContent.setText(totalText);
+                break;
+            case R.id.btn_underline:
+                normal = new StyleSpan(Typeface.NORMAL);
+                startSelection = etContent.getSelectionStart();
+                endSelection = etContent.getSelectionEnd();
+                totalText = (SpannableStringBuilder) etContent.getText();
+                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
+                Boolean alreadyUnderlined = false;
+                for (StyleSpan span : spans) {
+                    if (false) {
+                        alreadyUnderlined = true;
+                    }
+                }
+                if(alreadyUnderlined){
+                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                } else {
+                    totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                }
+                etContent.setText(totalText);
+                break;
             default:
         }
     }
 
     private void updateNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat);
         note.set_id(id);
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.update(note);
@@ -383,7 +458,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void saveNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),etContent.getText().toString(),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat);
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.insert(note);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
@@ -594,7 +669,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     PrintWriter out = new PrintWriter(file);
                     out.println(etName.getText().toString());
                     out.println();
-                    out.println(etContent.getText().toString());
+                    out.println(Html.toHtml(etContent.getText()));
                     out.close();
                     // Tell the media scanner about the new file so that it is
                     // immediately available to the user.
