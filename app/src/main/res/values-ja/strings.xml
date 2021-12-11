@@ -40,6 +40,9 @@
     <string name="action_add">追加</string>
     <string name="action_share">共有</string>
     <string name="action_edit">エディット</string>
+    <string name="action_bold">エ</string>
+    <string name="action_italics">削</string>
+    <string name="action_underline"><u>キ</u></string>
 
 
     <string name="hint_name">名前</string>

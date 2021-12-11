@@ -57,6 +57,10 @@
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
 
 
+
+    <string name="action_bold">F</string>
+    <string name="action_italics">K</string>
+    <string name="action_underline"><u>U</u></string>
     <string name="action_reminder_delete">Erinnerung löschen</string>
     <string name="action_reminder_edit">Erinnerung bearbeiten</string>
     <string name="action_share">Teilen</string>

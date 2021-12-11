@@ -40,6 +40,6 @@
         </ScrollView>
     </LinearLayout>
 
-    <include layout="@layout/bottom_line"></include>
+    <include layout="@layout/bottom_line_text"></include>
 
 </LinearLayout>
