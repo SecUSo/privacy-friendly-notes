@@ -361,7 +361,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         int startSelection;
         int endSelection;
-        final StyleSpan normal;
+        final UnderlineSpan underlined;
         SpannableStringBuilder totalText;
         StyleSpan[] spans;
         switch (v.getId()) {
@@ -385,7 +385,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_bold:
-                normal = new StyleSpan(Typeface.NORMAL);
                 startSelection = etContent.getSelectionStart();
                 endSelection = etContent.getSelectionEnd();
                 totalText = (SpannableStringBuilder) etContent.getText();
@@ -393,19 +392,17 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
                 Boolean alreadyBold = false;
                 for (StyleSpan span : spans) {
-                    if (span == bold) {
+                    if (span.getStyle() == bold.getStyle()) {
                         alreadyBold = true;
+                        totalText.removeSpan(span);
                     }
                 }
-                if(alreadyBold){
-                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                } else {
+                if(!alreadyBold){
                     totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
                 break;
             case R.id.btn_italics:
-                normal = new StyleSpan(Typeface.NORMAL);
                 startSelection = etContent.getSelectionStart();
                 endSelection = etContent.getSelectionEnd();
                 totalText = (SpannableStringBuilder) etContent.getText();
@@ -413,32 +410,30 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
                 Boolean alreadyItalics = false;
                 for (StyleSpan span : spans) {
-                    if (span == italic) {
+                    if (span.getStyle() == italic.getStyle()) {
                         alreadyItalics = true;
+                        totalText.removeSpan(span);
                     }
                 }
-                if(alreadyItalics  ){
-                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                } else {
+                if(!alreadyItalics){
                     totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
                 break;
             case R.id.btn_underline:
-                normal = new StyleSpan(Typeface.NORMAL);
+                underlined = new UnderlineSpan();
                 startSelection = etContent.getSelectionStart();
                 endSelection = etContent.getSelectionEnd();
                 totalText = (SpannableStringBuilder) etContent.getText();
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
                 Boolean alreadyUnderlined = false;
                 for (StyleSpan span : spans) {
-                    if (false) {
+                    if (span.getStyle() == underlined.getSpanTypeId()) {
                         alreadyUnderlined = true;
+                        totalText.removeSpan(span);
                     }
                 }
-                if(alreadyUnderlined){
-                    totalText.setSpan(normal,startSelection,endSelection,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                } else {
+                if(!alreadyUnderlined){
                     totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);

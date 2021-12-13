@@ -33,6 +33,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="10"
+
                 android:id="@+id/etContent"
                 android:background="@android:color/transparent"
                 android:hint="@string/hint_note"
