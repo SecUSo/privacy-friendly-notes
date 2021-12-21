@@ -394,6 +394,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 for (StyleSpan span : spans) {
                     if (span.getStyle() == bold.getStyle()) {
                         alreadyBold = true;
+                        // TODO remove span only in the selected zone
                         totalText.removeSpan(span);
                     }
                 }
@@ -412,6 +413,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 for (StyleSpan span : spans) {
                     if (span.getStyle() == italic.getStyle()) {
                         alreadyItalics = true;
+                        // TODO remove span only in the selected zone
                         totalText.removeSpan(span);
                     }
                 }
@@ -425,16 +427,17 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 startSelection = etContent.getSelectionStart();
                 endSelection = etContent.getSelectionEnd();
                 totalText = (SpannableStringBuilder) etContent.getText();
-                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
+                UnderlineSpan[] underlineSpans = totalText.getSpans(startSelection, endSelection, UnderlineSpan.class);
                 Boolean alreadyUnderlined = false;
-                for (StyleSpan span : spans) {
-                    if (span.getStyle() == underlined.getSpanTypeId()) {
+                for (UnderlineSpan span : underlineSpans) {
+                    if (span.getSpanTypeId() == underlined.getSpanTypeId()) {
                         alreadyUnderlined = true;
+                        // TODO remove span only in the selected zone
                         totalText.removeSpan(span);
                     }
                 }
                 if(!alreadyUnderlined){
-                    totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    totalText.setSpan(underlined,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
                 break;
