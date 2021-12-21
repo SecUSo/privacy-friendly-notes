@@ -33,6 +33,7 @@ import android.text.Html;
 import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -394,7 +395,26 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 for (StyleSpan span : spans) {
                     if (span.getStyle() == bold.getStyle()) {
                         alreadyBold = true;
-                        // TODO remove span only in the selected zone
+                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if(totalText.getSpanStart(span) > startSelection){
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if(totalText.getSpanEnd(span) < endSelection) {
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
+                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
                         totalText.removeSpan(span);
                     }
                 }
@@ -413,7 +433,27 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 for (StyleSpan span : spans) {
                     if (span.getStyle() == italic.getStyle()) {
                         alreadyItalics = true;
-                        // TODO remove span only in the selected zone
+
+                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                            totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if(totalText.getSpanStart(span) > startSelection){
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if(totalText.getSpanEnd(span) < endSelection) {
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
+                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                            totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
                         totalText.removeSpan(span);
                     }
                 }
@@ -432,7 +472,26 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 for (UnderlineSpan span : underlineSpans) {
                     if (span.getSpanTypeId() == underlined.getSpanTypeId()) {
                         alreadyUnderlined = true;
-                        // TODO remove span only in the selected zone
+                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                            totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if(totalText.getSpanStart(span) > startSelection){
+                                totalText.setSpan(new UnderlineSpan(),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if(totalText.getSpanEnd(span) < endSelection) {
+                                totalText.setSpan(new UnderlineSpan(), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
+                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                            totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                        } else {
+                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                totalText.setSpan(new UnderlineSpan(), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
+                        }
                         totalText.removeSpan(span);
                     }
                 }
