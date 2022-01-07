@@ -2,22 +2,14 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Manage">
-        <menu>
-            <item
-                android:id="@+id/nav_manage_categories"
-                android:icon="@drawable/ic_stop_black_24dp"
-                android:title="@string/nav_manage_categories" />
-        </menu>
-    </item>
 
     <group android:checkableBehavior="single"
-        android:id="@+id/drawer_group2">
-        <!-- Filled dynamically in buildDrawerMenu() -->
-    </group>
-
-    <group android:checkableBehavior="single"
-        android:id="@+id/drawer_group">
+        android:id="@+id/drawer_group3"
+        android:orderInCategory="0">
+        <item
+            android:id="@+id/nav_manage_categories"
+            android:icon="@drawable/ic_stop_black_24dp"
+            android:title="@string/nav_manage_categories" />
         <item
             android:id="@+id/nav_all"
             android:icon="@drawable/ic_format_list_bulleted_black_24dp"
@@ -26,17 +18,34 @@
             android:id="@+id/nav_trash"
             android:icon="@drawable/ic_delete_black_24dp"
             android:title="@string/nav_trash"/>
+
+    </group>
+
+    <group android:checkableBehavior="single"
+        android:orderInCategory="1"
+        android:id="@+id/drawer_group2">
+        <!-- Filled dynamically in buildDrawerMenu() -->
+    </group>
+
+    <group android:checkableBehavior="single"
+        android:id="@+id/drawer_group"
+        android:orderInCategory="2">
+
+        <item
+            android:id="@+id/nav_tutorial"
+            android:icon="@drawable/ic_menu_tutorial"
+            android:title="@string/nav_tutorial" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/nav_settings" />
         <item
             android:id="@+id/nav_help"
-            android:icon="@drawable/ic_baseline_help_24"
+            android:icon="@drawable/ic_outline_help_outline_24"
             android:title="@string/nav_help" />
         <item
             android:id="@+id/nav_about"
-            android:icon="@drawable/ic_baseline_people_24"
+            android:icon="@drawable/ic_outline_info_24"
             android:title="@string/nav_about" />
     </group>
 
