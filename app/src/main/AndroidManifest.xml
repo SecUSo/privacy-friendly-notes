@@ -59,7 +59,7 @@
             android:parentActivityName=".ui.main.MainActivity" />
         <activity android:name=".ui.notes.SketchActivity"
             android:label="@string/title_sketchnote"
-            android:parentActivityName=".ui.main.MainActivity"></activity>
+            android:parentActivityName=".ui.main.MainActivity"/>
         <activity
             android:name=".ui.SettingsActivity"
             android:parentActivityName=".ui.main.MainActivity"
@@ -75,7 +75,8 @@
         <activity
             android:name=".ui.TutorialActivity"
             android:label="@string/title_tutorial"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
 
         <service android:name=".service.NotificationService" />
