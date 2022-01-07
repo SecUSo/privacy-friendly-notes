@@ -6,15 +6,19 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +39,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     public void onBindViewHolder(@NonNull NoteHolder holder, int position) {
         Note currentNote = notes.get(position);
         holder.textViewTitle.setText(currentNote.getName());
-        holder.textViewDescription.setText(Html.fromHtml(currentNote.getContent()));
-        holder.textViewDescription.setMaxLines(3);
-
+        holder.textViewDescription.setText("");
 
         switch (currentNote.getType()) {
             case DbContract.NoteEntry.TYPE_TEXT:
                 holder.imageViewcategory.setImageResource(R.drawable.ic_short_text_black_24dp);
+                holder.textViewDescription.setText(Html.fromHtml(currentNote.getContent()));
+                holder.textViewDescription.setMaxLines(3);
                 break;
             case DbContract.NoteEntry.TYPE_AUDIO:
                 holder.imageViewcategory.setImageResource(R.drawable.ic_mic_black_24dp);
@@ -51,6 +55,27 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
                 break;
             case DbContract.NoteEntry.TYPE_CHECKLIST:
                 holder.imageViewcategory.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
+                String preview = "";
+                try {
+                    JSONArray content = new JSONArray(currentNote.getContent());
+                    for (int i=0; i < content.length(); i++) {
+                        JSONObject o = content.getJSONObject(i);
+                        if(o.getBoolean("checked")){
+                            preview = preview + "(\u2713)";
+                        } else {
+                            preview = preview + "(X)";
+                        }
+                        preview = preview + "     " + o.getString("name");
+                        if(i != content.length()-1){
+                            preview = preview + "\n";
+                        }
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                holder.textViewDescription.setText(preview);
+                holder.textViewDescription.setMaxLines(3);
         }
     }
 
@@ -94,5 +119,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void filter(String text) {
+        List<Note> notesCopy = notes;
+        if(!text.isEmpty()){
+            notes.clear();
+            text = text.toLowerCase();
+            for(Note note: notesCopy){
+                if(note.getName().toLowerCase().contains(text) || note.getContent().toLowerCase().contains(text)){
+                    notes.add(note);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }
