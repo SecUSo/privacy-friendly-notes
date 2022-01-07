@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.AboutActivity;
+import org.secuso.privacyfriendlynotes.ui.TutorialActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.HelpActivity;
@@ -39,6 +41,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity
     //New Room variables
     private MainActivityViewModel mainActivityViewModel;
     NoteAdapter adapter;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.fab_sketch).setOnClickListener(this);
 
         fabMenu = (FloatingActionsMenu) findViewById(R.id.fab_menu);
+        //searchView = findViewById(R.id.searchViewFilter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -93,6 +98,20 @@ public class MainActivity extends AppCompatActivity
                 adapter.setNotes(notes);
             }
         });
+
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                adapter.filter(query);
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                adapter.filter(newText);
+//                return true;
+//            }
+//        });
 
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
             @Override
@@ -210,7 +229,9 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(getApplication(), HelpActivity.class));
         } else if (id == R.id.nav_about) {
             startActivity(new Intent(getApplication(), AboutActivity.class));
-        } else {
+        } else if (id == R.id.nav_tutorial) {
+            startActivity(new Intent(getApplication(), TutorialActivity.class));
+        }else {
             selectedCategory = id;
             mainActivityViewModel.getNotesFromCategory(selectedCategory).observe(this, new Observer<List<Note>>() {
                 @Override
