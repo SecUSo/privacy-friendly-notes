@@ -35,6 +35,7 @@
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>
     <string name="nav_settings">Einstellungen</string>
+    <string name="nav_tutorial">Tutorial</string>
     <string name="nav_help">Hilfe</string>
     <string name="nav_about">Über</string>
     <string name="navigation_drawer_close">Navigation drawer schließen</string>
