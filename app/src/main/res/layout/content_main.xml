@@ -12,10 +12,23 @@
     tools:context="org.secuso.privacyfriendlynotes.ui.main.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem= "@layout/note_item"/>
+        android:orientation="vertical">
+
+        <SearchView
+            android:id="@+id/searchViewFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:actionViewClass="androidx.appcompat.widget.SearchView"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/note_item" />
+
+    </LinearLayout>
 
 </RelativeLayout>
