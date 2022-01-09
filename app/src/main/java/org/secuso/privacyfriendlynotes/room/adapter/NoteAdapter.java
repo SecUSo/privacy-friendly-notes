@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,11 +22,13 @@ import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     private List<Note> notes = new ArrayList<>();
+    private List<Note> notesFilteredList = new ArrayList<>();
     private OnItemClickListener listener;
 
     @NonNull
@@ -121,17 +125,5 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         this.listener = listener;
     }
 
-    public void filter(String text) {
-        List<Note> notesCopy = notes;
-        if(!text.isEmpty()){
-            notes.clear();
-            text = text.toLowerCase();
-            for(Note note: notesCopy){
-                if(note.getName().toLowerCase().contains(text) || note.getContent().toLowerCase().contains(text)){
-                    notes.add(note);
-                }
-            }
-        }
-        notifyDataSetChanged();
-    }
+
 }
