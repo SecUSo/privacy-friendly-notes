@@ -30,6 +30,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE category=:thisCategory AND in_trash='0'")
     fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
 
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (category=1 OR category = 3))) AND in_trash='0'")
+    fun notesFiltered(thisFilterText: String): LiveData<List<Note?>?>
+
     @Query("SELECT * FROM notes")
     fun getNotesDebug() : List<Note>
 }

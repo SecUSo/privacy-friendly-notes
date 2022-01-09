@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
+import android.widget.SearchView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.fab_sketch).setOnClickListener(this);
 
         fabMenu = (FloatingActionsMenu) findViewById(R.id.fab_menu);
-        //searchView = findViewById(R.id.searchViewFilter);
+        searchView = findViewById(R.id.searchViewFilter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -101,17 +101,40 @@ public class MainActivity extends AppCompatActivity
 
 //        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 //            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                adapter.filter(query);
-//                return true;
+//            public boolean onQueryTextSubmit(String s) {
+//                return false;
 //            }
 //
 //            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                adapter.filter(newText);
-//                return true;
+//            public boolean onQueryTextChange(String s) {
+//                adapter.getFilter().filter(s);
+//                return false;
 //            }
 //        });
+//        String filter = searchView.getQuery().toString();
+//        mainActivityViewModel.getNotesFromFilter(filter).observe(this, new Observer<List<Note>>() {
+//            @Override
+//            public void onChanged(@Nullable List<Note> notes) {
+//                adapter.setNotes(notes);
+//            }
+//        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                applyFilter(newText);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                applyFilter(query);
+                return true;
+            }
+        });
+
+
+
 
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
             @Override
@@ -315,5 +338,12 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-
+    private void applyFilter(String newText){
+        mainActivityViewModel.getNotesFromFilter(newText).observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
+    }
 }

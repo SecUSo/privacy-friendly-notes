@@ -1,10 +1,8 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.viewModelScope
+import android.text.TextUtils
+import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,7 +23,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private var _notesFromCategoryLast: LiveData<List<Note?>?>? = null
     private var _notesFromCategory: MediatorLiveData<List<Note?>?> = MediatorLiveData<List<Note?>?>()
-
+    private var _notesFilteredLast: LiveData<List<Note?>?>? = null
+    private var _notesFiltered: MediatorLiveData<List<Note?>?> = MediatorLiveData<List<Note?>?>()
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -65,6 +64,24 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             return _notesFromCategory
     }
 
+
+    fun getNotesFromFilter(filter: String): LiveData<List<Note?>?>{
+        viewModelScope.launch(Dispatchers.Default) {
+            withContext(Dispatchers.Main) {
+                if (_notesFilteredLast != null) {
+                    _notesFiltered.removeSource(_notesFilteredLast!!)
+                }
+            }
+            _notesFilteredLast = repository.noteDao().notesFiltered(filter)
+
+            withContext(Dispatchers.Main) {
+                _notesFiltered.addSource(_notesFilteredLast!!) {
+                    _notesFiltered.postValue(it)
+                }
+            }
+        }
+        return _notesFiltered
+    }
 
     fun insert(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
