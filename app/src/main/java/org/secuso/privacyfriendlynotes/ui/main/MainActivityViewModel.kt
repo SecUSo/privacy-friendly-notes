@@ -1,7 +1,6 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.app.Application
-import android.text.TextUtils
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,14 +64,32 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
 
-    fun getNotesFromFilter(filter: String): LiveData<List<Note?>?>{
+    fun getActiveNotesFiltered(filter: String): LiveData<List<Note?>?>{
         viewModelScope.launch(Dispatchers.Default) {
             withContext(Dispatchers.Main) {
                 if (_notesFilteredLast != null) {
                     _notesFiltered.removeSource(_notesFilteredLast!!)
                 }
             }
-            _notesFilteredLast = repository.noteDao().notesFiltered(filter)
+            _notesFilteredLast = repository.noteDao().activeNotesFiltered(filter)
+
+            withContext(Dispatchers.Main) {
+                _notesFiltered.addSource(_notesFilteredLast!!) {
+                    _notesFiltered.postValue(it)
+                }
+            }
+        }
+        return _notesFiltered
+    }
+
+    fun getNotesFilteredAlphabetical(filter: String): LiveData<List<Note?>?>{
+        viewModelScope.launch(Dispatchers.Default) {
+            withContext(Dispatchers.Main) {
+                if (_notesFilteredLast != null) {
+                    _notesFiltered.removeSource(_notesFilteredLast!!)
+                }
+            }
+            _notesFilteredLast = repository.noteDao().activeNotesFilteredAlphabetical(filter)
 
             withContext(Dispatchers.Main) {
                 _notesFiltered.addSource(_notesFilteredLast!!) {

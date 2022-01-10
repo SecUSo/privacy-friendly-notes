@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_sort_alphabetical) {
             //switch to an alphabetically ascending or descending order
-            updateListAlphabetical();
+            updateListAlphabetical(searchView.getQuery().toString());
             return true;
         }
 
@@ -318,9 +318,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void updateListAlphabetical() {
+    private void updateListAlphabetical(String filter) {
         if(!alphabeticalAsc){
-            mainActivityViewModel.getAllNotesAlphabetical().observe(this, new Observer<List<Note>>() {
+            mainActivityViewModel.getNotesFilteredAlphabetical(filter).observe(this, new Observer<List<Note>>() {
                 @Override
                 public void onChanged(@Nullable List<Note> notes) {
                     adapter.setNotes(notes);
@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity
             });
             alphabeticalAsc = true;
         } else {
-            mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
+            mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
                 @Override
                 public void onChanged(@Nullable List<Note> notes) {
                     adapter.setNotes(notes);
@@ -338,8 +338,8 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-    private void applyFilter(String newText){
-        mainActivityViewModel.getNotesFromFilter(newText).observe(this, new Observer<List<Note>>() {
+    private void applyFilter(String filter){
+        mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
                 adapter.setNotes(notes);
