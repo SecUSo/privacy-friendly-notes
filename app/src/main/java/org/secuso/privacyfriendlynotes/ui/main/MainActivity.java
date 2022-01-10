@@ -99,26 +99,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String s) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String s) {
-//                adapter.getFilter().filter(s);
-//                return false;
-//            }
-//        });
-//        String filter = searchView.getQuery().toString();
-//        mainActivityViewModel.getNotesFromFilter(filter).observe(this, new Observer<List<Note>>() {
-//            @Override
-//            public void onChanged(@Nullable List<Note> notes) {
-//                adapter.setNotes(notes);
-//            }
-//        });
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -132,8 +112,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         });
-
-
 
 
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
