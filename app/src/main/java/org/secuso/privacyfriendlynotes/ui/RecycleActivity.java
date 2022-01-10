@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.preference.PreferenceManager;
+import android.widget.SearchView;
 
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
@@ -25,6 +26,9 @@ import java.util.List;
 public class RecycleActivity extends AppCompatActivity {
 
     MainActivityViewModel mainActivityViewModel;
+    SearchView searchView;
+    NoteAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +39,29 @@ public class RecycleActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewRecycle);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-        final NoteAdapter adapter = new NoteAdapter();
+        adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
+        searchView = findViewById(R.id.searchViewFilterRecycle);
 
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         mainActivityViewModel.getTrashedNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
                 adapter.setNotes(notes);
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                applyFilterTrashed(newText);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                applyFilterTrashed(query);
+                return true;
             }
         });
 
@@ -83,5 +102,14 @@ public class RecycleActivity extends AppCompatActivity {
             }
         });
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
+    }
+
+    private void applyFilterTrashed(String filter){
+        mainActivityViewModel.getTrashedNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
     }
 }

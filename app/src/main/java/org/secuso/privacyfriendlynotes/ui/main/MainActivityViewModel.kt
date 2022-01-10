@@ -100,6 +100,24 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return _notesFiltered
     }
 
+    fun getTrashedNotesFiltered(filter: String): LiveData<List<Note?>?>{
+        viewModelScope.launch(Dispatchers.Default) {
+            withContext(Dispatchers.Main) {
+                if (_notesFilteredLast != null) {
+                    _notesFiltered.removeSource(_notesFilteredLast!!)
+                }
+            }
+            _notesFilteredLast = repository.noteDao().trashedNotesFiltered(filter)
+
+            withContext(Dispatchers.Main) {
+                _notesFiltered.addSource(_notesFilteredLast!!) {
+                    _notesFiltered.postValue(it)
+                }
+            }
+        }
+        return _notesFiltered
+    }
+
     fun insert(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.categoryDao().insert(category)
