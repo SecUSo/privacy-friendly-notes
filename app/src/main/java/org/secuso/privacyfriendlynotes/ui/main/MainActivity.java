@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_WELCOME_DIALOG = "welcome_dialog";
     FloatingActionsMenu fabMenu;
     Boolean alphabeticalAsc = false;
+    Boolean categoryActivated = false;
 
     private int selectedCategory = CAT_ALL; //ID of the currently selected category. Defaults to "all"
 
@@ -102,13 +103,17 @@ public class MainActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextChange(String newText) {
-                applyFilter(newText);
+                if(!categoryActivated){
+                    applyFilter(newText);
+                } else {
+                    applyFilterCategory(newText,selectedCategory);
+                }
                 return true;
             }
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                applyFilter(query);
+
                 return true;
             }
         });
@@ -222,6 +227,7 @@ public class MainActivity extends AppCompatActivity
                     adapter.setNotes(notes);
                 }
             });
+            categoryActivated = false;
         } else if (id == R.id.nav_manage_categories) {
             startActivity(new Intent(getApplication(), ManageCategoriesActivity.class));
         } else if (id == R.id.nav_settings) {
@@ -234,12 +240,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(getApplication(), TutorialActivity.class));
         }else {
             selectedCategory = id;
-            mainActivityViewModel.getNotesFromCategory(selectedCategory).observe(this, new Observer<List<Note>>() {
-                @Override
-                public void onChanged(@Nullable List<Note> notes) {
-                    adapter.setNotes(notes);
-                }
-            });
+            categoryActivated = true;
+            applyFilterCategory(searchView.getQuery().toString(),selectedCategory);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -324,4 +326,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    private void applyFilterCategory(String filter, Integer category){
+        mainActivityViewModel.getActiveNotesFilteredFromCategory(filter,category).observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
+            }
+        });
+    }
+
 }

@@ -39,8 +39,8 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (category=1 OR category = 3))) AND in_trash='1' ORDER BY name DESC")
     fun trashedNotesFiltered(thisFilterText: String): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (category=1 OR category = 3))) AND in_trash='0' ORDER BY name DESC")
-    fun activeNotesFilteredFromCategory(thisFilterText: String): LiveData<List<Note?>?>
+    @Query("SELECT * FROM notes WHERE (category=:thisCategory) AND (in_trash='0') AND ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (category=1 OR category = 3)))  ORDER BY name DESC")
+    fun activeNotesFilteredFromCategory(thisFilterText: String, thisCategory: Integer): LiveData<List<Note?>?>
 
     @Query("SELECT * FROM notes")
     fun getNotesDebug() : List<Note>
