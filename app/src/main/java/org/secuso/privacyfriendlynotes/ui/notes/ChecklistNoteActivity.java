@@ -463,7 +463,8 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 }
                 break;
             case R.id.btn_save:
-                if(!itemNamesList.isEmpty()){ //safe only if note is not empty
+                Intent intent = getIntent();
+                if(!itemNamesList.isEmpty() || currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1)){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
                     break;

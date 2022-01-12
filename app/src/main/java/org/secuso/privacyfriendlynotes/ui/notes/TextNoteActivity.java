@@ -378,7 +378,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_save:
-                if(!Objects.equals(Html.toHtml(etContent.getText()),"")){ //safe only if note is not empty
+                Intent intent = getIntent();
+                if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1)){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
                 } else {
