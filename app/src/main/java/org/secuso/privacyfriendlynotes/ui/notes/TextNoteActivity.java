@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -167,6 +168,19 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
         loadActivity(true);
 
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation== Configuration.ORIENTATION_LANDSCAPE){
+            setContentView(R.layout.activity_text_note);
+        }
+        else{
+            setContentView(R.layout.activity_text_note);
+        }
 
     }
 
