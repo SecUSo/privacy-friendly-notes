@@ -5,6 +5,10 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import org.secuso.privacyfriendlynotes.room.model.Notification
 
+/**
+ * Data Access Object for notifications that define the interactions with the database
+ */
+
 @Dao
 interface NotificationDao {
     @Insert(onConflict = REPLACE)

@@ -42,6 +42,11 @@ import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 import java.util.List;
 
+/**
+ * The MainActivity includes the functionality of the primary screen.
+ * It provides the possibility to add access existing notes and add new notes.
+ * When the app starts it shows all active notes.
+ */
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {

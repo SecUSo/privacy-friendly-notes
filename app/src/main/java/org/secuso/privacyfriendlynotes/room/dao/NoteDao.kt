@@ -4,6 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import org.secuso.privacyfriendlynotes.room.model.Note
 
+/**
+ * Data Access Object for notes that define the interactions with the database
+ */
+
 @Dao
 interface NoteDao {
     @Insert

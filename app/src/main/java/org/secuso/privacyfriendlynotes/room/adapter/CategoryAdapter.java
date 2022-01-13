@@ -14,6 +14,9 @@ import org.secuso.privacyfriendlynotes.room.model.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter that provides a binding for categories for the ManageCategoriesActivity
+ */
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryHolder>{
 
@@ -44,10 +47,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         notifyDataSetChanged();
     }
 
-
-    public Category getCategoryAt(int position){
-        return categories.get(position);
-    }
 
 
     class CategoryHolder extends RecyclerView.ViewHolder {

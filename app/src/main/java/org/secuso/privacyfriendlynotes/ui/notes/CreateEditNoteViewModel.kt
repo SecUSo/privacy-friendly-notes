@@ -13,20 +13,19 @@ import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Notification
 
+/**
+ * The CreateEditNoteViewModel provides the data for all four note types.
+ */
+
 class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application){
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotifications
-    private val _notificationLiveData: MediatorLiveData<Notification?> = MediatorLiveData<Notification?>()
-    private var _notificationLiveDataLast: LiveData<Notification?>? = null
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
     private val _categoryName: MediatorLiveData<String?> = MediatorLiveData<String?>()
     private var _categoryNameLast: LiveData<String?>? = null
     private val database: NoteDatabase = NoteDatabase.getInstance(application)
-    val allNotes: LiveData<List<Note>> = database.noteDao().allNotes
-    val activeNotes: LiveData<List<Note>> = database.noteDao().allActiveNotes
-    val trashedNotes: LiveData<List<Note>> = database.noteDao().allTrashedNotes
-    val allNotesAlphabetical: LiveData<List<Note>> = database.noteDao().allNotesAlphabetical
+
 
     fun insert(notification: Notification){
         viewModelScope.launch(Dispatchers.Default){
@@ -43,27 +42,6 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
             repository.notificationDao().delete(notification)
         }
     }
-
-//    fun getNotificationFromNoteId(noteId: Integer): LiveData<Notification?> {
-//
-//        viewModelScope.launch(Dispatchers.Default){
-//            withContext(Dispatchers.Main){
-//                if(_notificationLiveDataLast != null){
-//                    _notificationLiveData.removeSource(_notificationLiveDataLast!!)
-//                }
-//            }
-//            _notificationLiveDataLast = repository.notificationDao().notificationFromNoteId(noteId)
-//
-//            withContext(Dispatchers.Main){
-//                _notificationLiveData.addSource(_notificationLiveDataLast!!){
-//                    _notificationLiveData.postValue(it)
-//                }
-//            }
-//
-//        }
-//        return _notificationLiveData
-//    }
-
 
 
     fun insert(category: Category) {
@@ -84,11 +62,6 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getAllCategories(){
-        viewModelScope.launch(Dispatchers.Default) {
-            repository.categoryDao().allCategoriesLive
-        }
-    }
     fun getCategoryNameFromId(categoryId: Integer): LiveData<String?> {
 
         viewModelScope.launch(Dispatchers.Default){

@@ -16,6 +16,11 @@ import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
+/**
+ * The database that includes all used information like notes, notifications and categories.
+ * A migration form version 1 (SQLite) to 2 (Room) is provided.
+ */
+
 @Database(
         entities = {Note.class, Category.class, Notification.class},
         version = 2

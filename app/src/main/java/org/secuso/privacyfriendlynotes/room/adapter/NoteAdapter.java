@@ -26,6 +26,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter that provides a binding for notes used in Mainactivity and Recycleractivity
+ */
+
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     private List<Note> notes = new ArrayList<>();
     private List<Note> notesFilteredList = new ArrayList<>();

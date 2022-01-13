@@ -23,6 +23,10 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Activity that allows to interact with trashed notes.
+ */
+
 public class RecycleActivity extends AppCompatActivity {
 
     MainActivityViewModel mainActivityViewModel;

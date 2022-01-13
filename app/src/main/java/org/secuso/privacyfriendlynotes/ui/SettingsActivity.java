@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.secuso.privacyfriendlynotes.R;
 
+/**
+ * Activity that allows to register some settings like a custom font size.
+ */
+
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String PREF_DEL_NOTES = "settings_del_notes";

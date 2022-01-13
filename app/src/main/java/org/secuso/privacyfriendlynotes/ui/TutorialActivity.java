@@ -39,6 +39,8 @@ import org.secuso.privacyfriendlynotes.ui.helper.FirstLaunchManager;
 import org.secuso.privacyfriendlynotes.ui.main.MainActivity;
 
 /**
+ * Activity that explains the app briefly.
+ * It is shown at the first start of the app or when it is selected from the NavigationDrawer.
  * Class structure taken from tutorial at http://www.androidhive.info/2016/05/android-build-intro-slider-app/
  * @author Karola Marky, Christopher Beckmann
  * @version 20161214

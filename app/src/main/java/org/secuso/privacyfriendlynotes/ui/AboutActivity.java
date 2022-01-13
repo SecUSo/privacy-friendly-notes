@@ -7,6 +7,10 @@ import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.R;
 
+/**
+ * Activity that gives information about the developers.
+ */
+
 public class AboutActivity extends AppCompatActivity {
 
     @Override

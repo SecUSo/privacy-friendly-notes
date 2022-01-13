@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.secuso.privacyfriendlynotes.R;
 
+/**
+ * Activity that gives some information about the privacy.
+ */
+
 public class HelpActivity extends AppCompatActivity {
 
     @Override

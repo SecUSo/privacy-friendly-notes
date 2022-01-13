@@ -71,6 +71,10 @@ import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * Activity that allows to add, edit and delete sketch notes.
+ */
+
 public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";

@@ -5,6 +5,10 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import org.secuso.privacyfriendlynotes.room.model.Category
 
+/**
+ * Data Access Object for categories that define the interactions with the database
+ */
+
 @Dao
 interface CategoryDao {
     @Insert(onConflict = REPLACE)

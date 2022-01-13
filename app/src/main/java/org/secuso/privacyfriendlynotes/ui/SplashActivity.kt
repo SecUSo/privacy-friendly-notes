@@ -8,6 +8,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivity
 
 /**
  * Created by yonjuni on 22.10.16.
+ * Activity that appears while the program is launching
  */
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

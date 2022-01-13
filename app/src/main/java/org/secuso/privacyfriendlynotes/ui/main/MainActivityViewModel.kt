@@ -9,14 +9,17 @@ import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 
+/**
+ * The MainActivityViewModel provides the data for the MainActivity.
+ * It is also used for the RecycleActivity.
+ */
+
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
-    val allNotes: LiveData<List<Note>> = repository.noteDao().allNotes
     val activeNotes: LiveData<List<Note>> = repository.noteDao().allActiveNotes
     val trashedNotes: LiveData<List<Note>> = repository.noteDao().allTrashedNotes
-    val allNotesAlphabetical: LiveData<List<Note>> = repository.noteDao().allNotesAlphabetical
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
 
 
