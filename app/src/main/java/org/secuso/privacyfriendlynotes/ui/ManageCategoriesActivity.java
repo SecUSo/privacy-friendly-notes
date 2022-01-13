@@ -107,6 +107,32 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
         });
     }
 
+    private SharedPreferences spGen;
+
+    private boolean isSubmit;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EditText name = (EditText) findViewById(R.id.etName);
+        SharedPreferences.Editor spGenEditor = spGen.edit();
+        if (isSubmit) {
+            spGenEditor.putString("editName", "");
+        } else {
+            spGenEditor.putString("editName", name.getText().toString());
+        }
+        spGenEditor.commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        spGen = getSharedPreferences("MainActivity", MODE_PRIVATE);
+        EditText name = (EditText) findViewById(R.id.etName);
+        name.setText(spGen.getString("editName", ""));
+        isSubmit = false;
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -117,6 +143,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                         Snackbar.make(name,R.string.toast_category_exists, Snackbar.LENGTH_SHORT).show();
                     }
                     name.setText("");
+                    isSubmit = true;
                 }
                 updateList();
                 break;
