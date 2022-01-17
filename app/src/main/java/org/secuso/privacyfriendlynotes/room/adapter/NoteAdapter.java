@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter that provides a binding for notes used in Mainactivity and Recycleractivity
+ * Adapter that provides a binding for notes
+ * @see org.secuso.privacyfriendlynotes.ui.main.MainActivity
+ * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
@@ -43,6 +45,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         return new NoteHolder(itemView);
     }
 
+
+    /**
+     * Defines how notes are presented in the RecyclerView.
+     * @see org.secuso.privacyfriendlynotes.ui.main.MainActivity
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull NoteHolder holder, int position) {
         Note currentNote = notes.get(position);

@@ -10,6 +10,11 @@ import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Note
 
+/**
+ * ViewModel that provides data for ManageCategoriesActivity.
+ * @see ManageCategoriesActivity
+ */
+
 class ManageCategoriesViewModel (application: Application) : AndroidViewModel(application) {
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive

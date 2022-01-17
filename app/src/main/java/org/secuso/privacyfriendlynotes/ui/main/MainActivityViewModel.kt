@@ -12,6 +12,8 @@ import org.secuso.privacyfriendlynotes.room.NoteDatabase
 /**
  * The MainActivityViewModel provides the data for the MainActivity.
  * It is also used for the RecycleActivity.
+ * @see MainActivity
+ * @see RecycleActivity
  */
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -46,26 +48,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             repository.noteDao().delete(note)
         }
     }
-
-
-    fun getNotesFromCategory(categoryID: Integer): LiveData<List<Note?>?>{
-        viewModelScope.launch(Dispatchers.Default) {
-            withContext(Dispatchers.Main) {
-                if (_notesFromCategoryLast != null) {
-                    _notesFromCategory.removeSource(_notesFromCategoryLast!!)
-                }
-            }
-            _notesFromCategoryLast = repository.noteDao().notesFromCategory(categoryID)
-
-            withContext(Dispatchers.Main) {
-                _notesFromCategory.addSource(_notesFromCategoryLast!!) {
-                    _notesFromCategory.postValue(it)
-                }
-            }
-        }
-            return _notesFromCategory
-    }
-
 
     fun getActiveNotesFiltered(filter: String): LiveData<List<Note?>?>{
         viewModelScope.launch(Dispatchers.Default) {

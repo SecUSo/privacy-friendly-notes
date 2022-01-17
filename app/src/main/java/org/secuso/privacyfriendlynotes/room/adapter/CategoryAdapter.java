@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter that provides a binding for categories for the ManageCategoriesActivity
+ * Adapter that provides a binding for categories
+ * @see org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity
  */
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryHolder>{

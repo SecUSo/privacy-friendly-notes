@@ -14,7 +14,8 @@ import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Notification
 
 /**
- * The CreateEditNoteViewModel provides the data for all four note types.
+ * Provides data for all four note types.
+ * @see AudioNoteActivity, ChecklistNoteActivity, SketchActivity, TextNoteActivity
  */
 
 class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application){

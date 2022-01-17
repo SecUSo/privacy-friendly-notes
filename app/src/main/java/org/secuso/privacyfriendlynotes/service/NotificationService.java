@@ -14,6 +14,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 /**
+ * Service does handle the activated notifications with a PendingIntent
  * Created by Robin on 26.06.2016.
  */
 public class NotificationService extends IntentService {

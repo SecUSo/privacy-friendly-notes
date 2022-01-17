@@ -25,9 +25,14 @@ import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.util.List;
 
+/**
+ * Activity provides possibility to add, delete categories.
+ * Data is provided by the ManageCategoriesViewModel
+ * @see ManageCategoriesViewModel
+ */
+
 public class ManageCategoriesActivity extends AppCompatActivity implements View.OnClickListener {
 
-    ListView list;
     RecyclerView recycler_list;
     ManageCategoriesViewModel manageCategoriesViewModel;
     List<Category> allCategories;

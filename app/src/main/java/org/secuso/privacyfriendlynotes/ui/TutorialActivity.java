@@ -43,7 +43,6 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivity;
  * It is shown at the first start of the app or when it is selected from the NavigationDrawer.
  * Class structure taken from tutorial at http://www.androidhive.info/2016/05/android-build-intro-slider-app/
  * @author Karola Marky, Christopher Beckmann
- * @version 20161214
  */
 
 public class TutorialActivity extends AppCompatActivity {

@@ -44,8 +44,9 @@ import java.util.List;
 
 /**
  * The MainActivity includes the functionality of the primary screen.
- * It provides the possibility to add access existing notes and add new notes.
- * When the app starts it shows all active notes.
+ * It provides the possibility to access existing notes and add new ones.
+ * Data is provided by the MainActivityViewModel.
+ * @see MainActivityViewModel
  */
 
 public class MainActivity extends AppCompatActivity
@@ -124,6 +125,9 @@ public class MainActivity extends AppCompatActivity
         });
 
 
+        /**
+         * Handels when a note is clicked.
+         */
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Note note) {
@@ -216,6 +220,11 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Handles clicks on navigation items
+     * @param item
+     * @return
+     */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -254,6 +263,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Handles when notes are added.
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -303,6 +316,10 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    /**
+     * Sorts filtered notes alphabetical in descending or ascending order.
+     * @param filter
+     */
     private void updateListAlphabetical(String filter) {
         if(!alphabeticalAsc){
             mainActivityViewModel.getNotesFilteredAlphabetical(filter).observe(this, new Observer<List<Note>>() {
@@ -323,6 +340,11 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+    /**
+     * Filters active notes.
+     * @param filter
+     */
     private void applyFilter(String filter){
         mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
             @Override
@@ -332,6 +354,11 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Filters active notes from category.
+     * @param filter
+     * @param category
+     */
     private void applyFilterCategory(String filter, Integer category){
         mainActivityViewModel.getActiveNotesFilteredFromCategory(filter,category).observe(this, new Observer<List<Note>>() {
             @Override

@@ -3,7 +3,7 @@ package org.secuso.privacyfriendlynotes.room;
 import android.provider.BaseColumns;
 
 /**
- * Contract used for accessing the Database
+ * Contract used for accessing the Database.
  * Created by Robin on 11.06.2016.
  */
 public class DbContract {

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
+ * Class manages the first launch of the application.
  * Class structure taken from tutorial at http://www.androidhive.info/2016/05/android-build-intro-slider-app/
  */
 public class FirstLaunchManager {

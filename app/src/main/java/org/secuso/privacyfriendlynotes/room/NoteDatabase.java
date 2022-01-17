@@ -18,7 +18,6 @@ import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
- * A migration form version 1 (SQLite) to 2 (Room) is provided.
  */
 
 @Database(
@@ -52,6 +51,9 @@ public abstract class NoteDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Provides data migration from database version 1 (SQLite) to 2 (Room)
+     */
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
