@@ -46,6 +46,7 @@
             android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.manageCategories.ManageCategoriesActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_manage_categories"
             android:parentActivityName=".ui.main.MainActivity" />
         <activity
