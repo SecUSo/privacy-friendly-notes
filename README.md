@@ -17,7 +17,7 @@ This app lets you create and manage notes. Currently it supports four types of n
 All of them can be saved on the internal storage or shared with other apps. You can also assign categories.
 
 
-This app belongs to the group of Privacy Friendly Apps developed by the Technische Universität Darmstadt. 
+This app belongs to the group of Privacy Friendly Apps developed by Karlsruhe Institute of Technology. 
 
 ## Motivation
 
@@ -39,6 +39,7 @@ Target SDK: 29
 Privacy Friendly Notes is licensed under the GPLv3.<br />
 Copyright (C) 2016-2017  Robin Morawetz<br />
 Copyright (C) 2018-2021  Christopher Beckmann
+Copyright (C) 2021-2022  Maximilian Zimmermann
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -64,5 +65,6 @@ Github-Users: <br />
 Rdlgrmpf <br />
 Kamuno <br />
 Yonjuni <br />
-naofum
+naofum <br />
+maxmitz
 
