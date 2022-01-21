@@ -47,16 +47,16 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE category=:thisCategory AND in_trash='0'")
     fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (type = 1 OR type = 3))) AND in_trash='0' ORDER BY name DESC")
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 1)) AND in_trash='0' ORDER BY name DESC")
     fun activeNotesFiltered(thisFilterText: String): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (type = 1 OR type = 3))) AND in_trash='0' ORDER BY name ASC")
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 1)) AND in_trash='0' ORDER BY name ASC")
     fun activeNotesFilteredAlphabetical(thisFilterText: String): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (type = 1 OR type = 3))) AND in_trash='1' ORDER BY name DESC")
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 1)) AND in_trash='1' ORDER BY name DESC")
     fun trashedNotesFiltered(thisFilterText: String): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE (category=:thisCategory) AND (in_trash='0') AND ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND (type = 1 OR type = 3)))  ORDER BY name DESC")
+    @Query("SELECT * FROM notes WHERE (category=:thisCategory) AND (in_trash='0') AND ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 1))  ORDER BY name DESC")
     fun activeNotesFilteredFromCategory(thisFilterText: String, thisCategory: Integer): LiveData<List<Note?>?>
 
     @Query("SELECT * FROM notes")
