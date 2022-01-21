@@ -438,7 +438,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                         if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                         } else {
                             if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
                                 totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -477,7 +477,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                         if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                         } else {
                             if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
                                 totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -515,7 +515,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                         if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                         } else {
                             if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
                                 totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
