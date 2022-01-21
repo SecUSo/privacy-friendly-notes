@@ -14,6 +14,7 @@
         android:orientation="vertical">
 
         <SearchView
+            android:imeOptions="flagNoExtractUi"
             android:id="@+id/searchViewFilter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
