@@ -20,7 +20,8 @@
             android:id="@+id/searchViewFilterRecycle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:actionViewClass="androidx.appcompat.widget.SearchView"/>
+            android:actionViewClass="androidx.appcompat.widget.SearchView"
+            android:imeOptions="flagNoExtractUi"/>
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewRecycle"

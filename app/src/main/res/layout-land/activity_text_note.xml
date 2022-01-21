@@ -35,7 +35,6 @@
                 android:layout_weight="1">
 
                 <EditText
-                    android:imeOptions="flagNoExtractUi"
                     android:id="@+id/etContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -43,7 +42,8 @@
                     android:background="@android:color/transparent"
                     android:ems="10"
                     android:hint="@string/hint_note"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine"
+                    android:imeOptions="flagNoExtractUi"/>
             </ScrollView>
 
             <include
