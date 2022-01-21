@@ -19,6 +19,8 @@ import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
+
+import android.widget.ArrayAdapter;
 import android.widget.SearchView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -37,6 +39,8 @@ import android.view.View;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
@@ -52,7 +56,9 @@ import org.secuso.privacyfriendlynotes.ui.RecycleActivity;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -338,7 +344,30 @@ public class MainActivity extends AppCompatActivity
             mainActivityViewModel.getNotesFilteredAlphabetical(filter).observe(this, new Observer<List<Note>>() {
                 @Override
                 public void onChanged(@Nullable List<Note> notes) {
-                    adapter.setNotes(notes);
+                    // Filter checklist notes
+                    List<Note> filteredNotes = new ArrayList<>();
+                    for(Note note: notes){
+                        Boolean add = false;
+                        if(note.getType() == 3){
+                            try {
+                                JSONArray content = new JSONArray(note.getContent());
+                                for (int i=0; i < content.length(); i++) {
+                                    JSONObject o = content.getJSONObject(i);
+                                    if (o.getString("name").indexOf(filter) >=0){
+                                        add = true;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else{
+                            add = true;
+                        }
+                        if(add){
+                            filteredNotes.add(note);
+                        }
+                    }
+                    adapter.setNotes(filteredNotes);
                 }
             });
             alphabeticalAsc = true;
@@ -346,7 +375,30 @@ public class MainActivity extends AppCompatActivity
             mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
                 @Override
                 public void onChanged(@Nullable List<Note> notes) {
-                    adapter.setNotes(notes);
+                    // Filter checklist notes
+                    List<Note> filteredNotes = new ArrayList<>();
+                    for(Note note: notes){
+                        Boolean add = false;
+                        if(note.getType() == 3){
+                            try {
+                                JSONArray content = new JSONArray(note.getContent());
+                                for (int i=0; i < content.length(); i++) {
+                                    JSONObject o = content.getJSONObject(i);
+                                    if (o.getString("name").indexOf(filter) >=0){
+                                        add = true;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else{
+                            add = true;
+                        }
+                        if(add){
+                            filteredNotes.add(note);
+                        }
+                    }
+                    adapter.setNotes(filteredNotes);
                 }
             });
             alphabeticalAsc = false;
@@ -362,7 +414,30 @@ public class MainActivity extends AppCompatActivity
         mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
-                adapter.setNotes(notes);
+                // Filter checklist notes
+                List<Note> filteredNotes = new ArrayList<>();
+                for(Note note: notes){
+                    Boolean add = false;
+                    if(note.getType() == 3){
+                        try {
+                            JSONArray content = new JSONArray(note.getContent());
+                            for (int i=0; i < content.length(); i++) {
+                                JSONObject o = content.getJSONObject(i);
+                                if (o.getString("name").indexOf(filter) >=0){
+                                    add = true;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        add = true;
+                    }
+                    if(add){
+                        filteredNotes.add(note);
+                    }
+                }
+                adapter.setNotes(filteredNotes);
             }
         });
     }
@@ -376,7 +451,30 @@ public class MainActivity extends AppCompatActivity
         mainActivityViewModel.getActiveNotesFilteredFromCategory(filter,category).observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
-                adapter.setNotes(notes);
+                // Filter checklist notes
+                List<Note> filteredNotes = new ArrayList<>();
+                for(Note note: notes){
+                    Boolean add = false;
+                    if(note.getType() == 3){
+                        try {
+                            JSONArray content = new JSONArray(note.getContent());
+                            for (int i=0; i < content.length(); i++) {
+                                JSONObject o = content.getJSONObject(i);
+                                if (o.getString("name").indexOf(filter) >=0){
+                                    add = true;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        add = true;
+                    }
+                    if(add){
+                        filteredNotes.add(note);
+                    }
+                }
+                adapter.setNotes(filteredNotes);
             }
         });
     }
