@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.preference.PreferenceManager;
 import android.widget.SearchView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Note;
@@ -34,6 +36,7 @@ import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -125,7 +128,30 @@ public class RecycleActivity extends AppCompatActivity {
         mainActivityViewModel.getTrashedNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
-                adapter.setNotes(notes);
+                // Filter checklist notes
+                List<Note> filteredNotes = new ArrayList<>();
+                for(Note note: notes){
+                    Boolean add = false;
+                    if(note.getType() == 3){
+                        try {
+                            JSONArray content = new JSONArray(note.getContent());
+                            for (int i=0; i < content.length(); i++) {
+                                JSONObject o = content.getJSONObject(i);
+                                if (o.getString("name").indexOf(filter) >=0){
+                                    add = true;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        add = true;
+                    }
+                    if(add){
+                        filteredNotes.add(note);
+                    }
+                }
+                adapter.setNotes(filteredNotes);
             }
         });
     }
