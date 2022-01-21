@@ -137,7 +137,7 @@ public class RecycleActivity extends AppCompatActivity {
                             JSONArray content = new JSONArray(note.getContent());
                             for (int i=0; i < content.length(); i++) {
                                 JSONObject o = content.getJSONObject(i);
-                                if (o.getString("name").indexOf(filter) >=0){
+                                if (o.getString("name").contains(filter) || note.getName().contains(filter)){
                                     add = true;
                                 }
                             }
