@@ -464,7 +464,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btn_save:
                 Intent intent = getIntent();
-                if(seekBar.isEnabled() || currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1)){ //safe only if note is not empty
+                if(seekBar.isEnabled() || (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
                 } else {
