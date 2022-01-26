@@ -189,6 +189,13 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         loadActivity(true);
     }
 
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+        shouldSave = false;
+        finish();
+    }
+
     private void loadActivity(boolean initial){
 
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.

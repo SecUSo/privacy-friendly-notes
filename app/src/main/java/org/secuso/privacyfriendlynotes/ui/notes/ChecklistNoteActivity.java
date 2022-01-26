@@ -182,6 +182,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         loadActivity(true);
     }
 
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+        shouldSave = false;
+        finish();
+    }
+
     private void loadActivity(boolean initial){
         //get rid of the old data. Otherwise we would have duplicates.
         itemNamesList.clear();
