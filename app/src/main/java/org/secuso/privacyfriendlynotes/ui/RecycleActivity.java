@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Note;
-import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
+import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter;
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel;
 
 import java.io.File;

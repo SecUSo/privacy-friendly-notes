@@ -20,7 +20,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
 
-import android.widget.ArrayAdapter;
 import android.widget.SearchView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -43,7 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
-import org.secuso.privacyfriendlynotes.room.adapter.NoteAdapter;
+import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.AboutActivity;
@@ -56,7 +55,6 @@ import org.secuso.privacyfriendlynotes.ui.RecycleActivity;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
-import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,17 +11,12 @@
  You should have received a copy of the GNU General Public License
  along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.secuso.privacyfriendlynotes.room.adapter;
+package org.secuso.privacyfriendlynotes.ui.adapter;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Environment;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,9 +28,7 @@ import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Note;
-import org.secuso.privacyfriendlynotes.ui.util.CheckListItem;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 

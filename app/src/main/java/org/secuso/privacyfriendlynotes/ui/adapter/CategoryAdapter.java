@@ -11,7 +11,7 @@
  You should have received a copy of the GNU General Public License
  along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.secuso.privacyfriendlynotes.room.adapter;
+package org.secuso.privacyfriendlynotes.ui.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

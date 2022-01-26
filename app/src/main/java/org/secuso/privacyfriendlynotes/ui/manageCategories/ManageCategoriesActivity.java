@@ -28,11 +28,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Category;
-import org.secuso.privacyfriendlynotes.room.adapter.CategoryAdapter;
+import org.secuso.privacyfriendlynotes.ui.adapter.CategoryAdapter;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
