@@ -20,6 +20,8 @@ import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
 
+import android.text.Html;
+import android.text.Spanned;
 import android.widget.SearchView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -346,21 +348,30 @@ public class MainActivity extends AppCompatActivity
                     List<Note> filteredNotes = new ArrayList<>();
                     for(Note note: notes){
                         Boolean add = false;
-                        if(note.getType() == 3){
-                            try {
-                                JSONArray content = new JSONArray(note.getContent());
-                                for (int i=0; i < content.length(); i++) {
-                                    JSONObject o = content.getJSONObject(i);
-                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                        add = true;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        if(note.getType() == 1){
+                            Spanned spanned = Html.fromHtml(note.getContent());
+                            String text = spanned.toString();
+                            if(text.contains(filter)){
+                                add = true;
                             }
                         } else{
-                            add = true;
+                            if(note.getType() == 3){
+                                try {
+                                    JSONArray content = new JSONArray(note.getContent());
+                                    for (int i=0; i < content.length(); i++) {
+                                        JSONObject o = content.getJSONObject(i);
+                                        if (o.getString("name").contains(filter) || note.getName().contains(filter)){
+                                            add = true;
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else{
+                                add = true;
+                            }
                         }
+
                         if(add){
                             filteredNotes.add(note);
                         }
@@ -377,21 +388,30 @@ public class MainActivity extends AppCompatActivity
                     List<Note> filteredNotes = new ArrayList<>();
                     for(Note note: notes){
                         Boolean add = false;
-                        if(note.getType() == 3){
-                            try {
-                                JSONArray content = new JSONArray(note.getContent());
-                                for (int i=0; i < content.length(); i++) {
-                                    JSONObject o = content.getJSONObject(i);
-                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                        add = true;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        if(note.getType() == 1){
+                            Spanned spanned = Html.fromHtml(note.getContent());
+                            String text = spanned.toString();
+                            if(text.contains(filter)){
+                                add = true;
                             }
                         } else{
-                            add = true;
+                            if(note.getType() == 3){
+                                try {
+                                    JSONArray content = new JSONArray(note.getContent());
+                                    for (int i=0; i < content.length(); i++) {
+                                        JSONObject o = content.getJSONObject(i);
+                                        if (o.getString("name").contains(filter) || note.getName().contains(filter)){
+                                            add = true;
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else{
+                                add = true;
+                            }
                         }
+
                         if(add){
                             filteredNotes.add(note);
                         }
@@ -416,21 +436,30 @@ public class MainActivity extends AppCompatActivity
                 List<Note> filteredNotes = new ArrayList<>();
                 for(Note note: notes){
                     Boolean add = false;
-                    if(note.getType() == 3){
-                        try {
-                            JSONArray content = new JSONArray(note.getContent());
-                            for (int i=0; i < content.length(); i++) {
-                                JSONObject o = content.getJSONObject(i);
-                                if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                    add = true;
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                    if(note.getType() == 1){
+                        Spanned spanned = Html.fromHtml(note.getContent());
+                        String text = spanned.toString();
+                        if(text.contains(filter)){
+                            add = true;
                         }
                     } else{
-                        add = true;
+                        if(note.getType() == 3){
+                            try {
+                                JSONArray content = new JSONArray(note.getContent());
+                                for (int i=0; i < content.length(); i++) {
+                                    JSONObject o = content.getJSONObject(i);
+                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
+                                        add = true;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else{
+                            add = true;
+                        }
                     }
+
                     if(add){
                         filteredNotes.add(note);
                     }
@@ -453,21 +482,30 @@ public class MainActivity extends AppCompatActivity
                 List<Note> filteredNotes = new ArrayList<>();
                 for(Note note: notes){
                     Boolean add = false;
-                    if(note.getType() == 3){
-                        try {
-                            JSONArray content = new JSONArray(note.getContent());
-                            for (int i=0; i < content.length(); i++) {
-                                JSONObject o = content.getJSONObject(i);
-                                if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                    add = true;
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                    if(note.getType() == 1){
+                        Spanned spanned = Html.fromHtml(note.getContent());
+                        String text = spanned.toString();
+                        if(text.contains(filter)){
+                            add = true;
                         }
                     } else{
-                        add = true;
+                        if(note.getType() == 3){
+                            try {
+                                JSONArray content = new JSONArray(note.getContent());
+                                for (int i=0; i < content.length(); i++) {
+                                    JSONObject o = content.getJSONObject(i);
+                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
+                                        add = true;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else{
+                            add = true;
+                        }
                     }
+
                     if(add){
                         filteredNotes.add(note);
                     }
