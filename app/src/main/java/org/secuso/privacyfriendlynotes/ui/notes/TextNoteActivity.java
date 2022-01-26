@@ -461,6 +461,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
+                etContent.setSelection(startSelection);
                 break;
             case R.id.btn_italics:
                 startSelection = etContent.getSelectionStart();
@@ -500,6 +501,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
+                etContent.setSelection(startSelection);
                 break;
             case R.id.btn_underline:
                 underlined = new UnderlineSpan();
@@ -538,6 +540,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     totalText.setSpan(underlined,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
                 etContent.setText(totalText);
+                etContent.setSelection(startSelection);
                 break;
             default:
         }
