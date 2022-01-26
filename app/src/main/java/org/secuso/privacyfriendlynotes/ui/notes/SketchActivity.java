@@ -427,7 +427,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btn_save:
                 Bitmap emptyBitmap = Bitmap.createBitmap(drawView.getBitmap().getWidth(), drawView.getBitmap().getHeight(), drawView.getBitmap().getConfig());
                 Intent intent = getIntent();
-                if(!drawView.getBitmap().sameAs(emptyBitmap) || (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
+                if(!drawView.getBitmap().sameAs(emptyBitmap) || -5 != intent.getIntExtra(EXTRA_CATEGORY, -5)){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
                     break;
