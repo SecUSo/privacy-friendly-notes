@@ -50,7 +50,6 @@ public abstract class NoteDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     NoteDatabase.class, "allthenotes")
                     .addMigrations(MIGRATION_1_2)
-                    .fallbackToDestructiveMigration()
                     .addCallback(roomCallback)
                     .build();
         }
