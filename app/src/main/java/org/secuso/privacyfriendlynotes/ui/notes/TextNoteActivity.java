@@ -425,8 +425,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_bold:
-                startSelection = etContent.getSelectionStart();
-                endSelection = etContent.getSelectionEnd();
+                if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
+                    startSelection = etContent.getSelectionStart();
+                    endSelection = etContent.getSelectionEnd();
+                } else {
+                    startSelection = etContent.getSelectionEnd();
+                    endSelection = etContent.getSelectionStart();
+                }
+
                 totalText = (SpannableStringBuilder) etContent.getText();
                 final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
@@ -464,8 +470,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 etContent.setSelection(startSelection);
                 break;
             case R.id.btn_italics:
-                startSelection = etContent.getSelectionStart();
-                endSelection = etContent.getSelectionEnd();
+                if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
+                    startSelection = etContent.getSelectionStart();
+                    endSelection = etContent.getSelectionEnd();
+                } else {
+                    startSelection = etContent.getSelectionEnd();
+                    endSelection = etContent.getSelectionStart();
+                }
                 totalText = (SpannableStringBuilder) etContent.getText();
                 final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
@@ -505,8 +516,13 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_underline:
                 underlined = new UnderlineSpan();
-                startSelection = etContent.getSelectionStart();
-                endSelection = etContent.getSelectionEnd();
+                if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
+                    startSelection = etContent.getSelectionStart();
+                    endSelection = etContent.getSelectionEnd();
+                } else {
+                    startSelection = etContent.getSelectionEnd();
+                    endSelection = etContent.getSelectionStart();
+                }
                 totalText = (SpannableStringBuilder) etContent.getText();
                 UnderlineSpan[] underlineSpans = totalText.getSpans(startSelection, endSelection, UnderlineSpan.class);
                 Boolean alreadyUnderlined = false;
