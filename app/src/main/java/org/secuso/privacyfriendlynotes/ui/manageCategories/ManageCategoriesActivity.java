@@ -117,6 +117,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements View.
                         manageCategoriesViewModel.insert(category);
                     }
                 }
+                name.setText("");
                 break;
         }
     }
