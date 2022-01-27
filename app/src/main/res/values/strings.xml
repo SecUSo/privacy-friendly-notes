@@ -64,6 +64,7 @@
     <string name="toast_file_exported_to">Exported note to %1s</string>
     <string name="toast_emptyNote">Empty note cannot be saved</string>
     <string name="toast_checklist_oneItem">Only one item can be modified.</string>
+    <string name="toast_deleted">Note deleted</string>
 
 
 

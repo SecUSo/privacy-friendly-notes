@@ -62,6 +62,7 @@
     <string name="toast_file_exported_to">%1s にメモをエクスポートしました</string>
     <string name="toast_emptyNote">空のノートは保存できない</string>
     <string name="toast_checklist_oneItem">修正できるのは項目のみです。</string>
+    <string name="toast_deleted">注 削除</string>
 
 
 

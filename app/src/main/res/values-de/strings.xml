@@ -56,7 +56,7 @@
     <string name="toast_updated">Notiz aktualisiert</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
-
+    <string name="toast_deleted">Notiz gelöscht</string>
 
 
     <string name="action_bold">F</string>

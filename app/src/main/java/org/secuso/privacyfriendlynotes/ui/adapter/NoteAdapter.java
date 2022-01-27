@@ -144,5 +144,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         this.listener = listener;
     }
 
-
+    public Note getNoteAt(int pos){
+        return notes.get(pos);
+    }
 }
