@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
@@ -24,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -54,6 +56,7 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -123,6 +126,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private MenuItem item;
     private CreateEditNoteViewModel createEditNoteViewModel;
 
+    Button boldBtn;
+    Button italicsBtn;
+    Button underlineBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +140,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.btn_bold).setOnClickListener(this);
         findViewById(R.id.btn_italics).setOnClickListener(this);
         findViewById(R.id.btn_underline).setOnClickListener(this);
+
+        boldBtn = findViewById(R.id.btn_bold);
+        italicsBtn = findViewById(R.id.btn_italics);
+        underlineBtn = findViewById(R.id.btn_underline);
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
@@ -179,6 +190,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+
         loadActivity(true);
 
 
@@ -204,6 +216,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void loadActivity(boolean initial){
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
@@ -245,6 +258,16 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
             });
         }
+
+        etContent.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                boldBtn.setTextColor(Color.parseColor("#0274b2"));
+                italicsBtn.setTextColor(Color.parseColor("#0274b2"));
+                underlineBtn.setTextColor(Color.parseColor("#0274b2"));
+                return false;
+            }
+        });
 
         //fill in values if update
         if (edit) {
@@ -425,6 +448,23 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.btn_bold:
+                final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
+                totalText = (SpannableStringBuilder) etContent.getText();
+                if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
+                    if(boldBtn.getCurrentTextColor() == Color.parseColor("#000000")){
+                        boldBtn.setTextColor(Color.parseColor("#0274b2"));
+                        spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
+                        for (StyleSpan span : spans) {
+                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == bold.getStyle()) {
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                totalText.removeSpan(span);
+                            }
+                        }
+                    } else {
+                        boldBtn.setTextColor(Color.parseColor("#000000"));
+                        totalText.setSpan(bold,etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    }
+                }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
                     startSelection = etContent.getSelectionStart();
                     endSelection = etContent.getSelectionEnd();
@@ -434,42 +474,63 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
 
                 totalText = (SpannableStringBuilder) etContent.getText();
-                final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
                 Boolean alreadyBold = false;
-                for (StyleSpan span : spans) {
-                    if (span.getStyle() == bold.getStyle()) {
-                        alreadyBold = true;
-                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
-                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if(totalText.getSpanStart(span) > startSelection){
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
+                    for (StyleSpan span : spans) {
+                        if (span.getStyle() == bold.getStyle()) {
+                            alreadyBold = true;
+                            if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if(totalText.getSpanStart(span) > startSelection){
+                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if(totalText.getSpanEnd(span) < endSelection) {
+                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
-                            if(totalText.getSpanEnd(span) < endSelection) {
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
+                            totalText.removeSpan(span);
                         }
-                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                        }
-                        totalText.removeSpan(span);
+                    }
+                    if(!alreadyBold){
+                        totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
-                if(!alreadyBold){
-                    totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                }
+
                 etContent.setText(totalText);
                 etContent.setSelection(startSelection);
                 break;
             case R.id.btn_italics:
+
+                totalText = (SpannableStringBuilder) etContent.getText();
+                final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
+                totalText = (SpannableStringBuilder) etContent.getText();
+                if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
+                    if(italicsBtn.getCurrentTextColor() == Color.parseColor("#000000")){
+                        italicsBtn.setTextColor(Color.parseColor("#0274b2"));
+                        spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
+                        for (StyleSpan span : spans) {
+                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == italic.getStyle()) {
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                totalText.removeSpan(span);
+                            }
+                        }
+                    } else {
+                        italicsBtn.setTextColor(Color.parseColor("#000000"));
+                        totalText.setSpan(new StyleSpan(Typeface.ITALIC),etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    }
+                }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
                     startSelection = etContent.getSelectionStart();
                     endSelection = etContent.getSelectionEnd();
@@ -477,45 +538,63 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     startSelection = etContent.getSelectionEnd();
                     endSelection = etContent.getSelectionStart();
                 }
+
                 totalText = (SpannableStringBuilder) etContent.getText();
-                final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
                 spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
                 Boolean alreadyItalics = false;
-                for (StyleSpan span : spans) {
-                    if (span.getStyle() == italic.getStyle()) {
-                        alreadyItalics = true;
-
-                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
-                            totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if(totalText.getSpanStart(span) > startSelection){
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
+                    for (StyleSpan span : spans) {
+                        if (span.getStyle() == italic.getStyle()) {
+                            alreadyItalics = true;
+                            if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if(totalText.getSpanStart(span) > startSelection){
+                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if(totalText.getSpanEnd(span) < endSelection) {
+                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
-                            if(totalText.getSpanEnd(span) < endSelection) {
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
+                            totalText.removeSpan(span);
                         }
-                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                        }
-                        totalText.removeSpan(span);
                     }
-                }
-                if(!alreadyItalics){
-                    totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    if(!alreadyItalics){
+                        totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
                 }
                 etContent.setText(totalText);
                 etContent.setSelection(startSelection);
                 break;
             case R.id.btn_underline:
                 underlined = new UnderlineSpan();
+                Boolean alreadyUnderlined = false;
+                totalText = (SpannableStringBuilder) etContent.getText();
+                UnderlineSpan[] underlineSpans = totalText.getSpans(etContent.getSelectionStart(),etContent.getSelectionEnd(),UnderlineSpan.class);
+                if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
+                    if(underlineBtn.getCurrentTextColor() == Color.parseColor("#000000")){
+                        underlineBtn.setTextColor(Color.parseColor("#0274b2"));
+                        for (UnderlineSpan span : underlineSpans) {
+                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getSpanTypeId() == underlined.getSpanTypeId()) {
+                                totalText.setSpan(new UnderlineSpan(),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                totalText.removeSpan(span);
+                            }
+                        }
+                    } else {
+                        underlineBtn.setTextColor(Color.parseColor("#000000"));
+                        totalText.setSpan(new UnderlineSpan(),etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    }
+                }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
                     startSelection = etContent.getSelectionStart();
                     endSelection = etContent.getSelectionEnd();
@@ -523,37 +602,36 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                     startSelection = etContent.getSelectionEnd();
                     endSelection = etContent.getSelectionStart();
                 }
-                totalText = (SpannableStringBuilder) etContent.getText();
-                UnderlineSpan[] underlineSpans = totalText.getSpans(startSelection, endSelection, UnderlineSpan.class);
-                Boolean alreadyUnderlined = false;
-                for (UnderlineSpan span : underlineSpans) {
-                    if (span.getSpanTypeId() == underlined.getSpanTypeId()) {
-                        alreadyUnderlined = true;
-                        if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
-                            totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if(totalText.getSpanStart(span) > startSelection){
-                                totalText.setSpan(new UnderlineSpan(),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
+                    for (UnderlineSpan span : underlineSpans) {
+                        if (span.getSpanTypeId() == underlined.getSpanTypeId()) {
+                            alreadyUnderlined = true;
+                            if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                                totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if(totalText.getSpanStart(span) > startSelection){
+                                    totalText.setSpan(new UnderlineSpan(),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if(totalText.getSpanEnd(span) < endSelection) {
+                                    totalText.setSpan(new UnderlineSpan(), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
-                            if(totalText.getSpanEnd(span) < endSelection) {
-                                totalText.setSpan(new UnderlineSpan(), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                                totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                                    totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                                    totalText.setSpan(new UnderlineSpan(), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
                             }
+                            totalText.removeSpan(span);
                         }
-                        if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                            totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                        } else {
-                            if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
-                                totalText.setSpan(new UnderlineSpan(), totalText.getSpanStart(span), startSelection, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                            if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
-                                totalText.setSpan(new UnderlineSpan(), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                        }
-                        totalText.removeSpan(span);
                     }
-                }
-                if(!alreadyUnderlined){
-                    totalText.setSpan(underlined,startSelection,endSelection, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    if(!alreadyUnderlined){
+                        totalText.setSpan(new UnderlineSpan(),startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
                 }
                 etContent.setText(totalText);
                 etContent.setSelection(startSelection);
