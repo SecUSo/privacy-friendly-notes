@@ -1,3 +1,8 @@
+[![Twitter](https://img.shields.io/badge/twitter-@SECUSOResearch-%231DA1F2.svg?&style=flat-square&logo=twitter&logoColor=1DA1F2)][Twitter]
+[![Mastodon](https://img.shields.io/badge/mastodon-@SECUSO__Research@baw%C3%BC.social-%233088D4.svg?&style=flat-square&logo=mastodon&logoColor=3088D4)][Mastodon]
+
+[Mastodon]: https://xn--baw-joa.social/@SECUSO_Research
+[Twitter]: https://twitter.com/SECUSOResearch
 <img src="https://raw.githubusercontent.com/SecUSo/privacy-friendly-notes/master/fastlane/metadata/android/en-US/images/icon.png"
      alt="Privacy Friendly Notes Icon"
      width="80px"
