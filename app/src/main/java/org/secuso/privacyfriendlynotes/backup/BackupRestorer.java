@@ -21,10 +21,17 @@ import android.util.JsonReader;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.room.DatabaseConfiguration;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.RoomDatabaseKt;
+import androidx.room.testing.MigrationTestHelper;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
 import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupRestorer;
+import org.secuso.privacyfriendlynotes.room.NoteDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,16 +76,28 @@ public class BackupRestorer implements IBackupRestorer {
             throw new RuntimeException("Unknown value " + n2);
         }
 
+        String restoreDatabaseName = "restoreDatabase";
+
         // delete if file already exists
-        File restoreDatabase = context.getDatabasePath("restoreDatabase");
-        if(restoreDatabase.exists()) {
-            restoreDatabase.delete();
+        File restoreDatabaseFile = context.getDatabasePath(restoreDatabaseName);
+        if(restoreDatabaseFile.exists()) {
+            DatabaseUtil.deleteRoomDatabase(context, restoreDatabaseName);
         }
 
         // create new restore database
-        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(restoreDatabase, null);
+        //new RoomDatabase.Builder().build().getOpenHelper()
+        RoomDatabase restoreDatabase = Room.databaseBuilder(context.getApplicationContext(), NoteDatabase.class, restoreDatabaseName).build();
+        SupportSQLiteDatabase db = restoreDatabase.getOpenHelper().getWritableDatabase();
+        //RoomDatabase roomDatabase = Room.databaseBuilder(context.getApplicationContext(), RestoreDatabase.class, restoreDatabaseName).build();
+        //SupportSQLiteDatabase db = NoteDatabase.getInstance(context, restoreDatabaseName).getOpenHelper().getWritableDatabase();
+        //SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(restoreDatabase, null);
         db.beginTransaction();
         db.setVersion(version);
+        // TODO: loop through the available tables and do this automatically
+        db.execSQL("DROP TABLE IF EXISTS notes");
+        db.execSQL("DROP TABLE IF EXISTS categories");
+        db.execSQL("DROP TABLE IF EXISTS notifications");
+        db.execSQL("DROP TABLE IF EXISTS room_master_table");
 
         DatabaseUtil.readDatabaseContent(reader, db);
 
@@ -89,7 +108,6 @@ public class BackupRestorer implements IBackupRestorer {
         reader.endObject();
 
         // copy file to correct location
-        File restoreDatabaseFile = context.getDatabasePath("restoreDatabase");
         File actualDatabaseFile = context.getDatabasePath(DATABASE_NAME);
 
         DatabaseUtil.deleteRoomDatabase(context, DATABASE_NAME);

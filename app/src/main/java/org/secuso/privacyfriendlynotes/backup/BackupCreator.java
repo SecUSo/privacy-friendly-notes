@@ -21,12 +21,17 @@ import android.util.JsonWriter;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.room.Room;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
 import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
 import org.secuso.privacyfriendlynotes.NotesApplication;
+import org.secuso.privacyfriendlynotes.room.NoteDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +59,12 @@ public class BackupCreator implements IBackupCreator {
 
         try {
             writer.beginObject();
-            SQLiteDatabase dataBase = SQLiteDatabase.openDatabase(context.getDatabasePath(DATABASE_NAME).getPath(), null, SQLiteDatabase.OPEN_READONLY);
 
+            SupportSQLiteOpenHelper helper = new FrameworkSQLiteOpenHelperFactory().create(
+                    SupportSQLiteOpenHelper.Configuration.builder(context).name(DATABASE_NAME).build()
+            );
+
+            SupportSQLiteDatabase dataBase = helper.getWritableDatabase();
 
             Log.d("PFA BackupCreator", "Writing database");
             writer.name("database");

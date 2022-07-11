@@ -29,16 +29,19 @@ import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
+import java.io.File;
+
 /**
  * The database that includes all used information like notes, notifications and categories.
  */
 
 @Database(
         entities = {Note.class, Category.class, Notification.class},
-        version = 2
+        version = NoteDatabase.VERSION
         )
 public abstract class NoteDatabase extends RoomDatabase {
 
+    public static final int VERSION = 2;
     public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
     public abstract NoteDao noteDao();
@@ -46,9 +49,25 @@ public abstract class NoteDatabase extends RoomDatabase {
     public abstract NotificationDao notificationDao();
 
     public static synchronized NoteDatabase getInstance(Context context){
+        return getInstance(context, DATABASE_NAME);
+    }
+
+    public static synchronized NoteDatabase getInstance(Context context, String databaseName){
+        if (instance == null || !DATABASE_NAME.equals(databaseName)) {
+            instance = Room.databaseBuilder(context.getApplicationContext(),
+                    NoteDatabase.class, databaseName)
+                    .addMigrations(MIGRATION_1_2)
+                    .addCallback(roomCallback)
+                    .build();
+        }
+        return instance;
+    }
+
+    public static synchronized NoteDatabase getInstance(Context context, String databaseName, File file){
         if (instance == null){
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    NoteDatabase.class, "allthenotes")
+                    NoteDatabase.class, databaseName)
+                    .createFromFile(file)
                     .addMigrations(MIGRATION_1_2)
                     .addCallback(roomCallback)
                     .build();
