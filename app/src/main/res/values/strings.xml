@@ -12,6 +12,8 @@
     <string name="title_settings">Settings</string>
     <string name="title_help">Help</string>
     <string name="title_about">About</string>
+    <string name="title_tutorial">Tutorial</string>
+
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -19,6 +21,11 @@
     <string name="nav_all">All notes</string>
     <string name="nav_trash">Recycle bin</string>
     <string name="nav_manage_categories">Manage categories</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_help">Help</string>
+    <string name="nav_about">About</string>
+    <string name="nav_tutorial">Tutorial</string>
+
 
     <string name="action_sort_alphabetical">Sort alphabetical</string>
     <string name="action_settings">Settings</string>
@@ -35,6 +42,12 @@
     <string name="action_update">Update</string>
     <string name="action_add">Add</string>
     <string name="action_share">Share</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_bold">B</string>
+    <string name="action_italics">I</string>
+    <string name="action_underline"><u>U</u></string>
+
+
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Multiline-\nNote</string>
@@ -49,6 +62,11 @@
     <string name="toast_need_permission_write_external">Permission to write to external storage is needed for this feature</string>
     <string name="toast_external_storage_not_mounted">Error: Cannot write to external storage</string>
     <string name="toast_file_exported_to">Exported note to %1s</string>
+    <string name="toast_emptyNote">Empty note cannot be saved</string>
+    <string name="toast_checklist_oneItem">Only one item can be modified.</string>
+    <string name="toast_deleted">Note deleted</string>
+
+
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
@@ -67,6 +85,8 @@
 
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
+    <string name="dialog_checklist_edit">You change the item: </string>
+
 
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>
@@ -95,14 +115,36 @@
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">is needed to save notes to the internal memory; if this is not granted, notes cannot be saved externally.</string>
 
-    <string name="about_version_number">Version 1.0.1</string>
+    <string name="about_version_number">Version 2.0.0</string>
     <string name="about_author">Authors: </string>
-    <string name="about_author_names" translatable="false">Robin Morawetz</string>
+    <string name="about_author_names" translatable="false">Robin Morawetz, Maximilian Zimmermann</string>
     <string name="about_author_contributors">and contributors.</string>
     <string name="about_affiliation">In affiliation with</string>
-    <string name="about_privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Technische Universität Darmstadt. Sourcecode licensed under GPLv3. Images copyright TU Darmstadt and Google Inc.</string>
+    <string name="about_privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Karlsruhe Institute of Technology (KIT). Sourcecode licensed under GPLv3. Images copyright KIT and Google Inc.</string>
     <string name="about_more_info">More information can be found on:</string>
     <string name="about_url" translatable="false"><a href="https://www.secuso.org/pfa">SECUSO-Website</a></string>
     <string name="about_github" translatable="false"><a href="https://github.com/SecUSo/privacy-friendly-notes">Github-Repo</a></string>
+
+    <string name="note_item_title">Title</string>
+    <string name="note_item_description">Description</string>
+
+
+    <!-- ### TUTORIAL DIALOG ### -->
+    <string name="slide1_heading">Welcome!</string>
+    <string name="slide1_text">This app lets you create and manage notes.</string>
+
+    <string name="slide2_heading">Key Elements</string>
+    <string name="slide2_text">Currently it supports four types of notes: Text, Checklist, Audio, Sketch. </string>
+
+    <string name="slide3_heading">Advantages</string>
+    <string name="slide3_text">Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.Privacy Friendly Apps are group of Android applications which are optimized regarding privacy.</string>
+
+    <string name="okay">Okay</string>
+    <string name="viewhelp">View Help</string>
+    <string name="main_floating_button">Floating Button</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+
+
 
 </resources>

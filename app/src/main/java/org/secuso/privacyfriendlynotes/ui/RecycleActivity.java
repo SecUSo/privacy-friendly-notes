@@ -1,206 +1,158 @@
+/*
+ This file is part of the application Privacy Friendly Notes.
+ Privacy Friendly Notes is free software:
+ you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation,
+ either version 3 of the License, or any later version.
+ Privacy Friendly Notes is distributed in the hope
+ that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.secuso.privacyfriendlynotes.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.preference.PreferenceManager;
+import android.widget.SearchView;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter;
+import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Activity that allows to interact with trashed notes.
+ */
 
 public class RecycleActivity extends AppCompatActivity {
+
+    MainActivityViewModel mainActivityViewModel;
+    SearchView searchView;
+    NoteAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycle);
 
-        String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-        String[] selectionArgs = { "1" };
-        Cursor c = DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs);
 
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        notesList.setAdapter(new CursorAdapter(getApplicationContext(), c, CursorAdapter.FLAG_AUTO_REQUERY) {
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewRecycle);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        adapter = new NoteAdapter();
+        recyclerView.setAdapter(adapter);
+        searchView = findViewById(R.id.searchViewFilterRecycle);
+
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mainActivityViewModel.getTrashedNotes().observe(this, new Observer<List<Note>>() {
             @Override
-            public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                LayoutInflater inflater = (LayoutInflater) context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View rowView = inflater.inflate(R.layout.item_note, null);
-
-                TextView text = (TextView) rowView.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
-                if (name.length() >= 30) {
-                    text.setText(name.substring(0,27) + "...");
-                } else {
-                    text.setText(name);
-                }
-
-                ImageView iv = (ImageView) rowView.findViewById(R.id.item_icon);
-                switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
-                    case DbContract.NoteEntry.TYPE_SKETCH:
-                        iv.setImageResource(R.drawable.ic_photo_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_AUDIO:
-                        iv.setImageResource(R.drawable.ic_mic_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_TEXT:
-                        iv.setImageResource(R.drawable.ic_short_text_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_CHECKLIST:
-                        iv.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
-                        break;
-                    default:
-                }
-                return rowView;
-            }
-
-            @Override
-            public void bindView(View view, Context context, Cursor cursor) {
-                TextView text = (TextView) view.findViewById(R.id.item_name);
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME));
-                if (name.length() >= 30) {
-                    text.setText(name.substring(0,27) + "...");
-                } else {
-                    text.setText(name);
-                }
-
-                ImageView iv = (ImageView) view.findViewById(R.id.item_icon);
-                switch (cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE))) {
-                    case DbContract.NoteEntry.TYPE_SKETCH:
-                        iv.setImageResource(R.drawable.ic_photo_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_AUDIO:
-                        iv.setImageResource(R.drawable.ic_mic_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_TEXT:
-                        iv.setImageResource(R.drawable.ic_short_text_black_24dp);
-                        break;
-                    case DbContract.NoteEntry.TYPE_CHECKLIST:
-                        iv.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
-                        break;
-                    default:
-                }
+            public void onChanged(@Nullable List<Note> notes) {
+                adapter.setNotes(notes);
             }
         });
 
-        notesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //get details about the clicked note
-                CursorAdapter ca = (CursorAdapter) parent.getAdapter();
-                Cursor c = ca.getCursor();
-                c.moveToPosition(position);
-                displayRestoreDialog(c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)), c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)),
-                        c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT)), c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)));
+            public boolean onQueryTextChange(String newText) {
+                applyFilterTrashed(newText);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                applyFilterTrashed(query);
+                return true;
+            }
+        });
+
+        adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+                new AlertDialog.Builder(RecycleActivity.this)
+                        .setTitle(String.format(getString(R.string.dialog_restore_title), note.getName()))
+                        .setMessage(String.format(getString(R.string.dialog_restore_message), note.getName()))
+                        .setNegativeButton(R.string.dialog_option_delete, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mainActivityViewModel.delete(note);
+                                if (note.getType() == DbContract.NoteEntry.TYPE_AUDIO) {
+                                    new File(getFilesDir().getPath()+"/audio_notes"+note.getContent() ).delete();
+                                } else if (note.getType() == DbContract.NoteEntry.TYPE_SKETCH) {
+                                    new File(getFilesDir().getPath()+"/sketches"+note.getContent() ).delete();
+                                    new File(getFilesDir().getPath()+"/sketches"+ note.getContent().substring(0, note.getContent().length()-3) + "jpg").delete();
+                                }
+                            }
+                        })
+                        .setNeutralButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do nothing
+                            }
+                        })
+                        .setPositiveButton(R.string.dialog_option_restore, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                note.setIn_trash(0);
+                                mainActivityViewModel.update(note);
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
 
             }
         });
+        PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateList();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.recycle, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_delete_all) {
-            deleteAll();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void updateList() {
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter adapter = (CursorAdapter) notesList.getAdapter();
-        String selection = DbContract.NoteEntry.COLUMN_TRASH + " = ?";
-        String[] selectionArgs = { "1" };
-        adapter.changeCursor(DbAccess.getCursorAllNotes(getBaseContext(), selection, selectionArgs));
-    }
-
-    private void displayRestoreDialog(final int id, final String name, final String content, final int type) {
-
-        new AlertDialog.Builder(RecycleActivity.this)
-                .setTitle(String.format(getString(R.string.dialog_restore_title), name))
-                .setMessage(String.format(getString(R.string.dialog_restore_message), name))
-                .setNegativeButton(R.string.dialog_option_delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DbAccess.deleteNote(getBaseContext(), id);
-                        if (type == DbContract.NoteEntry.TYPE_AUDIO) {
-                            new File(getFilesDir().getPath()+"/audio_notes"+content).delete();
-                        } else if (type == DbContract.NoteEntry.TYPE_SKETCH) {
-                            new File(getFilesDir().getPath()+"/sketches"+content).delete();
-                            new File(getFilesDir().getPath()+"/sketches"+content.substring(0, content.length()-3) + "jpg").delete();
+    private void applyFilterTrashed(String filter){
+        mainActivityViewModel.getTrashedNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                // Filter checklist notes
+                List<Note> filteredNotes = new ArrayList<>();
+                for(Note note: notes){
+                    Boolean add = false;
+                    if(note.getType() == 3){
+                        try {
+                            JSONArray content = new JSONArray(note.getContent());
+                            for (int i=0; i < content.length(); i++) {
+                                JSONObject o = content.getJSONObject(i);
+                                if (o.getString("name").contains(filter) || note.getName().contains(filter)){
+                                    add = true;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        updateList();
+                    } else{
+                        add = true;
                     }
-                })
-                .setNeutralButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
+                    if(add){
+                        filteredNotes.add(note);
                     }
-                })
-                .setPositiveButton(R.string.dialog_option_restore, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DbAccess.restoreNote(getBaseContext(), id);
-                        updateList();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
-    private void deleteAll(){
-        ListView notesList = (ListView) findViewById(R.id.notes_list);
-        CursorAdapter ca = (CursorAdapter) notesList.getAdapter();
-        Cursor c = ca.getCursor();
-        c.moveToPosition(-1);
-        while (c.moveToNext()){
-            if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_AUDIO) {
-                String filePath = getFilesDir().getPath()+"/audio_notes" + c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
-                new File(filePath).delete();
-            } else if (c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_TYPE)) == DbContract.NoteEntry.TYPE_SKETCH) {
-                String content = c.getString(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
-                new File(getFilesDir().getPath()+"/sketches"+content).delete();
-                new File(getFilesDir().getPath()+"/sketches"+content.substring(0, content.length()-3) + "jpg").delete();
+                }
+                adapter.setNotes(filteredNotes);
             }
-            DbAccess.deleteNote(getBaseContext(), c.getInt(c.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_ID)));
-        }
-        updateList();
+        });
     }
 }

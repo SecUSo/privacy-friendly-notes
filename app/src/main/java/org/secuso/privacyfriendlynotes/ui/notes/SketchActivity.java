@@ -1,4 +1,17 @@
-package org.secuso.privacyfriendlynotes.ui;
+/*
+ This file is part of the application Privacy Friendly Notes.
+ Privacy Friendly Notes is free software:
+ you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation,
+ either version 3 of the License, or any later version.
+ Privacy Friendly Notes is distributed in the hope
+ that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -10,7 +23,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +35,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -30,8 +43,8 @@ import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.Menu;
@@ -39,6 +52,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -49,11 +63,15 @@ import android.widget.Toast;
 
 import com.simplify.ink.InkView;
 
-import org.secuso.privacyfriendlynotes.database.DbAccess;
-import org.secuso.privacyfriendlynotes.database.DbContract;
+import org.secuso.privacyfriendlynotes.room.DbContract;
+import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.room.model.Note;
+import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,11 +79,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * Activity that allows to add, edit and delete sketch notes.
+ */
+
 public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
+    public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
+    public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
+    public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
+    public static final String EXTRA_ISTRASH = "org.secuso.privacyfriendlynotes.ISTRASH";
+
+
 
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
@@ -73,8 +103,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     InkView drawView;
     Button btnColorSelector;
     Spinner spinner;
-
-    private ShareActionProvider mShareActionProvider = null;
 
     private String mFileName = "finde_die_datei.mp4";
     private String mFilePath;
@@ -87,8 +115,15 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private int id = -1;
     private int notification_id = -1;
     private int currentCat;
-    Cursor noteCursor = null;
-    Cursor notificationCursor = null;
+
+    private Notification notification;
+    private String title;
+    List<Category> allCategories;
+    ArrayAdapter<CharSequence> adapter;
+    private Menu menu;
+    private MenuItem item;
+    private CreateEditNoteViewModel createEditNoteViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,39 +143,96 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         drawView.setMinStrokeWidth(1.5f);
         drawView.setMaxStrokeWidth(6f);
 
+        //CategorySpinner
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
+        adapter.add(getString(R.string.default_category));
+
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+            @Override
+            public void onChanged(@Nullable List<Category> categories) {
+                allCategories = categories;
+                for(Category currentCat : categories){
+                    adapter.add(currentCat.getName());
+                }
+            }
+        });
+
+        Intent intent = getIntent();
+        currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Integer position = adapter.getPosition(s);
+                spinner.setSelection(position);
+            }
+        });
+
+        // observe notifications
+        notification = new Notification(-1,-1);
+        createEditNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(@Nullable List<Notification> notifications) {
+                for(Notification currentNotification : notifications){
+                    if(currentNotification.get_noteId() == id){
+                        notification.set_noteId(id);
+                        notification.setTime(currentNotification.getTime());
+                    }
+                }
+
+            }
+        });
+
+
+
         loadActivity(true);
     }
 
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+        shouldSave = false;
+        finish();
+    }
+
     private void loadActivity(boolean initial){
+
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
             Intent intent = getIntent();
             id = intent.getIntExtra(EXTRA_ID, -1);
+
+
         }
         edit = (id != -1);
 
-        SimpleCursorAdapter adapter = null;
         // Should we set a custom font size?
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUTSOM_FONT_SIZE, "15")));
+            etName.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
         }
 
-        //CategorySpinner
-        Cursor c = DbAccess.getCategories(getBaseContext());
-        if (c.getCount() == 0) {
+
+
+
+        if (adapter.getCount() == 0) {
             displayCategoryDialog();
         } else {
             String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
             int[] to = {R.id.text1};
-            adapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.simple_spinner_item, c, from, to, CursorAdapter.FLAG_AUTO_REQUERY);
-            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Cursor c = (Cursor) parent.getItemAtPosition(position);
-                    currentCat = c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID));
+                    String catName = (String) parent.getItemAtPosition(position);
+                    currentCat = 0;
+                    for(Category cat :allCategories){
+                        if(catName == cat.getName()){
+                            currentCat = cat.get_id();
+                        }
+                    }
                 }
 
                 @Override
@@ -149,31 +241,22 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             });
         }
+
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            noteCursor = DbAccess.getNote(getBaseContext(), id);
-            noteCursor.moveToFirst();
-            etName.setText(noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_NAME)));
-            mFileName = noteCursor.getString(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CONTENT));
+            Intent intent = getIntent();
+            id = intent.getIntExtra(EXTRA_ID, -1);
+            title = intent.getStringExtra(EXTRA_TITLE);
+            etName.setText(title);
+            mFileName = intent.getStringExtra(EXTRA_CONTENT);
             mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
-
             //find the current category and set spinner to that
-            currentCat = noteCursor.getInt(noteCursor.getColumnIndexOrThrow(DbContract.NoteEntry.COLUMN_CATEGORY));
+            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
 
-            for (int i = 0; i < adapter.getCount(); i++){
-                c.moveToPosition(i);
-                if (c.getInt(c.getColumnIndexOrThrow(DbContract.CategoryEntry.COLUMN_ID)) == currentCat) {
-                    spinner.setSelection(i);
-                    break;
-                }
-            }
-            //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), id);
-            hasAlarm = notificationCursor.moveToFirst();
-            if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
-            }
+
+
+
             findViewById(R.id.btn_delete).setEnabled(true);
             ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
             drawView.setBackground(new BitmapDrawable(getResources(), mFilePath));
@@ -189,22 +272,20 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         if(!initial) {
             invalidateOptionsMenu();
         }
+
+
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave ) {
+        if (shouldSave) {
             if (edit) {
                 updateNote();
             } else {
                 saveNote();
-            }
-        } else {
-            if(!edit) {
-                //TODO do nothing here
-                //new File(mFilePath).delete();
             }
         }
     }
@@ -220,18 +301,26 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit){
             getMenuInflater().inflate(R.menu.audio, menu);
-            MenuItem item = menu.findItem(R.id.action_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            setShareIntent();
         }
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_reminder);
+        this.menu = menu;
+        item = menu.findItem(R.id.action_reminder);
+        if(notification.get_noteId() >= 0) {
+            hasAlarm = true;
+        } else {
+            hasAlarm = false;
+        }
+
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
+        } else {
+            if(edit){
+                item.setIcon(R.drawable.ic_alarm_add_white_24dp);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -243,21 +332,20 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        setShareIntent();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reminder) {
             //open the schedule dialog
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
-            notificationCursor = DbAccess.getNotificationByNoteId(getBaseContext(), this.id);
-            hasAlarm = notificationCursor.moveToFirst();
-            if (hasAlarm) {
-                notification_id = notificationCursor.getInt(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_ID));
-            }
 
+            if(notification.get_noteId() >= 0) {
+                hasAlarm = true;
+            } else {
+                hasAlarm = false;
+            }
             if (hasAlarm) {
+                notification_id = notification.get_noteId();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -297,6 +385,27 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 saveToExternalStorage();
             }
             return true;
+        } else if (id == R.id.action_share){
+            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
+            File sketchFile = new File(tempPath);
+
+            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
+            Canvas canvas = new Canvas(bm);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
+            try {
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType("image/*");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(sendIntent, null));
         }
 
         return super.onOptionsItemSelected(item);
@@ -316,8 +425,15 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 break;
             case R.id.btn_save:
-                shouldSave = true; //safe on exit
-                finish();
+                Bitmap emptyBitmap = Bitmap.createBitmap(drawView.getBitmap().getWidth(), drawView.getBitmap().getHeight(), drawView.getBitmap().getConfig());
+                Intent intent = getIntent();
+                if(!drawView.getBitmap().sameAs(emptyBitmap) || -5 != intent.getIntExtra(EXTRA_CATEGORY, -5)){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                    break;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_color_selector:
                 displayColorDialog();
@@ -340,7 +456,10 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         } catch (IOException e) {
             e.printStackTrace();
         }
-        DbAccess.updateNote(getBaseContext(), id, etName.getText().toString(), mFileName, currentCat);
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
+        note.set_id(id);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
@@ -358,7 +477,10 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             e.printStackTrace();
         }
 
-        id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), mFileName, DbContract.NoteEntry.TYPE_SKETCH, currentCat);
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel.insert(note);
+
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
 
@@ -404,18 +526,35 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             shouldSave = false;
-                            DbAccess.trashNote(getBaseContext(), id);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
+                            editor.commit();
+                            Intent intent = getIntent();
+                            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+                            note.set_id(id);
+                            note.setIn_trash(1);
+                            createEditNoteViewModel.update(note);
+
                             finish();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false);
-            editor.commit();
+
         } else {
             shouldSave = false;
-            DbAccess.trashNote(getBaseContext(), id);
+            Intent intent = getIntent();
+            Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
+            note.set_id(id);
+            note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
+            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+            if(note.getIn_trash() == 1){
+                createEditNoteViewModel.delete(note);
+            } else {
+                note.set_id(id);
+                note.setIn_trash(1);
+                createEditNoteViewModel.update(note);
+            }
             finish();
         }
     }
@@ -436,6 +575,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -455,7 +595,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
         TimePickerDialog tpd = new TimePickerDialog(SketchActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
@@ -465,19 +605,29 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar alarmtime = Calendar.getInstance();
         alarmtime.set(year, monthOfYear, dayOfMonth, hourOfDay, minute);
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
 
         if (hasAlarm) {
             //Update the current alarm
-            DbAccess.updateNotificationTime(getBaseContext(), notification_id, alarmtime.getTimeInMillis());
+            createEditNoteViewModel.update(notificationTimeSet);
+
         } else {
             //create new alarm
-            notification_id = (int) (long) DbAccess.addNotification(getBaseContext(), id, alarmtime.getTimeInMillis());
+            createEditNoteViewModel.insert(notificationTimeSet);
+            hasAlarm = true;
+            notification = new Notification(id, (int) alarmtime.getTimeInMillis());
+            item.setIcon(R.drawable.ic_alarm_on_white_24dp);
         }
+
         //Store a reference for the notification in the database. This is later used by the service.
 
         //Create the intent that is fired by AlarmManager
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        i.putExtra(NotificationService.NOTIFICATION_TYPE, DbContract.NoteEntry.TYPE_SKETCH);
+        i.putExtra(NotificationService.NOTIFICATION_TITLE, title);
 
         PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -489,6 +639,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
         }
         Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
+
         loadActivity(false);
     }
 
@@ -501,7 +652,12 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
-        DbAccess.deleteNotification(getBaseContext(), notification_id);
+
+        Intent intent = getIntent();
+        id = intent.getIntExtra(EXTRA_ID, -1);
+        Notification notification = new Notification(id, 0);
+        createEditNoteViewModel.delete(notification);
+        hasAlarm = false;
         loadActivity(false);
     }
 
@@ -510,7 +666,7 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
@@ -520,6 +676,8 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             return true;
         } else if (id == R.id.action_reminder_delete) {
             cancelNotification();
+            notification = new Notification(-1,-1);
+            item.setIcon(R.drawable.ic_alarm_add_white_24dp);
             return true;
         }
         return false;
@@ -569,30 +727,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void setShareIntent(){
-        if (mShareActionProvider != null) {
-            String tempPath = mFilePath.substring(0, mFilePath.length()-3) + "jpg";
-            File sketchFile = new File(tempPath);
-
-            Bitmap bm = overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap());
-            Canvas canvas = new Canvas(bm);
-            canvas.drawColor(Color.WHITE);
-            canvas.drawBitmap(overlay(new BitmapDrawable(getResources(), mFilePath).getBitmap(), drawView.getBitmap()), 0, 0, null);
-            try {
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(sketchFile));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", sketchFile);
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("image/*");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            mShareActionProvider.setShareIntent(sendIntent);
-        }
-    }
     //taken from http://stackoverflow.com/a/10616868
     public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());

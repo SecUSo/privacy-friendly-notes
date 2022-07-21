@@ -34,6 +34,10 @@
     <string name="nav_all">Alle Notizen</string>
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="nav_tutorial">Tutorial</string>
+    <string name="nav_help">Hilfe</string>
+    <string name="nav_about">Über</string>
     <string name="navigation_drawer_close">Navigation drawer schließen</string>
     <string name="navigation_drawer_open">Navigation drawer öffnen</string>
     <string name="title_audionote">Audio Notiz</string>
@@ -50,15 +54,24 @@
     <string name="toast_need_permission_write_external">Berichtigung um externen Speicher zu schreiben wird für diese Funktion benötigt</string>
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
+    <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
+    <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
+    <string name="toast_deleted">Notiz gelöscht</string>
+
+
+    <string name="action_bold">F</string>
+    <string name="action_italics">K</string>
+    <string name="action_underline"><u>U</u></string>
     <string name="action_reminder_delete">Erinnerung löschen</string>
     <string name="action_reminder_edit">Erinnerung bearbeiten</string>
     <string name="action_share">Teilen</string>
+    <string name="action_edit">Bearbeiten</string>
     <string name="about_author">Autoren: </string>
-    <string name="about_version_number">Version 1.0.1</string>
+    <string name="about_version_number">Version 2.0.0</string>
     <string name="title_about">Über</string>
     <string name="about_affiliation">In Zusammenarbeit mit</string>
     <string name="about_more_info">Mehr Informationen finden Sie unter:</string>
-    <string name="about_privacy_friendly">Diese App gehört zu einer Gruppe von Privacy Friendly Apps, welche von der Technischen Universität Darmstadt entwickelt werden.</string>
+    <string name="about_privacy_friendly">Diese App gehört zu einer Gruppe von Privacy Friendly Apps, welche von Karlsruher Institut für Technologie entwickelt werden.</string>
     <string name="about_author_contributors">und Beitragende.</string>
     <string name="note_standardname">Notiz %d</string>
     <string name="action_help">Hilfe</string>
@@ -76,6 +89,7 @@
     <string name="dialog_help">Hilfe anzeigen</string>
     <string name="dialog_welcome_text">Mit dieser App ist es möglich Notizen in Form von Text, Checklisten, Memos oder Skizzen zu erstellen und zu teilen.</string>
     <string name="dialog_welcome">Willkommen</string>
+    <string name="dialog_checklist_edit">Sie verändern den Punkt: </string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_general_heading">Allgemein</string>
@@ -86,4 +100,26 @@
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
+    <string name="title_tutorial">Tutorial</string>
+
+
+    <string name="note_item_title">Titel</string>
+    <string name="note_item_description">Beschreibung</string>
+
+
+    <!-- ### TUTORIAL DIALOG ### -->
+    <string name="slide1_heading">Willkommen!</string>
+    <string name="slide1_text">Mit dieser App können Sie Notizen erstellen und verwalten.</string>
+
+    <string name="slide2_heading">Wesentliche Elemente</string>
+    <string name="slide2_text">Derzeit werden vier Arten von Notizen unterstützt: Text, Checkliste, Audio, Skizze.</string>
+
+    <string name="slide3_heading">Vorteile</string>
+    <string name="slide3_text">Die meisten Apps für Notizen benötigen eine Menge Berechtigungen und synchronisieren über das Internet. Daher verwenden sie einen Unternehmensdienst, dem Sie vertrauen müssen. Dies ist zwar eine praktische Funktion, schwächt aber Ihre Privatsphäre. Datenschutzfreundliche Apps sind eine Gruppe von Android-Anwendungen, die hinsichtlich des Datenschutzes optimiert sind.</string>
+
+    <string name="okay">Okay</string>
+    <string name="viewhelp">Hilfe anzeigen</string>
+    <string name="main_floating_button">Schwimmende Schaltfläche</string>
+    <string name="next">Weiter</string>
+    <string name="skip">Überspringen</string>
 </resources>

@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".ui.TextNoteActivity">
+    tools:context=".ui.notes.TextNoteActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,6 +33,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="10"
+
                 android:id="@+id/etContent"
                 android:background="@android:color/transparent"
                 android:hint="@string/hint_note"
@@ -40,6 +41,6 @@
         </ScrollView>
     </LinearLayout>
 
-    <include layout="@layout/bottom_line"></include>
+    <include layout="@layout/bottom_line_text"></include>
 
 </LinearLayout>

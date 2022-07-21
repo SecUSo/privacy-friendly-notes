@@ -1,3 +1,16 @@
+/*
+ This file is part of the application Privacy Friendly Notes.
+ Privacy Friendly Notes is free software:
+ you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation,
+ either version 3 of the License, or any later version.
+ Privacy Friendly Notes is distributed in the hope
+ that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.secuso.privacyfriendlynotes.backup;
 
 import android.content.Context;
@@ -5,19 +18,27 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.JsonReader;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.room.DatabaseConfiguration;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.RoomDatabaseKt;
+import androidx.room.testing.MigrationTestHelper;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
 import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupRestorer;
+import org.secuso.privacyfriendlynotes.room.NoteDatabase;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.secuso.privacyfriendlynotes.database.DbOpenHelper.DATABASE_NAME;
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 
 public class BackupRestorer implements IBackupRestorer {
 
@@ -54,10 +75,26 @@ public class BackupRestorer implements IBackupRestorer {
         if(!n2.equals("content")) {
             throw new RuntimeException("Unknown value " + n2);
         }
-        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath("restoreDatabase"), null);
+
+        String restoreDatabaseName = "restoreDatabase";
+
+        // delete if file already exists
+        File restoreDatabaseFile = context.getDatabasePath(restoreDatabaseName);
+        if(restoreDatabaseFile.exists()) {
+            DatabaseUtil.deleteRoomDatabase(context, restoreDatabaseName);
+        }
+
+        // create new restore database
+        RoomDatabase restoreDatabase = Room.databaseBuilder(context.getApplicationContext(), NoteDatabase.class, restoreDatabaseName).build();
+        SupportSQLiteDatabase db = restoreDatabase.getOpenHelper().getWritableDatabase();
+
         db.beginTransaction();
         db.setVersion(version);
 
+        // make sure no tables are in the database
+        DatabaseUtil.deleteTables(db);
+
+        // create database from backup
         DatabaseUtil.readDatabaseContent(reader, db);
 
         db.setTransactionSuccessful();
@@ -67,10 +104,16 @@ public class BackupRestorer implements IBackupRestorer {
         reader.endObject();
 
         // copy file to correct location
-        File databaseFile = context.getDatabasePath("restoreDatabase");
-        File oldDBFile = context.getDatabasePath(DATABASE_NAME);
-        FileUtil.copyFile(databaseFile, context.getDatabasePath(DATABASE_NAME));
-        databaseFile.delete();
+        File actualDatabaseFile = context.getDatabasePath(DATABASE_NAME);
+
+        DatabaseUtil.deleteRoomDatabase(context, DATABASE_NAME);
+
+        FileUtil.copyFile(restoreDatabaseFile, actualDatabaseFile);
+        Log.d("NoteRestore", "Backup Restored");
+
+        // delete restore database
+        DatabaseUtil.deleteRoomDatabase(context, restoreDatabaseName);
+
     }
 
     private void readPreferences(@NonNull JsonReader reader, @NonNull Context context) throws IOException {
@@ -128,18 +171,9 @@ public class BackupRestorer implements IBackupRestorer {
             reader.endObject();
             // END
 
-
-            /*
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = restoreData.read(buffer)) != -1) {
-                result.write(buffer, 0, length);
-            }
-
-            String resultString = result.toString("UTF-8");
-            Log.d("PFA BackupRestorer", resultString);
-             */
+            // stop app to trigger migration on wakeup
+            Log.d("NoteRestore", "Restore completed successfully.");
+            System.exit(0);
             return true;
         } catch (Exception e) {
             return false;
