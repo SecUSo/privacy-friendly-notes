@@ -60,8 +60,13 @@ public class BackupCreator implements IBackupCreator {
         try {
             writer.beginObject();
 
+            SupportSQLiteOpenHelper.Callback callback = new SupportSQLiteOpenHelper.Callback(NoteDatabase.VERSION) {
+                @Override public void onCreate(@NonNull SupportSQLiteDatabase db) {}
+                @Override public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {}
+            };
+
             SupportSQLiteOpenHelper helper = new FrameworkSQLiteOpenHelperFactory().create(
-                    SupportSQLiteOpenHelper.Configuration.builder(context).name(DATABASE_NAME).build()
+                    SupportSQLiteOpenHelper.Configuration.builder(context).name(DATABASE_NAME).callback(callback).build()
             );
 
             SupportSQLiteDatabase dataBase = helper.getWritableDatabase();

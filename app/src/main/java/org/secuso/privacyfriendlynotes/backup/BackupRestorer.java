@@ -85,20 +85,16 @@ public class BackupRestorer implements IBackupRestorer {
         }
 
         // create new restore database
-        //new RoomDatabase.Builder().build().getOpenHelper()
         RoomDatabase restoreDatabase = Room.databaseBuilder(context.getApplicationContext(), NoteDatabase.class, restoreDatabaseName).build();
         SupportSQLiteDatabase db = restoreDatabase.getOpenHelper().getWritableDatabase();
-        //RoomDatabase roomDatabase = Room.databaseBuilder(context.getApplicationContext(), RestoreDatabase.class, restoreDatabaseName).build();
-        //SupportSQLiteDatabase db = NoteDatabase.getInstance(context, restoreDatabaseName).getOpenHelper().getWritableDatabase();
-        //SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(restoreDatabase, null);
+
         db.beginTransaction();
         db.setVersion(version);
-        // TODO: loop through the available tables and do this automatically
-        db.execSQL("DROP TABLE IF EXISTS notes");
-        db.execSQL("DROP TABLE IF EXISTS categories");
-        db.execSQL("DROP TABLE IF EXISTS notifications");
-        db.execSQL("DROP TABLE IF EXISTS room_master_table");
 
+        // make sure no tables are in the database
+        DatabaseUtil.deleteTables(db);
+
+        // create database from backup
         DatabaseUtil.readDatabaseContent(reader, db);
 
         db.setTransactionSuccessful();
@@ -116,7 +112,7 @@ public class BackupRestorer implements IBackupRestorer {
         Log.d("NoteRestore", "Backup Restored");
 
         // delete restore database
-        restoreDatabaseFile.delete();
+        DatabaseUtil.deleteRoomDatabase(context, restoreDatabaseName);
 
     }
 
