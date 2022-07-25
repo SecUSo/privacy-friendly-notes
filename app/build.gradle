@@ -8,8 +8,8 @@ android {
         applicationId "org.secuso.privacyfriendlynotes"
         minSdkVersion 21
         targetSdkVersion 32
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.1.0"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -58,7 +58,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
 
     implementation "androidx.core:core-ktx:1.8.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
