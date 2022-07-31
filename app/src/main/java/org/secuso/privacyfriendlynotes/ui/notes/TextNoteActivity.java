@@ -410,7 +410,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + Html.toHtml(etContent.getText()));
+            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText());
             startActivity(Intent.createChooser(sendIntent, null));
         }
 

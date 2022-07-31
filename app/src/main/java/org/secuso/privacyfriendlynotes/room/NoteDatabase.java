@@ -163,13 +163,15 @@ public abstract class NoteDatabase extends RoomDatabase {
                     while (!c.isAfterLast()) {
                         String note = c.getString(c.getColumnIndexOrThrow("content"));
 
-                        if(note.startsWith("<p")) {
+                        if(note.startsWith("<p dir=")) {
+                            i++;
+                            c.moveToNext();
                             continue;
                         }
 
                         String encodedNote = Html.toHtml(new SpannedString(note));
 
-                        encodedContent[i] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
+                        encodedContent[i++] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
                         c.moveToNext();
                     }
                 }
@@ -177,6 +179,9 @@ public abstract class NoteDatabase extends RoomDatabase {
             }
 
             for(Pair<Integer,String> note : encodedContent) {
+                if(note == null) {
+                    continue;
+                }
                 ContentValues cv = new ContentValues();
                 cv.put("content", note.second);
                 database.update("notes", 0, cv, "_id = ?", new String[]{Integer.toString(note.first)});
