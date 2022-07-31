@@ -99,8 +99,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
     public static final String EXTRA_ISTRASH = "org.secuso.privacyfriendlynotes.ISTRASH";
 
-
-
     private static final int REQUEST_CODE_EXTERNAL_STORAGE = 1;
 
     EditText etName;

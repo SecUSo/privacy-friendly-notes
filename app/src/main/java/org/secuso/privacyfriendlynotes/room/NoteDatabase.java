@@ -13,9 +13,14 @@
  */
 package org.secuso.privacyfriendlynotes.room;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.text.Html;
+import android.text.SpannedString;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -41,7 +46,7 @@ import java.io.File;
         )
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
     public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
     public abstract NoteDao noteDao();
@@ -56,7 +61,7 @@ public abstract class NoteDatabase extends RoomDatabase {
         if (instance == null || !DATABASE_NAME.equals(databaseName)) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     NoteDatabase.class, databaseName)
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATIONS)
                     .addCallback(roomCallback)
                     .build();
         }
@@ -68,7 +73,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     NoteDatabase.class, databaseName)
                     .createFromFile(file)
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATIONS)
                     .addCallback(roomCallback)
                     .build();
         }
@@ -119,9 +124,64 @@ public abstract class NoteDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE notifications");
             database.execSQL("ALTER TABLE notifications_new RENAME TO notifications");
 
+            Pair<Integer, String>[] encodedContent = null;
+            Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
+            if(c != null) {
+                if(c.moveToFirst()) {
+                    encodedContent = new Pair[c.getCount()];
+                    int i = 0;
 
+                    while (!c.isAfterLast()) {
+                        String note = c.getString(c.getColumnIndexOrThrow("content"));
+                        String encodedNote = Html.toHtml(new SpannedString(note));
+
+                        encodedContent[i] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
+                        c.moveToNext();
+                    }
+                }
+                c.close();
+            }
+
+            for(Pair<Integer,String> note : encodedContent) {
+                ContentValues cv = new ContentValues();
+                cv.put("content", note.second);
+                database.update("notes", 0, cv, "_id = ?", new String[]{Integer.toString(note.first)});
+            }
+        }
+    };
+    static final Migration MIGRATION_1_3 = MIGRATION_1_2;
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            Pair<Integer, String>[] encodedContent = null;
+            Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
+            if(c != null) {
+                if(c.moveToFirst()) {
+                    encodedContent = new Pair[c.getCount()];
+                    int i = 0;
+
+                    while (!c.isAfterLast()) {
+                        String note = c.getString(c.getColumnIndexOrThrow("content"));
+                        String encodedNote = Html.toHtml(new SpannedString(note));
+
+                        encodedContent[i] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
+                        c.moveToNext();
+                    }
+                }
+                c.close();
+            }
+
+            for(Pair<Integer,String> note : encodedContent) {
+                ContentValues cv = new ContentValues();
+                cv.put("content", note.second);
+                database.update("notes", 0, cv, "_id = ?", new String[]{Integer.toString(note.first)});
+            }
         }
     };
 
-
+    public static final Migration[] MIGRATIONS = {
+            MIGRATION_1_2,
+            MIGRATION_1_3,
+            MIGRATION_2_3
+    };
 }
