@@ -162,6 +162,11 @@ public abstract class NoteDatabase extends RoomDatabase {
 
                     while (!c.isAfterLast()) {
                         String note = c.getString(c.getColumnIndexOrThrow("content"));
+
+                        if(note.startsWith("<p")) {
+                            continue;
+                        }
+
                         String encodedNote = Html.toHtml(new SpannedString(note));
 
                         encodedContent[i] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
