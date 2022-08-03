@@ -17,6 +17,13 @@ android {
             }
         }
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "pfa-notes-${variant.name}-v${variant.versionName}.apk"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

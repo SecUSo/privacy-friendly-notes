@@ -771,7 +771,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         Intent i = new Intent(this, NotificationService.class);
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
 
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -790,7 +790,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pi);
