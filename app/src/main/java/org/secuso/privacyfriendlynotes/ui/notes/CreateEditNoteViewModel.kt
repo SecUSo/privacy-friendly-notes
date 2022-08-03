@@ -34,7 +34,7 @@ import org.secuso.privacyfriendlynotes.room.model.Notification
 class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application){
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
-    val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotifications
+    val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotificationsLiveData
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
     private val _categoryName: MediatorLiveData<String?> = MediatorLiveData<String?>()
     private var _categoryNameLast: LiveData<String?>? = null

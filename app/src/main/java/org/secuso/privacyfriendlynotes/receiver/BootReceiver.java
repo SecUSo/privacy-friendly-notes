@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.room.NoteDatabase;
 import org.secuso.privacyfriendlynotes.ui.notes.CreateEditNoteViewModel;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
@@ -35,22 +36,26 @@ import java.util.List;
 
 public class BootReceiver extends BroadcastReceiver {
     List<Notification> allNotifications;
-    public BootReceiver() {
-    }
+
+    public BootReceiver() {}
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if(!Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) return;
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(CreateEditNoteViewModel.class);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(context, R.layout.simple_spinner_item);
+        //CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(context.getApplicationContext()).get(CreateEditNoteViewModel.class);
+        //ArrayAdapter<CharSequence> adapter = new ArrayAdapter(context, R.layout.simple_spinner_item);
 
-        createEditNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
-            @Override
-            public void onChanged(List<Notification> notifications) {
-                allNotifications = notifications;
-            }
-        });
+        allNotifications = NoteDatabase.getInstance(context).notificationDao().getAllNotifications();
+
+//        createEditNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
+//            @Override
+//            public void onChanged(List<Notification> notifications) {
+//                allNotifications = notifications;
+//            }
+//        });
 
 
         for(Notification currentNot: allNotifications){
@@ -61,7 +66,7 @@ public class BootReceiver extends BroadcastReceiver {
             Intent i = new Intent(context, NotificationService.class);
             i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
 
-            PendingIntent pi = PendingIntent.getService(context, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pi = PendingIntent.getService(context, notification_id, i, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pi);

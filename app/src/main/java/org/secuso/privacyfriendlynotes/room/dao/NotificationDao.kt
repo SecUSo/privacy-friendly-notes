@@ -37,5 +37,8 @@ interface NotificationDao {
 //    fun notificationFromNoteId(thisNoteid: Integer): LiveData<Notification?>
 
     @get:Query("SELECT * FROM notifications")
-    val allNotifications: LiveData<List<Notification>>
+    val allNotificationsLiveData: LiveData<List<Notification>>
+
+    @Query("SELECT * FROM notifications")
+    fun getAllNotifications() : List<Notification>
 }
