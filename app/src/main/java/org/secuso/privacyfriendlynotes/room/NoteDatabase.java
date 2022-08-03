@@ -135,7 +135,7 @@ public abstract class NoteDatabase extends RoomDatabase {
                         String note = c.getString(c.getColumnIndexOrThrow("content"));
                         String encodedNote = Html.toHtml(new SpannedString(note));
 
-                        encodedContent[i] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
+                        encodedContent[i++] = new Pair<>(c.getInt(c.getColumnIndexOrThrow("_id")), encodedNote);
                         c.moveToNext();
                     }
                 }
@@ -149,7 +149,12 @@ public abstract class NoteDatabase extends RoomDatabase {
             }
         }
     };
-    static final Migration MIGRATION_1_3 = MIGRATION_1_2;
+    static final Migration MIGRATION_1_3 = new Migration(1,3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            MIGRATION_1_2.migrate(database);
+        }
+    };
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
