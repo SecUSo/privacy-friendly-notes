@@ -15,17 +15,13 @@ package org.secuso.privacyfriendlynotes.backup;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.JsonReader;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.RoomDatabaseKt;
-import androidx.room.testing.MigrationTestHelper;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
@@ -119,7 +115,7 @@ public class BackupRestorer implements IBackupRestorer {
     private void readPreferences(@NonNull JsonReader reader, @NonNull Context context) throws IOException {
         reader.beginObject();
 
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
         while(reader.hasNext()) {
             String name = reader.nextName();
@@ -127,15 +123,17 @@ public class BackupRestorer implements IBackupRestorer {
             switch(name) {
                 case "settings_use_custom_font_size":
                 case "settings_del_notes":
-                    pref.edit().putBoolean(name, reader.nextBoolean()).apply();
+                    editor.putBoolean(name, reader.nextBoolean());
                     break;
                 case "settings_font_size":
-                    pref.edit().putString(name, reader.nextString()).apply();
+                    editor.putString(name, reader.nextString());
                     break;
                 default:
                     throw new RuntimeException("Unknown preference "+name);
             }
         }
+
+        editor.commit();
 
         reader.endObject();
     }
