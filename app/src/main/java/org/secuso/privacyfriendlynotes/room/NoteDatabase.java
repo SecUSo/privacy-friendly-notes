@@ -124,7 +124,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE notifications");
             database.execSQL("ALTER TABLE notifications_new RENAME TO notifications");
 
-            Pair<Integer, String>[] encodedContent = null;
+            Pair<Integer, String>[] encodedContent = new Pair[0];
             Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
             if(c != null) {
                 if(c.moveToFirst()) {
@@ -153,7 +153,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            Pair<Integer, String>[] encodedContent = null;
+            Pair<Integer, String>[] encodedContent = new Pair[0];
             Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
             if(c != null) {
                 if(c.moveToFirst()) {
