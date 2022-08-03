@@ -7,7 +7,7 @@
 [Twitter]: https://twitter.com/SECUSOResearch
 <img src="https://raw.githubusercontent.com/SecUSo/privacy-friendly-notes/master/fastlane/metadata/android/en-US/images/icon.png"
      alt="Privacy Friendly Notes Icon"
-     width="80px"
+     width="120px"
      align="right"
      style="float: right; margin-right: 10px;" />
 
