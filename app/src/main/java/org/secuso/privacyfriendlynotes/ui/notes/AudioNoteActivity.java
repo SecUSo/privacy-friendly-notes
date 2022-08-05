@@ -14,16 +14,13 @@
 package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -34,18 +31,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.ShareActionProvider;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,15 +52,25 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
-import org.secuso.privacyfriendlynotes.service.NotificationService;
-import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
-import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
+import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +120,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private boolean shouldSave = true;
     private int id = -1;
     private int currentCat;
-    Cursor notificationCursor = null;
 
     private CreateEditNoteViewModel createEditNoteViewModel;
     List<Category> allCategories;
@@ -133,6 +127,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private Menu menu;
     private MenuItem item;
     private Notification notification;
+    private String title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,7 +213,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
         // observe notifications
         notification = new Notification(-1,-1);
-        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.getAllNotifications().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(@Nullable List<Notification> notifications) {
@@ -288,18 +282,20 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-            Intent intent = getIntent();
-            etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            mFileName = intent.getStringExtra(EXTRA_CONTENT);
-            mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
-            btnPlayPause.setVisibility(View.VISIBLE);
-            btnRecord.setVisibility(View.INVISIBLE);
-            tvRecordingTime.setVisibility(View.INVISIBLE);
-            //find the current category and set spinner to that
-            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+            createEditNoteViewModel.getNoteByID(id).observe(this, noteFromDB -> {
+                title = noteFromDB.getName();
+                etName.setText(title);
+                mFileName = noteFromDB.getContent();
+                mFilePath = getFilesDir().getPath() + "/audio_notes" + mFileName;
+                btnPlayPause.setVisibility(View.VISIBLE);
+                btnRecord.setVisibility(View.INVISIBLE);
+                tvRecordingTime.setVisibility(View.INVISIBLE);
+                //find the current category and set spinner to that
+                currentCat = noteFromDB.getCategory();
 
-            findViewById(R.id.btn_delete).setEnabled(true);
-            ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+                findViewById(R.id.btn_delete).setEnabled(true);
+                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+            });
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
             mFileName = "/recording_" + System.currentTimeMillis() + ".aac";
@@ -608,7 +604,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         fillNameIfEmpty();
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
         note.set_id(id);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
@@ -616,7 +611,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private void saveNote(){
         fillNameIfEmpty();
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.insert(note);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
@@ -685,7 +679,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_AUDIO,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
             if(note.getIn_trash() == 1){
                 createEditNoteViewModel.delete(note);
             } else {
@@ -729,7 +722,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
         TimePickerDialog tpd = new TimePickerDialog(AudioNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
@@ -742,7 +735,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
 
         if (hasAlarm) {
@@ -758,34 +750,15 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
         //Store a reference for the notification in the database. This is later used by the service.
 
-        //Create the intent that is fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notificationTimeSet.get_noteId());
+        NotificationHelper.addNotificationToAlarmManager(this,id,DbContract.NoteEntry.TYPE_AUDIO,title,alarmtime.getTimeInMillis());
+        NotificationHelper.showAlertScheduledToast(this,dayOfMonth,monthOfYear,year,hourOfDay,minute);
 
-        PendingIntent pi = PendingIntent.getService(this, notificationTimeSet.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        }
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
         loadActivity(false);
     }
 
     private void cancelNotification(){
-        //Create the intent that would be fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification.get_noteId());
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        NotificationHelper.removeNotificationFromAlarmManager(this,id,DbContract.NoteEntry.TYPE_AUDIO,title);
 
-
-        PendingIntent pi = PendingIntent.getService(this, notification.get_noteId(), i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pi);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
@@ -799,7 +772,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);

@@ -71,6 +71,7 @@ import org.secuso.privacyfriendlynotes.room.model.Notification;
 import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper;
 import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 import org.secuso.privacyfriendlynotes.ui.util.CheckListAdapter;
@@ -110,7 +111,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private boolean hasAlarm = false;
     private boolean shouldSave = true;
     private int id = -1;
-    private int notification_id = -1;
     private int currentCat;
     Cursor notificationCursor = null;
 
@@ -139,7 +139,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         spinner = (Spinner) findViewById(R.id.spinner_category);
 
         //CategorySpinner
-        CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
         adapter.add(getString(R.string.default_category));
 
@@ -316,34 +316,35 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            Intent intent = getIntent();
-            etName.setText(intent.getStringExtra(EXTRA_TITLE));
-            try {
-                JSONArray content = new JSONArray(intent.getStringExtra(EXTRA_CONTENT));
-                for (int i=0; i < content.length(); i++) {
-                    JSONObject o = content.getJSONObject(i);
-                    itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
+
+            createEditNoteViewModel.getNoteByID(id).observe(this, noteFromDB -> {
+                title = noteFromDB.getName();
+                etName.setText(title);
+                try {
+                    JSONArray content = new JSONArray(noteFromDB.getContent());
+                    itemNamesList.clear();
+                    for (int i = 0; i < content.length(); i++) {
+                        JSONObject o = content.getJSONObject(i);
+                        itemNamesList.add(new CheckListItem(o.getBoolean("checked"), o.getString("name")));
+                    }
+                    ((ArrayAdapter) lvItemList.getAdapter()).notifyDataSetChanged();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                ((ArrayAdapter)lvItemList.getAdapter()).notifyDataSetChanged();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            //find the current category and set spinner to that
-            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+                //find the current category and set spinner to that
+                currentCat = noteFromDB.getCategory();
 
 
-            //fill the notificationCursor
-            if(notification.get_noteId() >= 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
+                //fill the notificationCursor
+                if (notification.get_noteId() >= 0) {
+                    hasAlarm = true;
+                } else {
+                    hasAlarm = false;
+                }
 
-            if (hasAlarm) {
-                notification_id = notification.get_noteId();
-            }
-            findViewById(R.id.btn_delete).setEnabled(true);
-            ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+                findViewById(R.id.btn_delete).setEnabled(true);
+                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+            });
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
         }
@@ -417,9 +418,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 hasAlarm = true;
             } else {
                 hasAlarm = false;
-            }
-            if (hasAlarm) {
-                notification_id = notification.get_noteId();
             }
 
             if (hasAlarm) {
@@ -523,7 +521,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             fillNameIfEmpty();
             Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
             note.set_id(id);
-            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
             createEditNoteViewModel.update(note);
             Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
@@ -547,7 +544,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
 
             Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
-            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
             createEditNoteViewModel.insert(note);
 
             Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
@@ -589,7 +585,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
 
     private void displayTrashDialog() {
         SharedPreferences sp = getSharedPreferences(PreferenceKeys.SP_DATA, Context.MODE_PRIVATE);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         Intent intent = getIntent();
         Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_CHECKLIST,intent.getIntExtra(EXTRA_CATEGORY,-1));
         note.set_id(id);
@@ -638,7 +633,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         this.year = year;
         final Calendar c = Calendar.getInstance();
         if (hasAlarm) {
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
         }
         TimePickerDialog tpd = new TimePickerDialog(ChecklistNoteActivity.this, this, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true);
         tpd.show();
@@ -652,7 +647,6 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notificationTimeSet = new Notification(id, (int) alarmtime.getTimeInMillis());
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
 
 
         if (hasAlarm) {
@@ -668,34 +662,15 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         }
         //Store a reference for the notification in the database. This is later used by the service.
 
-        //Create the intent that is fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
+        NotificationHelper.addNotificationToAlarmManager(this,id,DbContract.NoteEntry.TYPE_CHECKLIST,title,alarmtime.getTimeInMillis());
+        NotificationHelper.showAlertScheduledToast(this,dayOfMonth,monthOfYear,year,hourOfDay,minute);
 
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        }
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
         loadActivity(false);
     }
 
     private void cancelNotification(){
-        //Create the intent that would be fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        NotificationHelper.removeNotificationFromAlarmManager(this,id,DbContract.NoteEntry.TYPE_CHECKLIST,title);
 
-
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pi);
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);
         Notification notification = new Notification(id, 0);
@@ -709,7 +684,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         int id = item.getItemId();
         if (id == R.id.action_reminder_edit) {
             final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(notificationCursor.getLong(notificationCursor.getColumnIndexOrThrow(DbContract.NotificationEntry.COLUMN_TIME)));
+            c.setTimeInMillis(notification.getTime());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
