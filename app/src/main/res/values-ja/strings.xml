@@ -112,7 +112,7 @@
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">外部ストレージの書き込みは、メモを外部メモリに保存するために必要です。 これが許可されていないと、メモを外部に保存することはできません。</string>
 
-    <string name="about_version_number">バージョン 2.0.0</string>
+    <string name="about_version_number">バージョン</string>
     <string name="about_author">作者: </string>
     <string name="about_author_contributors">および貢献者。</string>
     <string name="about_affiliation">提携</string>
