@@ -14,8 +14,13 @@
 package org.secuso.privacyfriendlynotes.service;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -35,18 +40,20 @@ public class NotificationService extends IntentService {
     public static final String NOTIFICATION_TYPE = "notification_type";
     public static final String NOTIFICATION_TITLE = "notification_title";
 
+    public static final String NOTIFICATION_CHANNEL = "Notes_Notifications";
 
 
-    public NotificationService (){
+    public NotificationService() {
         super("Notification service");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         int notification_id = intent.getIntExtra(NOTIFICATION_ID, -1);
-        int type = intent.getIntExtra(NOTIFICATION_TYPE,-1);
+        int type = intent.getIntExtra(NOTIFICATION_TYPE, -1);
         String name = intent.getStringExtra(NOTIFICATION_TITLE);
-        if (notification_id != -1) {
+        Log.d(getClass().getSimpleName(), "onHandleIntent(" + NOTIFICATION_ID + ":" + notification_id + ";" + NOTIFICATION_TYPE + ":" + type + ";" + NOTIFICATION_TITLE + ":" + name + ")");
+        if (notification_id != -1 && type != -1) {
             //Gather the info for the notification itself
             Intent i = null;
             switch (type) {
@@ -68,14 +75,23 @@ public class NotificationService extends IntentService {
                     break;
             }
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getBaseContext());
+            Log.d(getClass().getSimpleName(), "Creating intent for " + getBaseContext() + " with type " + type + " and intent " + intent + " and id " + notification_id + " and name " + name);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+            NotificationManager mNotifyMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL, getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setDescription(getString(R.string.app_name));
+                mNotifyMgr.createNotificationChannel(notificationChannel);
+            }
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getBaseContext(), NOTIFICATION_CHANNEL);
             mBuilder.setSmallIcon(R.mipmap.ic_notification)
                     .setColor(getResources().getColor(R.color.colorPrimary))
                     .setContentTitle(name)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true);
-
+            mNotifyMgr.notify(notification_id, mBuilder.build());
         }
     }
 }

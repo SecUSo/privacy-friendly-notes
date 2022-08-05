@@ -14,9 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,18 +32,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.ShareActionProvider;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,17 +47,27 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.simplify.ink.InkView;
 
+import org.secuso.privacyfriendlynotes.R;
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
-import org.secuso.privacyfriendlynotes.service.NotificationService;
-import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
-import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
+import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper;
+import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,7 +76,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -113,7 +108,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     private boolean hasAlarm = false;
     private boolean shouldSave = true;
     private int id = -1;
-    private int notification_id = -1;
     private int currentCat;
 
     private Notification notification;
@@ -245,21 +239,20 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         //fill in values if update
         if (edit) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            Intent intent = getIntent();
-            id = intent.getIntExtra(EXTRA_ID, -1);
-            title = intent.getStringExtra(EXTRA_TITLE);
-            etName.setText(title);
-            mFileName = intent.getStringExtra(EXTRA_CONTENT);
-            mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
-            //find the current category and set spinner to that
-            currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+
+            createEditNoteViewModel.getNoteByID(id).observe(this, noteFromDB -> {
+                title = noteFromDB.getName();
+                etName.setText(title);
+                mFileName = noteFromDB.getContent();
+                mFilePath = getFilesDir().getPath() + "/sketches" + mFileName;
+                //find the current category and set spinner to that
+                currentCat = noteFromDB.getCategory();
 
 
-
-
-            findViewById(R.id.btn_delete).setEnabled(true);
-            ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
-            drawView.setBackground(new BitmapDrawable(getResources(), mFilePath));
+                findViewById(R.id.btn_delete).setEnabled(true);
+                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+                drawView.setBackground(new BitmapDrawable(getResources(), mFilePath));
+            });
         } else {
             findViewById(R.id.btn_delete).setEnabled(false);
             mFileName = "/sketch_" + System.currentTimeMillis() + ".PNG";
@@ -345,7 +338,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
                 hasAlarm = false;
             }
             if (hasAlarm) {
-                notification_id = notification.get_noteId();
                 //ask whether to delete or update the current alarm
                 PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
                 popupMenu.inflate(R.menu.reminder);
@@ -458,7 +450,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
         note.set_id(id);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
@@ -478,7 +469,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_SKETCH,currentCat);
-        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
         createEditNoteViewModel.insert(note);
 
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
@@ -547,7 +537,6 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
             Note note = new Note(intent.getStringExtra(EXTRA_TITLE),intent.getStringExtra(EXTRA_CONTENT),DbContract.NoteEntry.TYPE_SKETCH,intent.getIntExtra(EXTRA_CATEGORY,-1));
             note.set_id(id);
             note.setIn_trash(intent.getIntExtra(EXTRA_ISTRASH,0));
-            createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
             if(note.getIn_trash() == 1){
                 createEditNoteViewModel.delete(note);
             } else {
@@ -623,35 +612,14 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
 
         //Store a reference for the notification in the database. This is later used by the service.
 
-        //Create the intent that is fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-        i.putExtra(NotificationService.NOTIFICATION_TYPE, DbContract.NoteEntry.TYPE_SKETCH);
-        i.putExtra(NotificationService.NOTIFICATION_TITLE, title);
-
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmtime.getTimeInMillis(), pi);
-        }
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_alarm_scheduled), dayOfMonth + "." + (monthOfYear+1) + "." + year + " " + hourOfDay + ":" + String.format("%02d",minute)), Toast.LENGTH_SHORT).show();
+        NotificationHelper.addNotificationToAlarmManager(this,id, DbContract.NoteEntry.TYPE_SKETCH, title, alarmtime.getTimeInMillis());
+        NotificationHelper.showAlertScheduledToast(this, dayOfMonth,monthOfYear,year,hourOfDay,minute);
 
         loadActivity(false);
     }
 
     private void cancelNotification(){
-        //Create the intent that would be fired by AlarmManager
-        Intent i = new Intent(this, NotificationService.class);
-        i.putExtra(NotificationService.NOTIFICATION_ID, notification_id);
-
-        PendingIntent pi = PendingIntent.getService(this, notification_id, i, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pi);
+        NotificationHelper.removeNotificationFromAlarmManager(this,id, DbContract.NoteEntry.TYPE_SKETCH, title);
 
         Intent intent = getIntent();
         id = intent.getIntExtra(EXTRA_ID, -1);

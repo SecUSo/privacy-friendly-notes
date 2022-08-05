@@ -61,4 +61,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes")
     fun getNotesDebug() : List<Note>
+
+    @Query("SELECT * FROM notes WHERE _id = :id")
+    fun getNoteByID(id: Long): Note?
 }

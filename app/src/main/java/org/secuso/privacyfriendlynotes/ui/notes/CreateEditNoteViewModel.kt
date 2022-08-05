@@ -14,10 +14,8 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -114,5 +112,18 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().delete(note)
         }
+    }
+
+    fun getNoteByID(id: Long): LiveData<Note> {
+        val note = MutableLiveData<Note>()
+        Log.d(TAG, "Fetching note $id from database")
+        viewModelScope.launch(Dispatchers.IO) {
+            note.postValue(database.noteDao().getNoteByID(id))
+        }
+        return note
+    }
+
+    companion object{
+        private val TAG = "CreateEditNoteViewModel"
     }
 }
