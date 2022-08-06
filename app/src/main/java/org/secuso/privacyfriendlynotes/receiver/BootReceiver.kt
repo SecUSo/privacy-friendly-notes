@@ -17,6 +17,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
@@ -27,19 +28,12 @@ class BootReceiver : BroadcastReceiver() {
     var allNotifications: List<Notification>? = null
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_BOOT_COMPLETED != intent.action && Intent.ACTION_AIRPLANE_MODE_CHANGED != intent.action) return
-        Log.d(javaClass.simpleName, "Running onReceive...")
-        GlobalScope.launch {
 
-            //CreateEditNoteViewModel createEditNoteViewModel = new ViewModelProvider(context.getApplicationContext()).get(CreateEditNoteViewModel.class);
-            //ArrayAdapter<CharSequence> adapter = new ArrayAdapter(context, R.layout.simple_spinner_item);
+        Log.d(javaClass.simpleName, "Running onReceive...")
+        GlobalScope.launch(Dispatchers.Main) {
+
             allNotifications = NoteDatabase.getInstance(context).notificationDao().getAllNotifications()
 
-//        createEditNoteViewModel.getAllNotifications().observe((LifecycleOwner) context, new Observer<List<Notification>>() {
-//            @Override
-//            public void onChanged(List<Notification> notifications) {
-//                allNotifications = notifications;
-//            }
-//        });
             Log.d(javaClass.simpleName, allNotifications!!.size.toString() + " Notifications found.")
             for ((notification_id, time) in allNotifications!!) {
 
