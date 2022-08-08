@@ -8,8 +8,8 @@ android {
         applicationId "org.secuso.privacyfriendlynotes"
         minSdkVersion 21
         targetSdkVersion 32
-        versionCode 9
-        versionName "1.2.3"
+        versionCode 10
+        versionName "1.2.4"
 
         javaCompileOptions {
             annotationProcessorOptions {
