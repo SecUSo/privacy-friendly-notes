@@ -61,6 +61,7 @@ public abstract class NoteDatabase extends RoomDatabase {
         if (instance == null || !DATABASE_NAME.equals(databaseName)) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     NoteDatabase.class, databaseName)
+                    .allowMainThreadQueries()
                     .addMigrations(MIGRATIONS)
                     .addCallback(roomCallback)
                     .build();
@@ -73,6 +74,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     NoteDatabase.class, databaseName)
                     .createFromFile(file)
+                    .allowMainThreadQueries()
                     .addMigrations(MIGRATIONS)
                     .addCallback(roomCallback)
                     .build();
