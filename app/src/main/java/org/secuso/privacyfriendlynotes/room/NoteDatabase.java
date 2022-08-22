@@ -50,15 +50,18 @@ public abstract class NoteDatabase extends RoomDatabase {
     public static final int VERSION = 4;
     public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
+
     public abstract NoteDao noteDao();
+
     public abstract CategoryDao categoryDao();
+
     public abstract NotificationDao notificationDao();
 
-    public static synchronized NoteDatabase getInstance(Context context){
+    public static synchronized NoteDatabase getInstance(Context context) {
         return getInstance(context, DATABASE_NAME);
     }
 
-    public static synchronized NoteDatabase getInstance(Context context, String databaseName){
+    public static synchronized NoteDatabase getInstance(Context context, String databaseName) {
         if (instance == null || !DATABASE_NAME.equals(databaseName)) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             NoteDatabase.class, databaseName)
@@ -70,8 +73,8 @@ public abstract class NoteDatabase extends RoomDatabase {
         return instance;
     }
 
-    public static synchronized NoteDatabase getInstance(Context context, String databaseName, File file){
-        if (instance == null){
+    public static synchronized NoteDatabase getInstance(Context context, String databaseName, File file) {
+        if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             NoteDatabase.class, databaseName)
                     .createFromFile(file)
@@ -100,8 +103,8 @@ public abstract class NoteDatabase extends RoomDatabase {
             // get current schema and check if it needs to be fixed
             String result = "";
             Cursor c = database.query("SELECT sql FROM sqlite_master WHERE type='table' AND name='notes';");
-            if(c != null) {
-                if(c.moveToFirst()) {
+            if (c != null) {
+                if (c.moveToFirst()) {
                     while (!c.isAfterLast()) {
                         result = c.getString(c.getColumnIndexOrThrow("sql"));
                         c.moveToNext();
@@ -110,14 +113,10 @@ public abstract class NoteDatabase extends RoomDatabase {
                 c.close();
             }
 
-            try {
-                String categorySQL = result.split("category")[1].split(",")[0];
+            String categorySQL = result.split("category")[1].split(",")[0];
 
-                if(categorySQL != null && !TextUtils.isEmpty(categorySQL) && !categorySQL.contains("NOT NULL")) {
-                    MIGRATION_1_2.migrate(database);
-                }
-            } catch (NullPointerException e) {
-                // do nothing
+            if (categorySQL != null && categorySQL.toUpperCase().contains("INTEGER") && !categorySQL.toUpperCase().contains("NOT NULL")) {
+                MIGRATION_1_2.migrate(database);
             }
         }
     };
@@ -162,8 +161,8 @@ public abstract class NoteDatabase extends RoomDatabase {
 
             Pair<Integer, String>[] encodedContent = new Pair[0];
             Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
-            if(c != null) {
-                if(c.moveToFirst()) {
+            if (c != null) {
+                if (c.moveToFirst()) {
                     encodedContent = new Pair[c.getCount()];
                     int i = 0;
 
@@ -178,14 +177,14 @@ public abstract class NoteDatabase extends RoomDatabase {
                 c.close();
             }
 
-            for(Pair<Integer,String> note : encodedContent) {
+            for (Pair<Integer, String> note : encodedContent) {
                 ContentValues cv = new ContentValues();
                 cv.put("content", note.second);
                 database.update("notes", 0, cv, "_id = ?", new String[]{Integer.toString(note.first)});
             }
         }
     };
-    static final Migration MIGRATION_1_3 = new Migration(1,3) {
+    static final Migration MIGRATION_1_3 = new Migration(1, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             MIGRATION_1_2.migrate(database);
@@ -196,15 +195,15 @@ public abstract class NoteDatabase extends RoomDatabase {
         public void migrate(SupportSQLiteDatabase database) {
             Pair<Integer, String>[] encodedContent = new Pair[0];
             Cursor c = database.query("SELECT * FROM notes WHERE type = 1");
-            if(c != null) {
-                if(c.moveToFirst()) {
+            if (c != null) {
+                if (c.moveToFirst()) {
                     encodedContent = new Pair[c.getCount()];
                     int i = 0;
 
                     while (!c.isAfterLast()) {
                         String note = c.getString(c.getColumnIndexOrThrow("content"));
 
-                        if(note.startsWith("<p dir=")) {
+                        if (note.startsWith("<p dir=")) {
                             i++;
                             c.moveToNext();
                             continue;
@@ -219,8 +218,8 @@ public abstract class NoteDatabase extends RoomDatabase {
                 c.close();
             }
 
-            for(Pair<Integer,String> note : encodedContent) {
-                if(note == null) {
+            for (Pair<Integer, String> note : encodedContent) {
+                if (note == null) {
                     continue;
                 }
                 ContentValues cv = new ContentValues();
