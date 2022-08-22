@@ -114,7 +114,8 @@ public abstract class NoteDatabase extends RoomDatabase {
                             + "category INTEGER NOT NULL DEFAULT 0,"
                             + "content TEXT NOT NULL DEFAULT 'TEXT',"
                             + "PRIMARY KEY(_id))");
-            database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content) SELECT _id, in_trash,name,type,category,content FROM notes");
+            database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content) SELECT _id, in_trash,name,type,category,content FROM notes WHERE category IS NOT null");
+            database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content) SELECT _id, in_trash,name,type,0,content FROM notes WHERE category IS null");
             database.execSQL("DROP TABLE notes");
             database.execSQL("ALTER TABLE notes_new RENAME TO notes");
 
