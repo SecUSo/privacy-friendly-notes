@@ -18,6 +18,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.text.Html;
 import android.text.SpannedString;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -25,6 +26,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
+import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlynotes.room.dao.CategoryDao;
@@ -35,6 +37,8 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
@@ -43,10 +47,10 @@ import java.io.File;
 @Database(
         entities = {Note.class, Category.class, Notification.class},
         version = NoteDatabase.VERSION
-        )
+)
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
     public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
     public abstract NoteDao noteDao();
@@ -60,7 +64,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     public static synchronized NoteDatabase getInstance(Context context, String databaseName){
         if (instance == null || !DATABASE_NAME.equals(databaseName)) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    NoteDatabase.class, databaseName)
+                            NoteDatabase.class, databaseName)
                     .allowMainThreadQueries()
                     .addMigrations(MIGRATIONS)
                     .addCallback(roomCallback)
@@ -72,7 +76,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     public static synchronized NoteDatabase getInstance(Context context, String databaseName, File file){
         if (instance == null){
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    NoteDatabase.class, databaseName)
+                            NoteDatabase.class, databaseName)
                     .createFromFile(file)
                     .allowMainThreadQueries()
                     .addMigrations(MIGRATIONS)
@@ -86,6 +90,44 @@ public abstract class NoteDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
+        }
+    };
+
+    /**
+     * Provides data migration from database version 3 to 4 which checks for an error in the previous
+     * migration when a backup was imported
+     */
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // get current schema and check if it needs to be fixed
+            String result = "";
+            Cursor c = database.query("SELECT sql FROM sqlite_master WHERE type='table' AND name='notes';");
+            if(c != null) {
+                if(c.moveToFirst()) {
+                    while (!c.isAfterLast()) {
+                        result = c.getString(c.getColumnIndexOrThrow("sql"));
+                        c.moveToNext();
+                    }
+                }
+                c.close();
+            }
+
+            try {
+                Matcher m = Pattern.compile("category(.*),", 0).matcher(result);
+
+                String categorySQL = "";
+                if(m.find()) {
+                    categorySQL = m.group(1);
+                }
+
+                if(categorySQL != null && !TextUtils.isEmpty(categorySQL) && !categorySQL.contains("NOT NULL")) {
+                    MIGRATION_1_2.migrate(database);
+                }
+            } catch (NullPointerException e) {
+                // do nothing
+            }
+            System.exit(0);
         }
     };
 
@@ -200,6 +242,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     public static final Migration[] MIGRATIONS = {
             MIGRATION_1_2,
             MIGRATION_1_3,
-            MIGRATION_2_3
+            MIGRATION_2_3,
+            MIGRATION_3_4
     };
 }
