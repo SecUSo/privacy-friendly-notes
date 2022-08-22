@@ -26,7 +26,6 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlynotes.room.dao.CategoryDao;
@@ -37,8 +36,6 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
@@ -114,12 +111,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             }
 
             try {
-                Matcher m = Pattern.compile("category(.*),", 0).matcher(result);
-
-                String categorySQL = "";
-                if(m.find()) {
-                    categorySQL = m.group(1);
-                }
+                String categorySQL = result.split("category")[1].split(",")[0];
 
                 if(categorySQL != null && !TextUtils.isEmpty(categorySQL) && !categorySQL.contains("NOT NULL")) {
                     MIGRATION_1_2.migrate(database);
@@ -127,7 +119,6 @@ public abstract class NoteDatabase extends RoomDatabase {
             } catch (NullPointerException e) {
                 // do nothing
             }
-            System.exit(0);
         }
     };
 
