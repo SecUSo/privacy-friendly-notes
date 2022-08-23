@@ -1,7 +1,23 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
+def pfaFile = rootProject.file('pfa.properties')
+
 android {
+    signingConfigs {
+        if (pfaFile.exists()) {
+            'pfa-key' {
+                def pfa = new Properties()
+                pfa.load(new FileInputStream(pfaFile))
+
+                storePassword pfa['storePassword']
+                keyAlias pfa['keyAlias']
+                keyPassword pfa['keyPassword']
+                storeFile file(pfa['storeFile'])
+            }
+        }
+    }
+
     compileSdkVersion 32
 
     defaultConfig {
@@ -28,6 +44,14 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            debuggable true
+            if (pfaFile.exists()) {
+                signingConfig signingConfigs.'pfa-key'
+                println("Using PFA key")
+            }
         }
     }
 
