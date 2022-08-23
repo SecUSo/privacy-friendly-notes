@@ -122,4 +122,7 @@
     <string name="main_floating_button">Schwimmende Schaltfläche</string>
     <string name="next">Weiter</string>
     <string name="skip">Überspringen</string>
+    <string name="settings_appearance_heading">Darstellung</string>
+    <string name="settings_settings_show_preview_title">Notizvorschau anzeigen</string>
+    <string name="settings_settings_settings_show_preview_sum">Zeigt eine kurze Vorschau der Notiz an</string>
 </resources>
