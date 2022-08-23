@@ -140,5 +140,8 @@
     <string name="main_floating_button">フローティングボタン</string>
     <string name="next">次のページ</string>
     <string name="skip">スキップ</string>
+    <string name="settings_appearance_heading">表現方法</string>
+    <string name="settings_settings_show_preview_title">ノートプレビューを表示する</string>
+    <string name="settings_settings_settings_show_preview_sum">ノートの短いプレビューを表示する</string>
 
 </resources>
