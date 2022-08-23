@@ -144,7 +144,9 @@
     <string name="main_floating_button">Floating Button</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
-
+    <string name="settings_appearance_heading">Appearance</string>
+    <string name="settings_settings_show_preview_title">Show note previews</string>
+    <string name="settings_settings_settings_show_preview_sum">Display a short preview of notes in the overview</string>
 
 
 </resources>

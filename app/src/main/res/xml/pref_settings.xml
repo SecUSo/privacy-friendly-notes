@@ -6,6 +6,8 @@
             android:defaultValue="false"
             android:title="@string/settings_del_notes_title"
             android:summary="@string/settings_del_notes_sum"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_appearance_heading">
         <SwitchPreference
             android:key="settings_use_custom_font_size"
             android:defaultValue="false"
@@ -18,5 +20,10 @@
             android:summary="@string/settings_font_size_sum"
             android:entries="@array/font_size_entries"
             android:entryValues="@array/font_size_values" />
+        <SwitchPreference
+            android:key="settings_show_preview"
+            android:defaultValue="true"
+            android:title="@string/settings_settings_show_preview_title"
+            android:summary="@string/settings_settings_settings_show_preview_sum" />
     </PreferenceCategory>
 </PreferenceScreen>

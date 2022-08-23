@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +65,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         Note currentNote = notes.get(position);
         holder.textViewTitle.setText(currentNote.getName());
         holder.textViewDescription.setText("");
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(holder.itemView.getContext());
+        holder.textViewDescription.setVisibility(pref.getBoolean("settings_show_preview", true) ? View.VISIBLE : View.GONE);
 
         switch (currentNote.getType()) {
             case DbContract.NoteEntry.TYPE_TEXT:
