@@ -47,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -77,18 +78,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import petrov.kristiyan.colorpicker.ColorPicker;
+import eltos.simpledialogfragment.SimpleDialog;
+import eltos.simpledialogfragment.color.SimpleColorDialog;
 
 /**
  * Activity that allows to add, edit and delete sketch notes.
  */
 
-public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
+public class SketchActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, PopupMenu.OnMenuItemClickListener, SimpleDialog.OnDialogResultListener {
     public static final String EXTRA_ID = "org.secuso.privacyfriendlynotes.ID";
     public static final String EXTRA_TITLE = "org.secuso.privacyfriendlynotes.TITLE";
     public static final String EXTRA_CONTENT = "org.secuso.privacyfriendlynotes.CONTENT";
     public static final String EXTRA_CATEGORY = "org.secuso.privacyfriendlynotes.CATEGORY";
     public static final String EXTRA_ISTRASH = "org.secuso.privacyfriendlynotes.ISTRASH";
+    public static final String TAG_COLORDIALOG = "org.secuso.privacyfriendlynotes.COLORDIALOG";
 
 
 
@@ -549,17 +552,24 @@ public class SketchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void displayColorDialog() {
-        new ColorPicker(this)
-                .setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
-                    @Override
-                    public void setOnFastChooseColorListener(int position, int color) {
-                        drawView.setColor(color);
-                        btnColorSelector.setBackgroundColor(color);
-                    }
-                })
-                .setColors(R.array.mdcolor_500)
-                .setTitle("")
-                .show();
+        SimpleColorDialog.build()
+                .title("")
+                .allowCustom(false)
+                .cancelable(true)//allows close by tapping outside of dialog
+                .colors(this, R.array.mdcolor_500)
+                .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT)//auto-close on selection
+                .show(this, TAG_COLORDIALOG);
+    }
+
+    @Override
+    public boolean onResult(@NonNull String dialogTag, int which, @NonNull Bundle extras) {
+        if (dialogTag.equals(TAG_COLORDIALOG) && which == BUTTON_POSITIVE){
+            @ColorInt int color = extras.getInt(SimpleColorDialog.COLOR);
+            drawView.setColor(color);
+            btnColorSelector.setBackgroundColor(color);
+            return true;
+        }
+        return false;
     }
 
     @Override
