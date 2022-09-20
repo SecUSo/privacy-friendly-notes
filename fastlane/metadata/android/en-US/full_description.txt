@@ -20,7 +20,7 @@ Beside the permissions above the permission “RECEIVE_BOOT_COMPLETED” (Catego
 For comparison: The Top Ten of similar apps from the Google Play Store , die im Google Play Store requires an average of 11,7 permissions (in December 2016). These are for instance the location permission or the permissions to access, modify or delete storage.
 
 2. No advertisement
-Moreover, Privacy Friendly Password Generator distinguishes from many other weather applications in the way that it completely relinquishes advertisements. Advertisement might track a user's actions. It could also shorten battery life or use mobile data.
+Moreover, Privacy Friendly Notes distinguishes from many other applications in the way that it completely relinquishes advertisements. Advertisement might track a user's actions. It could also shorten battery life or use mobile data.
 
 You can reach us via
 Twitter - @SECUSOResearch https://twitter.com/secusoresearch
