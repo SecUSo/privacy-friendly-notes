@@ -29,6 +29,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -62,6 +63,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -358,88 +360,14 @@ public class MainActivity extends AppCompatActivity
      * @param filter
      */
     private void updateListAlphabetical(String filter) {
-        if(!alphabeticalAsc){
-            mainActivityViewModel.getNotesFilteredAlphabetical(filter).observe(this, new Observer<List<Note>>() {
-                @Override
-                public void onChanged(@Nullable List<Note> notes) {
-                    // Filter checklist notes
-                    List<Note> filteredNotes = new ArrayList<>();
-                    for(Note note: notes){
-                        Boolean add = false;
-                        if(note.getType() == 1){
-                            Spanned spanned = Html.fromHtml(note.getContent());
-                            String text = spanned.toString();
-                            if(text.contains(filter)){
-                                add = true;
-                            }
-                        } else{
-                            if(note.getType() == 3){
-                                try {
-                                    JSONArray content = new JSONArray(note.getContent());
-                                    for (int i=0; i < content.length(); i++) {
-                                        JSONObject o = content.getJSONObject(i);
-                                        if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                            add = true;
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else{
-                                add = true;
-                            }
-                        }
+        LiveData<List<Note>> data = alphabeticalAsc ?
+                mainActivityViewModel.getActiveNotesFiltered(filter)
+                : mainActivityViewModel.getActiveNotesFilteredAlphabetical(filter);
 
-                        if(add){
-                            filteredNotes.add(note);
-                        }
-                    }
-                    adapter.setNotes(filteredNotes);
-                }
-            });
-            alphabeticalAsc = true;
-        } else {
-            mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
-                @Override
-                public void onChanged(@Nullable List<Note> notes) {
-                    // Filter checklist notes
-                    List<Note> filteredNotes = new ArrayList<>();
-                    for(Note note: notes){
-                        Boolean add = false;
-                        if(note.getType() == 1){
-                            Spanned spanned = Html.fromHtml(note.getContent());
-                            String text = spanned.toString();
-                            if(text.contains(filter)){
-                                add = true;
-                            }
-                        } else{
-                            if(note.getType() == 3){
-                                try {
-                                    JSONArray content = new JSONArray(note.getContent());
-                                    for (int i=0; i < content.length(); i++) {
-                                        JSONObject o = content.getJSONObject(i);
-                                        if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                            add = true;
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else{
-                                add = true;
-                            }
-                        }
-
-                        if(add){
-                            filteredNotes.add(note);
-                        }
-                    }
-                    adapter.setNotes(filteredNotes);
-                }
-            });
-            alphabeticalAsc = false;
-        }
-
+        data.observe(this, notes -> {
+            adapter.setNotes(notes);
+            alphabeticalAsc = !alphabeticalAsc;
+        });
     }
 
     /**
@@ -447,43 +375,8 @@ public class MainActivity extends AppCompatActivity
      * @param filter
      */
     private void applyFilter(String filter){
-        mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                // Filter checklist notes
-                List<Note> filteredNotes = new ArrayList<>();
-                for(Note note: notes){
-                    Boolean add = false;
-                    if(note.getType() == 1){
-                        Spanned spanned = Html.fromHtml(note.getContent());
-                        String text = spanned.toString();
-                        if(text.contains(filter)){
-                            add = true;
-                        }
-                    } else{
-                        if(note.getType() == 3){
-                            try {
-                                JSONArray content = new JSONArray(note.getContent());
-                                for (int i=0; i < content.length(); i++) {
-                                    JSONObject o = content.getJSONObject(i);
-                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                        add = true;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else{
-                            add = true;
-                        }
-                    }
-
-                    if(add){
-                        filteredNotes.add(note);
-                    }
-                }
-                adapter.setNotes(filteredNotes);
-            }
+        mainActivityViewModel.getActiveNotesFiltered(filter).observe(this, notes -> {
+            adapter.setNotes(notes);
         });
     }
 
@@ -493,43 +386,8 @@ public class MainActivity extends AppCompatActivity
      * @param category
      */
     private void applyFilterCategory(String filter, Integer category){
-        mainActivityViewModel.getActiveNotesFilteredFromCategory(filter,category).observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                // Filter checklist notes
-                List<Note> filteredNotes = new ArrayList<>();
-                for(Note note: notes){
-                    Boolean add = false;
-                    if(note.getType() == 1){
-                        Spanned spanned = Html.fromHtml(note.getContent());
-                        String text = spanned.toString();
-                        if(text.contains(filter)){
-                            add = true;
-                        }
-                    } else{
-                        if(note.getType() == 3){
-                            try {
-                                JSONArray content = new JSONArray(note.getContent());
-                                for (int i=0; i < content.length(); i++) {
-                                    JSONObject o = content.getJSONObject(i);
-                                    if (o.getString("name").contains(filter) || note.getName().contains(filter)){
-                                        add = true;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else{
-                            add = true;
-                        }
-                    }
-
-                    if(add){
-                        filteredNotes.add(note);
-                    }
-                }
-                adapter.setNotes(filteredNotes);
-            }
+        mainActivityViewModel.getActiveNotesFilteredFromCategory(filter, category).observe(this, notes -> {
+            adapter.setNotes(notes);
         });
     }
 
