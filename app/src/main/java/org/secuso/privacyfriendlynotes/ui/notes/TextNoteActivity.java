@@ -40,7 +40,6 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -62,6 +61,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.github.clans.fab.FloatingActionButton;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
@@ -108,7 +109,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private int id = -1;
     private int currentCat;
 
-
     private Notification notification;
     private String title;
     List<Category> allCategories;
@@ -116,9 +116,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private MenuItem item;
     private CreateEditNoteViewModel createEditNoteViewModel;
 
-    Button boldBtn;
-    Button italicsBtn;
-    Button underlineBtn;
+    FloatingActionButton boldBtn;
+    FloatingActionButton italicsBtn;
+    FloatingActionButton underlineBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +182,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
 
         loadActivity(true);
-
 
     }
 
@@ -248,16 +247,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 }
             });
         }
-
-        etContent.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                boldBtn.setTextColor(Color.parseColor("#0274b2"));
-                italicsBtn.setTextColor(Color.parseColor("#0274b2"));
-                underlineBtn.setTextColor(Color.parseColor("#0274b2"));
-                return false;
-            }
-        });
 
         //fill in values if update
         if (edit) {
@@ -438,18 +427,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
                 totalText = (SpannableStringBuilder) etContent.getText();
                 if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    if(boldBtn.getCurrentTextColor() == Color.parseColor("#000000")){
-                        boldBtn.setTextColor(Color.parseColor("#0274b2"));
-                        spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
-                        for (StyleSpan span : spans) {
-                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == bold.getStyle()) {
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                totalText.removeSpan(span);
-                            }
+                    spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
+                    for (StyleSpan span : spans) {
+                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == bold.getStyle()) {
+                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            totalText.removeSpan(span);
                         }
-                    } else {
-                        boldBtn.setTextColor(Color.parseColor("#000000"));
-                        totalText.setSpan(bold,etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                     }
                 }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
@@ -504,18 +487,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
                 totalText = (SpannableStringBuilder) etContent.getText();
                 if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    if(italicsBtn.getCurrentTextColor() == Color.parseColor("#000000")){
-                        italicsBtn.setTextColor(Color.parseColor("#0274b2"));
-                        spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
-                        for (StyleSpan span : spans) {
-                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == italic.getStyle()) {
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                totalText.removeSpan(span);
-                            }
+                    spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
+                    for (StyleSpan span : spans) {
+                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == italic.getStyle()) {
+                            totalText.setSpan(new StyleSpan(Typeface.ITALIC),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            totalText.removeSpan(span);
                         }
-                    } else {
-                        italicsBtn.setTextColor(Color.parseColor("#000000"));
-                        totalText.setSpan(new StyleSpan(Typeface.ITALIC),etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                     }
                 }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
@@ -569,17 +546,11 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 totalText = (SpannableStringBuilder) etContent.getText();
                 UnderlineSpan[] underlineSpans = totalText.getSpans(etContent.getSelectionStart(),etContent.getSelectionEnd(),UnderlineSpan.class);
                 if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    if(underlineBtn.getCurrentTextColor() == Color.parseColor("#000000")){
-                        underlineBtn.setTextColor(Color.parseColor("#0274b2"));
-                        for (UnderlineSpan span : underlineSpans) {
-                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getSpanTypeId() == underlined.getSpanTypeId()) {
-                                totalText.setSpan(new UnderlineSpan(),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                totalText.removeSpan(span);
-                            }
+                    for (UnderlineSpan span : underlineSpans) {
+                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getSpanTypeId() == underlined.getSpanTypeId()) {
+                            totalText.setSpan(new UnderlineSpan(),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            totalText.removeSpan(span);
                         }
-                    } else {
-                        underlineBtn.setTextColor(Color.parseColor("#000000"));
-                        totalText.setSpan(new UnderlineSpan(),etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                     }
                 }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
