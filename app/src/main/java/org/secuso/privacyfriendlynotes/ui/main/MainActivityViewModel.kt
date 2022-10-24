@@ -14,13 +14,17 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.app.Application
+import android.text.Html
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
-import org.secuso.privacyfriendlynotes.room.NoteDatabase
 
 /**
  * The MainActivityViewModel provides the data for the MainActivity.
@@ -36,12 +40,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val activeNotes: LiveData<List<Note>> = repository.noteDao().allActiveNotes
     val trashedNotes: LiveData<List<Note>> = repository.noteDao().allTrashedNotes
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
-
-
-    private var _notesFromCategoryLast: LiveData<List<Note?>?>? = null
-    private var _notesFromCategory: MediatorLiveData<List<Note?>?> = MediatorLiveData<List<Note?>?>()
-    private var _notesFilteredLast: LiveData<List<Note?>?>? = null
-    private var _notesFiltered: MediatorLiveData<List<Note?>?> = MediatorLiveData<List<Note?>?>()
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -62,76 +60,77 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun getActiveNotesFiltered(filter: String): LiveData<List<Note?>?>{
-        viewModelScope.launch(Dispatchers.Default) {
-            withContext(Dispatchers.Main) {
-                if (_notesFilteredLast != null) {
-                    _notesFiltered.removeSource(_notesFilteredLast!!)
+    private fun filterNoteFlow (filter: String, notes: Flow<List<Note?>?>): Flow<List<Note?>> {
+        return notes.map {
+            it.orEmpty().filter { note ->
+                if (note!!.type == 1) {
+                    val spanned = Html.fromHtml(note!!.content)
+                    val text = spanned.toString()
+                    if (text.contains(filter)) {
+                        return@filter true
+                    }
+                } else {
+                    if (note!!.type == 3) {
+                        try {
+                            val content = JSONArray(note!!.content)
+                            for (i in 0 until content.length()) {
+                                val o = content.getJSONObject(i)
+                                if (o.getString("name")
+                                        .contains(filter) || note!!.name.contains(filter)
+                                ) {
+                                    return@filter true
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    } else {
+                        return@filter true
+                    }
                 }
-            }
-            _notesFilteredLast = repository.noteDao().activeNotesFiltered(filter)
-
-            withContext(Dispatchers.Main) {
-                _notesFiltered.addSource(_notesFilteredLast!!) {
-                    _notesFiltered.postValue(it)
-                }
-            }
-        }
-        return _notesFiltered
+                return@filter false;
+            };
+        };
     }
 
-    fun getNotesFilteredAlphabetical(filter: String): LiveData<List<Note?>?>{
-        viewModelScope.launch(Dispatchers.Default) {
-            withContext(Dispatchers.Main) {
-                if (_notesFilteredLast != null) {
-                    _notesFiltered.removeSource(_notesFilteredLast!!)
-                }
-            }
-            _notesFilteredLast = repository.noteDao().activeNotesFilteredAlphabetical(filter)
-
-            withContext(Dispatchers.Main) {
-                _notesFiltered.addSource(_notesFilteredLast!!) {
-                    _notesFiltered.postValue(it)
-                }
+    fun getActiveNotesFiltered(filter: String): LiveData<List<Note?>?> {
+        var filteredNotes = MutableLiveData<List<Note?>>();
+        viewModelScope.launch(Dispatchers.Main) {
+            filterNoteFlow(filter, repository.noteDao().activeNotesFiltered(filter)).collect {
+                filteredNotes.value = it
             }
         }
-        return _notesFiltered
+        return filteredNotes
+    }
+
+    fun getActiveNotesFilteredAlphabetical(filter: String): LiveData<List<Note?>?>{
+        var filteredNotes = MutableLiveData<List<Note?>>();
+        viewModelScope.launch(Dispatchers.Main) {
+            filterNoteFlow(filter, repository.noteDao().activeNotesFilteredAlphabetical(filter)).collect {
+                filteredNotes.value = it
+            }
+        }
+        return filteredNotes
     }
 
     fun getTrashedNotesFiltered(filter: String): LiveData<List<Note?>?>{
-        viewModelScope.launch(Dispatchers.Default) {
-            withContext(Dispatchers.Main) {
-                if (_notesFilteredLast != null) {
-                    _notesFiltered.removeSource(_notesFilteredLast!!)
-                }
-            }
-            _notesFilteredLast = repository.noteDao().trashedNotesFiltered(filter)
-
-            withContext(Dispatchers.Main) {
-                _notesFiltered.addSource(_notesFilteredLast!!) {
-                    _notesFiltered.postValue(it)
-                }
+        var filteredNotes = MutableLiveData<List<Note?>>();
+        viewModelScope.launch(Dispatchers.Main) {
+            filterNoteFlow(filter, repository.noteDao().trashedNotesFiltered(filter)).collect {
+                filteredNotes.value = it
             }
         }
-        return _notesFiltered
+        return filteredNotes
     }
 
     fun getActiveNotesFilteredFromCategory(filter: String,category: Integer): LiveData<List<Note?>?>{
-        viewModelScope.launch(Dispatchers.Default) {
-            withContext(Dispatchers.Main) {
-                if (_notesFilteredLast != null) {
-                    _notesFiltered.removeSource(_notesFilteredLast!!)
-                }
-            }
-            _notesFilteredLast = repository.noteDao().activeNotesFilteredFromCategory(filter,category)
-
-            withContext(Dispatchers.Main) {
-                _notesFiltered.addSource(_notesFilteredLast!!) {
-                    _notesFiltered.postValue(it)
-                }
+        var filteredNotes = MutableLiveData<List<Note?>>();
+        viewModelScope.launch(Dispatchers.Main) {
+            filterNoteFlow(filter, repository.noteDao().activeNotesFilteredFromCategory(filter,category)).collect {
+                filteredNotes.value = it
             }
         }
-        return _notesFiltered
+        return filteredNotes
     }
 
     fun insert(category: Category) {
