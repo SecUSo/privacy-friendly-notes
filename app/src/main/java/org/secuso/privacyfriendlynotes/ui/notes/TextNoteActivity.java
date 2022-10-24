@@ -15,6 +15,7 @@ package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -124,8 +125,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_note);
-        findViewById(R.id.btn_cancel).setOnClickListener(this);
-        findViewById(R.id.btn_delete).setOnClickListener(this);
+
         findViewById(R.id.btn_save).setOnClickListener(this);
         findViewById(R.id.btn_bold).setOnClickListener(this);
         findViewById(R.id.btn_italics).setOnClickListener(this);
@@ -266,11 +266,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     hasAlarm = false;
                 }
-                findViewById(R.id.btn_delete).setEnabled(true);
                 ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
             });
-        } else {
-            findViewById(R.id.btn_delete).setEnabled(false);
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -390,6 +387,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             sendIntent.setType("text/plain");
             sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText());
             startActivity(Intent.createChooser(sendIntent, null));
+        } else if (id == R.id.action_delete) {
+            if (edit) { //note only exists in edit mode
+                displayTrashDialog();
+            }
+        } else if (id == R.id.action_cancel) {
+            Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+            shouldSave = false;
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -403,17 +408,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         SpannableStringBuilder totalText;
         StyleSpan[] spans;
         switch (v.getId()) {
-
-            case R.id.btn_cancel:
-                Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
-                shouldSave = false;
-                finish();
-                break;
-            case R.id.btn_delete:
-                if (edit) { //note only exists in edit mode
-                    displayTrashDialog();
-                }
-                break;
             case R.id.btn_save:
                 Intent intent = getIntent();
                 if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
