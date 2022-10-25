@@ -126,7 +126,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_note);
 
-        findViewById(R.id.btn_save).setOnClickListener(this);
         findViewById(R.id.btn_bold).setOnClickListener(this);
         findViewById(R.id.btn_italics).setOnClickListener(this);
         findViewById(R.id.btn_underline).setOnClickListener(this);
@@ -266,7 +265,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     hasAlarm = false;
                 }
-                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
             });
         }
         if(!initial) {
@@ -358,7 +356,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 dpd.show();
             }
             return true;
-        } else if (id == R.id.action_save) {
+        } else if (id == R.id.action_export) {
             if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -395,6 +393,14 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
             Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
             shouldSave = false;
             finish();
+        } else if (id == R.id.action_save) {
+            Intent intent = getIntent();
+            if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
+                shouldSave = true; //safe on exit
+                finish();
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+            }
         }
 
         return super.onOptionsItemSelected(item);

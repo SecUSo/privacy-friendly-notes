@@ -14,19 +14,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:orientation="vertical">
 
-        <EditText
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/etName"
+                android:singleLine="true"
+                android:hint="@string/hint_name"
+                android:layout_weight="0.5"
+                android:layout_marginEnd="5dp"
+                android:inputType="text" />
+            <Spinner android:id="@+id/spinner_category"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5" />
+
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/scrollView">
             <EditText
@@ -40,7 +54,6 @@
                 android:hint="@string/hint_note"
                 android:layout_marginTop="10dp" />
         </ScrollView>
-        <include layout="@layout/bottom_line_text"></include>
     </LinearLayout>
 
     <com.github.clans.fab.FloatingActionMenu
