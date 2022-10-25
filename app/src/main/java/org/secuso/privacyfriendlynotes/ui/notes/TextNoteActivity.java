@@ -15,7 +15,6 @@ package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -45,7 +44,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -60,6 +58,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -121,6 +120,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     FloatingActionButton italicsBtn;
     FloatingActionButton underlineBtn;
 
+    private MutableLiveData<Boolean> isBold = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isItalic = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isUnderline = new MutableLiveData<>(false);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +136,30 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         boldBtn = findViewById(R.id.btn_bold);
         italicsBtn = findViewById(R.id.btn_italics);
         underlineBtn = findViewById(R.id.btn_underline);
+
+        isBold.observe(this, b -> {
+            if (b) {
+                boldBtn.setColorNormal(Color.parseColor("#000000"));
+            } else {
+                boldBtn.setColorNormal(Color.parseColor("#0274b2"));
+            }
+        });
+
+        isItalic.observe(this, b -> {
+            if (b) {
+                italicsBtn.setColorNormal(Color.parseColor("#000000"));
+            } else {
+                italicsBtn.setColorNormal(Color.parseColor("#0274b2"));
+            }
+        });
+
+        isUnderline.observe(this, b -> {
+            if (b) {
+                underlineBtn.setColorNormal(Color.parseColor("#000000"));
+            } else {
+                underlineBtn.setColorNormal(Color.parseColor("#0274b2"));
+            }
+        });
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
@@ -175,13 +202,9 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                         notification.setTime(currentNotification.getTime());
                     }
                 }
-
             }
         });
-
-
         loadActivity(true);
-
     }
 
     @Override
@@ -326,81 +349,86 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        switch (id) {
+            case R.id.action_reminder:
+                //open the schedule dialog
+                final Calendar c = Calendar.getInstance();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_reminder) {
-            //open the schedule dialog
-            final Calendar c = Calendar.getInstance();
-
-            //fill the notificationCursor
-            if(notification.get_noteId() >= 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
-
-            if (hasAlarm) {
-                //ask whether to delete or update the current alarm
-                PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
-                popupMenu.inflate(R.menu.reminder);
-                popupMenu.setOnMenuItemClickListener(this);
-                popupMenu.show();
-            } else {
-                //create a new one
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
-                dpd.getDatePicker().setMinDate(c.getTimeInMillis());
-                dpd.show();
-            }
-            return true;
-        } else if (id == R.id.action_export) {
-            if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    // Show an expanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
+                //fill the notificationCursor
+                if(notification.get_noteId() >= 0) {
+                    hasAlarm = true;
                 } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(TextNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
+                    hasAlarm = false;
                 }
-            } else {
-                saveToExternalStorage();
-            }
-            return true;
-        } else if (id == R.id.action_share){
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText());
-            startActivity(Intent.createChooser(sendIntent, null));
-        } else if (id == R.id.action_delete) {
-            if (edit) { //note only exists in edit mode
-                displayTrashDialog();
-            }
-        } else if (id == R.id.action_cancel) {
-            Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
-            shouldSave = false;
-            finish();
-        } else if (id == R.id.action_save) {
-            Intent intent = getIntent();
-            if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
-                shouldSave = true; //safe on exit
+
+                if (hasAlarm) {
+                    //ask whether to delete or update the current alarm
+                    PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
+                    popupMenu.inflate(R.menu.reminder);
+                    popupMenu.setOnMenuItemClickListener(this);
+                    popupMenu.show();
+                } else {
+                    //create a new one
+                    int year = c.get(Calendar.YEAR);
+                    int month = c.get(Calendar.MONTH);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
+
+                    DatePickerDialog dpd = new DatePickerDialog(TextNoteActivity.this, this, year, month, day);
+                    dpd.getDatePicker().setMinDate(c.getTimeInMillis());
+                    dpd.show();
+                }
+                return true;
+            case R.id.action_export:
+                if (ContextCompat.checkSelfPermission(TextNoteActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(TextNoteActivity.this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        // Show an expanation to the user *asynchronously* -- don't block
+                        // this thread waiting for the user's response! After the user
+                        // sees the explanation, try again to request the permission.
+                        ActivityCompat.requestPermissions(TextNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    } else {
+                        // No explanation needed, we can request the permission.
+                        ActivityCompat.requestPermissions(TextNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    }
+                } else {
+                    saveToExternalStorage();
+                }
+                return true;
+            case R.id.action_share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + etContent.getText());
+                startActivity(Intent.createChooser(sendIntent, null));
+                break;
+            case R.id.action_delete:
+                if (edit) { //note only exists in edit mode
+                    displayTrashDialog();
+                }
+                break;
+            case R.id.action_cancel:
+                Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+                shouldSave = false;
                 finish();
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
-            }
+                break;
+            case R.id.action_save:
+                Intent intent = getIntent();
+                if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -412,133 +440,12 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         int endSelection;
         final UnderlineSpan underlined;
         SpannableStringBuilder totalText;
-        StyleSpan[] spans;
         switch (v.getId()) {
-            case R.id.btn_save:
-                Intent intent = getIntent();
-                if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
-                    shouldSave = true; //safe on exit
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
-                }
-                break;
             case R.id.btn_bold:
-                final StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
-                totalText = (SpannableStringBuilder) etContent.getText();
-                if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
-                    for (StyleSpan span : spans) {
-                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == bold.getStyle()) {
-                            totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            totalText.removeSpan(span);
-                        }
-                    }
-                }
-                if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
-                    startSelection = etContent.getSelectionStart();
-                    endSelection = etContent.getSelectionEnd();
-                } else {
-                    startSelection = etContent.getSelectionEnd();
-                    endSelection = etContent.getSelectionStart();
-                }
-
-                totalText = (SpannableStringBuilder) etContent.getText();
-                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
-                Boolean alreadyBold = false;
-                if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
-                    for (StyleSpan span : spans) {
-                        if (span.getStyle() == bold.getStyle()) {
-                            alreadyBold = true;
-                            if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            } else {
-                                if(totalText.getSpanStart(span) > startSelection){
-                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                                if(totalText.getSpanEnd(span) < endSelection) {
-                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                            }
-                            if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                                totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            } else {
-                                if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
-                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                                if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
-                                    totalText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                            }
-                            totalText.removeSpan(span);
-                        }
-                    }
-                    if(!alreadyBold){
-                        totalText.setSpan(bold,startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                }
-
-                etContent.setText(totalText);
-                etContent.setSelection(startSelection);
+                applyStyle(Typeface.BOLD, isBold);
                 break;
             case R.id.btn_italics:
-
-                totalText = (SpannableStringBuilder) etContent.getText();
-                final StyleSpan italic = new StyleSpan(Typeface.ITALIC);
-                totalText = (SpannableStringBuilder) etContent.getText();
-                if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
-                    for (StyleSpan span : spans) {
-                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == italic.getStyle()) {
-                            totalText.setSpan(new StyleSpan(Typeface.ITALIC),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            totalText.removeSpan(span);
-                        }
-                    }
-                }
-                if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
-                    startSelection = etContent.getSelectionStart();
-                    endSelection = etContent.getSelectionEnd();
-                } else {
-                    startSelection = etContent.getSelectionEnd();
-                    endSelection = etContent.getSelectionStart();
-                }
-
-                totalText = (SpannableStringBuilder) etContent.getText();
-                spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
-                Boolean alreadyItalics = false;
-                if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
-                    for (StyleSpan span : spans) {
-                        if (span.getStyle() == italic.getStyle()) {
-                            alreadyItalics = true;
-                            if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            } else {
-                                if(totalText.getSpanStart(span) > startSelection){
-                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                                if(totalText.getSpanEnd(span) < endSelection) {
-                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                            }
-                            if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
-                                totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            } else {
-                                if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
-                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                                if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
-                                    totalText.setSpan(new StyleSpan(Typeface.ITALIC), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                }
-                            }
-                            totalText.removeSpan(span);
-                        }
-                    }
-                    if(!alreadyItalics){
-                        totalText.setSpan(italic,startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                }
-                etContent.setText(totalText);
-                etContent.setSelection(startSelection);
+                applyStyle(Typeface.ITALIC, isItalic);
                 break;
             case R.id.btn_underline:
                 underlined = new UnderlineSpan();
@@ -546,11 +453,17 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 totalText = (SpannableStringBuilder) etContent.getText();
                 UnderlineSpan[] underlineSpans = totalText.getSpans(etContent.getSelectionStart(),etContent.getSelectionEnd(),UnderlineSpan.class);
                 if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
-                    for (UnderlineSpan span : underlineSpans) {
-                        if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getSpanTypeId() == underlined.getSpanTypeId()) {
-                            totalText.setSpan(new UnderlineSpan(),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            totalText.removeSpan(span);
+                    if(isUnderline.getValue()){
+                        isUnderline.setValue(false);
+                        for (UnderlineSpan span : underlineSpans) {
+                            if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getSpanTypeId() == underlined.getSpanTypeId()) {
+                                totalText.setSpan(new UnderlineSpan(),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                totalText.removeSpan(span);
+                            }
                         }
+                    } else {
+                        isUnderline.setValue(true);
+                        totalText.setSpan(underlined,etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                     }
                 }
                 if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
@@ -596,6 +509,73 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 break;
             default:
         }
+    }
+
+    private void applyStyle(int style, MutableLiveData<Boolean> state) {
+        int startSelection;
+        int endSelection;
+        StyleSpan[] spans;
+        final StyleSpan sty = new StyleSpan(style);
+        SpannableStringBuilder totalText = (SpannableStringBuilder) etContent.getText();
+        if(etContent.getSelectionStart() == etContent.getSelectionEnd()){
+            if(state.getValue()){
+                state.setValue(false);
+                spans = totalText.getSpans(0, etContent.getSelectionEnd(), StyleSpan.class);
+                for (StyleSpan span : spans) {
+                    if (totalText.getSpanEnd(span) == etContent.getSelectionEnd() & span.getStyle() == sty.getStyle()) {
+                        totalText.setSpan(new StyleSpan(style),totalText.getSpanStart(span),totalText.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        totalText.removeSpan(span);
+                    }
+                }
+            } else {
+                state.setValue(true);
+                totalText.setSpan(sty,etContent.getSelectionStart(), etContent.getSelectionEnd(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+        }
+        if(etContent.getSelectionStart() < etContent.getSelectionEnd()){
+            startSelection = etContent.getSelectionStart();
+            endSelection = etContent.getSelectionEnd();
+        } else {
+            startSelection = etContent.getSelectionEnd();
+            endSelection = etContent.getSelectionStart();
+        }
+        totalText = (SpannableStringBuilder) etContent.getText();
+        spans = totalText.getSpans(startSelection, endSelection, StyleSpan.class);
+        Boolean alreadyStyled = false;
+        if(etContent.getSelectionStart() != etContent.getSelectionEnd()){
+            for (StyleSpan span : spans) {
+                if (span.getStyle() == sty.getStyle()) {
+                    alreadyStyled = true;
+                    if(totalText.getSpanStart(span) >= startSelection && totalText.getSpanEnd(span) < endSelection){
+                        totalText.setSpan(new StyleSpan(style),startSelection,endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else {
+                        if(totalText.getSpanStart(span) > startSelection){
+                            totalText.setSpan(new StyleSpan(style),startSelection,totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        if(totalText.getSpanEnd(span) < endSelection) {
+                            totalText.setSpan(new StyleSpan(style), totalText.getSpanEnd(span), endSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
+                    if(totalText.getSpanStart(span) < startSelection && totalText.getSpanEnd(span) >= endSelection){
+                        totalText.setSpan(new StyleSpan(style), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else {
+                        if (totalText.getSpanStart(span) < startSelection && !(totalText.getSpanEnd(span) < endSelection)) {
+                            totalText.setSpan(new StyleSpan(style), totalText.getSpanStart(span), startSelection, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        if (totalText.getSpanEnd(span) > endSelection && !(totalText.getSpanStart(span) > startSelection)) {
+                            totalText.setSpan(new StyleSpan(style), endSelection, totalText.getSpanEnd(span), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
+                    totalText.removeSpan(span);
+                }
+            }
+            if(!alreadyStyled){
+                totalText.setSpan(sty,startSelection,endSelection, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        etContent.setText(totalText);
+        etContent.setSelection(startSelection);
     }
 
     private void updateNote(){
