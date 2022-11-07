@@ -8,46 +8,63 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_weight="1"
     tools:context=".ui.notes.ChecklistNoteActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
 
         <EditText
+            android:id="@+id/etName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/etNewItem"
-                android:singleLine="true"
-                android:layout_weight="1"
-                android:hint="@string/hint_new_item" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_add"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:text="@string/action_add"/>
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="0.7"
+            android:hint="@string/hint_name"
+            android:inputType="text"
+            android:singleLine="true" />
 
-        <ListView
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/AppTheme.Category.ExposedDropdownMenu"
+            android:id="@+id/textInputLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/itemList"></ListView>
+            android:hint="@string/action_category"
+            android:layout_weight="0.3">
+            <AutoCompleteTextView
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/etNewItem"
+            android:singleLine="true"
+            android:layout_weight="1"
+            android:hint="@string/hint_new_item" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_add"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="@string/action_add"/>
+    </LinearLayout>
 
-    <include layout="@layout/bottom_line"></include>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/itemList"></ListView>
 
 </LinearLayout>
