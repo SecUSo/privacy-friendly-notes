@@ -42,12 +42,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -77,6 +76,7 @@ import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActiv
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -97,7 +97,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     EditText etName;
     EditText etContent;
-    Spinner spinner;
+    AutoCompleteTextView spinner;
 
     private ShareActionProvider mShareActionProvider = null;
 
@@ -108,6 +108,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     private boolean shouldSave = true;
     private int id = -1;
     private int currentCat;
+    private int savedCat;
 
     private Notification notification;
     private String title;
@@ -163,12 +164,28 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
-        spinner = (Spinner) findViewById(R.id.spinner_category);
+        spinner = (AutoCompleteTextView) findViewById(R.id.spinner_category);
 
         //CategorySpinner
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
-        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
-        adapter.add(getString(R.string.default_category));
+        List<String> l = new ArrayList<>();
+        l.add(getString(R.string.default_category));
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item, l);
+        spinner.setAdapter(adapter);
+        spinner.setThreshold(0);
+
+        spinner.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                String catName = spinner.getText().toString();
+                currentCat = -1;
+                for(Category cat :allCategories){
+                    if(catName.equals(cat.getName())) {
+                        currentCat = cat.get_id();
+                    }
+                }
+            }
+        });
 
         createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
@@ -182,14 +199,11 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+        savedCat = currentCat;
 
-        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Integer position = adapter.getPosition(s);
-                spinner.setSelection(position);
-            }
-        });
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, s ->
+                spinner.setText(s == null? getString(R.string.default_category) : s)
+        );
 
         // observe notifications
         notification = new Notification(-1,-1);
@@ -246,28 +260,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         // Fill category spinner
         if (adapter.getCount() == 0) {
             displayCategoryDialog();
-        } else {
-            String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
-            int[] to = {R.id.text1};
-
-            spinner.setAdapter(adapter);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String catName = (String) parent.getItemAtPosition(position);
-                    currentCat = 0;
-                    for(Category cat :allCategories){
-                        if(catName == cat.getName()){
-                            currentCat = cat.get_id();
-                        }
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         }
 
         //fill in values if update
@@ -280,6 +272,8 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 etContent.setText(Html.fromHtml(noteFromDB.getContent()));
                 //find the current category and set spinner to that
                 currentCat = noteFromDB.getCategory();
+                savedCat = currentCat;
+
 
 
                 //fill the notificationCursor
@@ -580,7 +574,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat >= 0 ? currentCat : savedCat);
         note.set_id(id);
         createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
@@ -588,7 +582,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void saveNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat);
+        Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat >= 0 ? currentCat : savedCat);
         createEditNoteViewModel.insert(note);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }

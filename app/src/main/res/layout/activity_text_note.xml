@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -28,16 +29,24 @@
                 android:id="@+id/etName"
                 android:singleLine="true"
                 android:hint="@string/hint_name"
-                android:layout_weight="0.5"
+                android:layout_weight="0.7"
                 android:layout_marginEnd="5dp"
                 android:inputType="text" />
-            <Spinner android:id="@+id/spinner_category"
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/AppTheme.Category.ExposedDropdownMenu"
+                android:id="@+id/textInputLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5" />
+                android:layout_height="wrap_content"
+                android:hint="Category"
+                android:layout_weight="0.3">
+                <AutoCompleteTextView
+                    android:id="@+id/spinner_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
-
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
