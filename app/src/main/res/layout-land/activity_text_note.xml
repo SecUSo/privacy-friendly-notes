@@ -68,54 +68,6 @@
 
     </LinearLayout>
 
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        fab:menu_icon="@drawable/ic_baseline_format_color_text_24"
-        fab:menu_colorNormal="@color/colorAccent"
-        fab:menu_colorPressed="@color/colorAccent"
-        fab:fab_addButtonStrokeVisible="false"
-        fab:fab_expandDirection="up"
-        tools:layout_editor_absoluteX="321dp"
-        tools:layout_editor_absoluteY="627dp">
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/btn_bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_format_bold_24"
-            android:text="@string/action_bold"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorPrimary"
-            fab:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/btn_italics"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_format_italic_24"
-            android:text="@string/action_italics"
-            android:textSize="24sp"
-            android:textStyle="italic"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorPrimary"
-            fab:fab_size="mini" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/btn_underline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_format_underlined_24"
-            android:text="@string/action_underline"
-            android:textSize="24sp"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorPrimary"
-            fab:fab_size="mini" />
-
-    </com.github.clans.fab.FloatingActionMenu>
+   <include layout="@layout/text_note_fab" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

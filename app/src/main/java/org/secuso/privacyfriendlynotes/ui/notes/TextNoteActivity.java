@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -46,6 +47,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -61,7 +63,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.github.clans.fab.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
@@ -130,6 +132,17 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_note);
 
+        FloatingActionButton fabMenu = findViewById(R.id.fab_menu);
+        fabMenu.setOnClickListener(view -> {
+            if (fabMenu.isExpanded()) {
+                fabMenu.setExpanded(false);
+                fabMenu.setImageResource(R.drawable.ic_baseline_format_color_text_24);
+            } else {
+                fabMenu.setExpanded(true);
+                fabMenu.setImageResource(R.drawable.ic_baseline_close_24);
+            }
+        });
+
         findViewById(R.id.btn_bold).setOnClickListener(this);
         findViewById(R.id.btn_italics).setOnClickListener(this);
         findViewById(R.id.btn_underline).setOnClickListener(this);
@@ -139,26 +152,27 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         underlineBtn = findViewById(R.id.btn_underline);
 
         isBold.observe(this, b -> {
+            Log.e("bold", "kshkfhsf");
             if (b) {
-                boldBtn.setColorNormal(Color.parseColor("#000000"));
+                boldBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
             } else {
-                boldBtn.setColorNormal(Color.parseColor("#0274b2"));
+                boldBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
             }
         });
 
         isItalic.observe(this, b -> {
             if (b) {
-                italicsBtn.setColorNormal(Color.parseColor("#000000"));
+                italicsBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
             } else {
-                italicsBtn.setColorNormal(Color.parseColor("#0274b2"));
+                italicsBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
             }
         });
 
         isUnderline.observe(this, b -> {
             if (b) {
-                underlineBtn.setColorNormal(Color.parseColor("#000000"));
+                underlineBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
             } else {
-                underlineBtn.setColorNormal(Color.parseColor("#0274b2"));
+                underlineBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
             }
         });
 
