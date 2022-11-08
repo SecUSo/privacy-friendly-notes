@@ -14,16 +14,13 @@
 package org.secuso.privacyfriendlynotes.ui.notes;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -34,10 +31,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.ShareActionProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -53,12 +48,11 @@ import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -68,7 +62,6 @@ import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
-import org.secuso.privacyfriendlynotes.service.NotificationService;
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys;
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper;
@@ -103,7 +96,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     EditText etName;
     EditText etNewItem;
     ListView lvItemList;
-    Spinner spinner;
+    AutoCompleteTextView catSelection;
 
     private int dayOfMonth, monthOfYear, year;
 
@@ -112,7 +105,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     private boolean shouldSave = true;
     private int id = -1;
     private int currentCat;
-    Cursor notificationCursor = null;
+    private int savedCat;
 
     private Notification notification;
     private String title;
@@ -128,41 +121,45 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checklist_note);
 
-        findViewById(R.id.btn_cancel).setOnClickListener(this);
-        findViewById(R.id.btn_delete).setOnClickListener(this);
-        findViewById(R.id.btn_save).setOnClickListener(this);
         findViewById(R.id.btn_add).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
         etNewItem = (EditText) findViewById(R.id.etNewItem);
         lvItemList = (ListView) findViewById(R.id.itemList);
-        spinner = (Spinner) findViewById(R.id.spinner_category);
+        catSelection = (AutoCompleteTextView) findViewById(R.id.spinner_category);
 
         //CategorySpinner
         createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
-        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
-        adapter.add(getString(R.string.default_category));
+        List<String> l = new ArrayList<>();
+        l.add(getString(R.string.default_category));
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item, l);
+        catSelection.setAdapter(adapter);
+        catSelection.setThreshold(0);
 
-        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
-            @Override
-            public void onChanged(@Nullable List<Category> categories) {
-                allCategories = categories;
-                for(Category currentCat : categories){
-                    adapter.add(currentCat.getName());
+        catSelection.setOnDismissListener(() -> {
+            String catName = catSelection.getText().toString();
+            currentCat = -1;
+            for(Category cat :allCategories){
+                if(catName.equals(cat.getName())) {
+                    currentCat = cat.get_id();
                 }
+            }
+        });
+
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, categories -> {
+            allCategories = categories;
+            for(Category currentCat : categories){
+                adapter.add(currentCat.getName());
             }
         });
 
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+        savedCat = currentCat;
 
-        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Integer position = adapter.getPosition(s);
-                spinner.setSelection(position);
-            }
-        });
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, s ->
+                catSelection.setText(s == null? getString(R.string.default_category) : s)
+        );
 
         // observe notifications
         notification = new Notification(-1,-1);
@@ -210,31 +207,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // Fill category spinner
         if (adapter.getCount() == 0) {
             displayCategoryDialog();
-        } else {
-            String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
-            int[] to = {R.id.text1};
-
-            spinner.setAdapter(adapter);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String catName = (String) parent.getItemAtPosition(position);
-                    currentCat = 0;
-                    for(Category cat :allCategories){
-                        if(catName == cat.getName()){
-                            currentCat = cat.get_id();
-                        }
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         }
-
-
 
         lvItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         lvItemList.setOnItemClickListener(this);
@@ -333,7 +306,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 }
                 //find the current category and set spinner to that
                 currentCat = noteFromDB.getCategory();
-
+                savedCat = currentCat;
 
                 //fill the notificationCursor
                 if (notification.get_noteId() >= 0) {
@@ -341,12 +314,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 } else {
                     hasAlarm = false;
                 }
-
-                findViewById(R.id.btn_delete).setEnabled(true);
-                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
             });
-        } else {
-            findViewById(R.id.btn_delete).setEnabled(false);
         }
         if(!initial) {
             invalidateOptionsMenu();
@@ -468,6 +436,54 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             startActivity(Intent.createChooser(sendIntent, null));
         }
 
+        switch (id) {
+            case R.id.action_export:
+                if (ContextCompat.checkSelfPermission(ChecklistNoteActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChecklistNoteActivity.this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        // Show an expanation to the user *asynchronously* -- don't block
+                        // this thread waiting for the user's response! After the user
+                        // sees the explanation, try again to request the permission.
+                        ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    } else {
+                        // No explanation needed, we can request the permission.
+                        ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    }
+                } else {
+                    saveToExternalStorage();
+                }
+                return true;
+            case R.id.action_delete:
+                if (edit) { //note only exists in edit mode
+                    displayTrashDialog();
+                }
+                break;
+            case R.id.action_cancel:
+                Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
+                shouldSave = false;
+                finish();
+                break;
+            case R.id.action_save:
+                Intent intent = getIntent();
+                if(!itemNamesList.isEmpty() || (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
+                    shouldSave = true; //safe on exit
+                    finish();
+                    break;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                break;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -519,7 +535,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 jsonArray.put(jsonObject);
             }
             fillNameIfEmpty();
-            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST, currentCat >= 0 ? currentCat : savedCat);
             note.set_id(id);
             createEditNoteViewModel.update(note);
             Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
@@ -543,7 +559,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             fillNameIfEmpty();
             //id = DbAccess.addNote(getBaseContext(), etName.getText().toString(), jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, currentCat);
 
-            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat);
+            Note note = new Note(etName.getText().toString(),jsonArray.toString(),DbContract.NoteEntry.TYPE_CHECKLIST,currentCat >= 0 ? currentCat : savedCat);
             createEditNoteViewModel.insert(note);
 
             Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
