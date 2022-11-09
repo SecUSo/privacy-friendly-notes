@@ -22,15 +22,21 @@
             android:orientation="horizontal"
             android:weightSum="1">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/etName"
-                android:singleLine="true"
-                android:hint="@string/hint_name"
                 android:layout_weight="0.7"
-                android:layout_marginEnd="5dp"
-                android:inputType="text" />
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                android:hint="@string/hint_name"
+                style="@style/AppTheme.Note.Title">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/AppTheme.Category.ExposedDropdownMenu"
@@ -42,7 +48,8 @@
                 <AutoCompleteTextView
                     android:id="@+id/spinner_category"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>

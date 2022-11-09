@@ -25,6 +25,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.Category.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" />
+    <style name="AppTheme.Note.Title" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
     <!-- FAB library -->
     <style name="menu_labels_style">
