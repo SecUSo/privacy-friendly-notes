@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    android:padding="@dimen/fab_margin"
+    android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <com.google.android.material.circularreveal.CircularRevealLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:background="@android:color/transparent"
+        android:layout_marginBottom="@dimen/fab_size_normal"
+        app:layout_behavior="@string/fab_transformation_scrim_behavior">
+
+        <LinearLayout
+            android:id="@+id/fab_menu_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_baseline_format_bold_24"
+                android:text="@string/action_bold"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:tint="@color/white"
+                app:backgroundTint="@color/colorAccent"
+                app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_italics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_baseline_format_italic_24"
+                android:text="@string/action_italics"
+                android:textSize="24sp"
+                android:textStyle="italic"
+                app:tint="@color/white"
+                app:backgroundTint="@color/colorAccent"
+                app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_underline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_baseline_format_underlined_24"
+                android:text="@string/action_underline"
+                android:textSize="24sp"
+                app:tint="@color/white"
+                app:backgroundTint="@color/colorAccent"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+    </com.google.android.material.circularreveal.CircularRevealLinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:src="@drawable/ic_baseline_format_color_text_24"
+        android:contentDescription="@string/text_note_fab_menu_desc"
+        app:tint="@color/white"
+        app:backgroundTint="@color/colorAccent"
+        app:borderWidth="0dp" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
