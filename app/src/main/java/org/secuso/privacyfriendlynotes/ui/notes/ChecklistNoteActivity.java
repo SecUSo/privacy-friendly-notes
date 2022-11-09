@@ -309,11 +309,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 savedCat = currentCat;
 
                 //fill the notificationCursor
-                if (notification.get_noteId() >= 0) {
-                    hasAlarm = true;
-                } else {
-                    hasAlarm = false;
-                }
+                hasAlarm = notification.get_noteId() >= 0;
             });
         }
         if(!initial) {
@@ -352,11 +348,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         item = menu.findItem(R.id.action_reminder);
-        if(notification.get_noteId() >= 0) {
-            hasAlarm = true;
-        } else {
-            hasAlarm = false;
-        }
+        hasAlarm = notification.get_noteId() >= 0;
 
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
@@ -382,11 +374,7 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
             final Calendar c = Calendar.getInstance();
 
             //fill the notificationCursor
-            if(notification.get_noteId() >= 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
+            hasAlarm = notification.get_noteId() >= 0;
 
             if (hasAlarm) {
                 //ask whether to delete or update the current alarm

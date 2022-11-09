@@ -151,30 +151,23 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         italicsBtn = findViewById(R.id.btn_italics);
         underlineBtn = findViewById(R.id.btn_underline);
 
-        isBold.observe(this, b -> {
-            Log.e("bold", "kshkfhsf");
-            if (b) {
-                boldBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
-            } else {
-                boldBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
-            }
-        });
+        isBold.observe(this, b ->
+            boldBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(
+                    b ? "#000000" : "#0274b2"
+            )))
+        );
 
-        isItalic.observe(this, b -> {
-            if (b) {
-                italicsBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
-            } else {
-                italicsBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
-            }
-        });
+        isItalic.observe(this, b ->
+            italicsBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(
+                    b ? "#000000" : "#0274b2"
+            )))
+        );
 
-        isUnderline.observe(this, b -> {
-            if (b) {
-                underlineBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#000000")));
-            } else {
-                underlineBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#0274b2")));
-            }
-        });
+        isUnderline.observe(this, b ->
+            underlineBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(
+                    b ? "#000000" : "#0274b2"
+            )))
+        );
 
         etName = (EditText) findViewById(R.id.etName);
         etContent = (EditText) findViewById(R.id.etContent);
@@ -242,19 +235,6 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if(newConfig.orientation== Configuration.ORIENTATION_LANDSCAPE){
-            setContentView(R.layout.activity_text_note);
-        }
-        else{
-            setContentView(R.layout.activity_text_note);
-        }
-
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     private void loadActivity(boolean initial){
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
@@ -291,11 +271,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
 
                 //fill the notificationCursor
-                if(notification.get_noteId() >= 0) {
-                    hasAlarm = true;
-                } else {
-                    hasAlarm = false;
-                }
+                hasAlarm = notification.get_noteId() >= 0;
             });
         }
         if(!initial) {
@@ -334,11 +310,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         item = menu.findItem(R.id.action_reminder);
-        if(notification.get_noteId() >= 0) {
-            hasAlarm = true;
-        } else {
-            hasAlarm = false;
-        }
+        hasAlarm = notification.get_noteId() >= 0;
 
         if (hasAlarm) {
             item.setIcon(R.drawable.ic_alarm_on_white_24dp);
@@ -363,11 +335,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 final Calendar c = Calendar.getInstance();
 
                 //fill the notificationCursor
-                if(notification.get_noteId() >= 0) {
-                    hasAlarm = true;
-                } else {
-                    hasAlarm = false;
-                }
+                hasAlarm = notification.get_noteId() >= 0;
 
                 if (hasAlarm) {
                     //ask whether to delete or update the current alarm
