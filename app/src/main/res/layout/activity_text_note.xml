@@ -16,46 +16,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="1">
+        <include layout="@layout/note_header" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:layout_gravity="center"
-                android:layout_marginEnd="10dp"
-                android:hint="@string/hint_name"
-                style="@style/AppTheme.Note.Title">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/AppTheme.Category.ExposedDropdownMenu"
-                android:id="@+id/textInputLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/action_category"
-                android:layout_weight="0.3">
-                <AutoCompleteTextView
-                    android:id="@+id/spinner_category"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </LinearLayout>
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:id="@+id/scrollView">
             <EditText
