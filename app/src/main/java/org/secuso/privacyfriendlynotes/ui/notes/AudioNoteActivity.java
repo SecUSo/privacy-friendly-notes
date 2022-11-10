@@ -41,6 +41,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -77,6 +78,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -102,7 +104,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     ImageButton btnRecord;
     TextView tvRecordingTime;
     SeekBar seekBar;
-    Spinner spinner;
+    AutoCompleteTextView spinner;
 
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
@@ -120,6 +122,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     private boolean shouldSave = true;
     private int id = -1;
     private int currentCat;
+    private int savedCat;
 
     private CreateEditNoteViewModel createEditNoteViewModel;
     List<Category> allCategories;
@@ -133,16 +136,13 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_note);
-        findViewById(R.id.btn_cancel).setOnClickListener(this);
-        findViewById(R.id.btn_delete).setOnClickListener(this);
-        findViewById(R.id.btn_save).setOnClickListener(this);
 
         etName = (EditText) findViewById(R.id.etName);
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
         btnRecord = (ImageButton) findViewById(R.id.btn_record);
         tvRecordingTime = (TextView) findViewById(R.id.recording_time);
-        spinner = (Spinner) findViewById(R.id.spinner_category);
+        spinner = (AutoCompleteTextView) findViewById(R.id.spinner_category);
 
         findViewById(R.id.btn_record).setOnClickListener(this);
         btnPlayPause.setOnClickListener(this);
@@ -187,10 +187,27 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         });
 
         //CategorySpinner
-        this.createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
-        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item);
-        adapter.add(getString(R.string.default_category));
-        this.createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
+        createEditNoteViewModel = new ViewModelProvider(this).get(CreateEditNoteViewModel.class);
+        List<String> l = new ArrayList<>();
+        l.add(getString(R.string.default_category));
+        adapter = new ArrayAdapter(this,R.layout.simple_spinner_item, l);
+        spinner.setAdapter(adapter);
+        spinner.setThreshold(0);
+
+        spinner.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                String catName = spinner.getText().toString();
+                currentCat = -1;
+                for(Category cat :allCategories){
+                    if(catName.equals(cat.getName())) {
+                        currentCat = cat.get_id();
+                    }
+                }
+            }
+        });
+
+        createEditNoteViewModel.getAllCategoriesLive().observe(this, new Observer<List<Category>>() {
             @Override
             public void onChanged(@Nullable List<Category> categories) {
                 allCategories = categories;
@@ -202,14 +219,11 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
         Intent intent = getIntent();
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, -1);
+        savedCat = currentCat;
 
-        this.createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Integer position = adapter.getPosition(s);
-                spinner.setSelection(position);
-            }
-        });
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this, s ->
+                spinner.setText(s == null? getString(R.string.default_category) : s)
+        );
 
         // observe notifications
         notification = new Notification(-1,-1);
@@ -254,28 +268,6 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // Fill category spinner
         if (adapter.getCount() == 0) {
             displayCategoryDialog();
-        } else {
-            String[] from = {DbContract.CategoryEntry.COLUMN_NAME};
-            int[] to = {R.id.text1};
-
-            spinner.setAdapter(adapter);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String catName = (String) parent.getItemAtPosition(position);
-                    currentCat = 0;
-                    for(Category cat :allCategories){
-                        if(catName == cat.getName()){
-                            currentCat = cat.get_id();
-                        }
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         }
 
         //fill in values if update
@@ -292,12 +284,9 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                 tvRecordingTime.setVisibility(View.INVISIBLE);
                 //find the current category and set spinner to that
                 currentCat = noteFromDB.getCategory();
-
-                findViewById(R.id.btn_delete).setEnabled(true);
-                ((Button) findViewById(R.id.btn_save)).setText(getString(R.string.action_update));
+                savedCat = currentCat;
             });
         } else {
-            findViewById(R.id.btn_delete).setEnabled(false);
             mFileName = "/recording_" + System.currentTimeMillis() + ".aac";
             mFilePath = getFilesDir().getPath() + "/audio_notes";
             new File(mFilePath).mkdirs(); //ensure that the file exists
@@ -384,88 +373,74 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        switch (id) {
+            case R.id.action_reminder:
+                //open the schedule dialog
+                final Calendar c = Calendar.getInstance();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_reminder) {
-            //open the schedule dialog
-            final Calendar c = Calendar.getInstance();
-
-            //fill the notificationCursor
-            if(notification.get_noteId() >= 0) {
-                hasAlarm = true;
-            } else {
-                hasAlarm = false;
-            }
-
-            if (hasAlarm) {
-                //ask whether to delete or update the current alarm
-                PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
-                popupMenu.inflate(R.menu.reminder);
-                popupMenu.setOnMenuItemClickListener(this);
-                popupMenu.show();
-            } else {
-                //create a new one
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
-                dpd.getDatePicker().setMinDate(c.getTimeInMillis());
-                dpd.show();
-            }
-            return true;
-        } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    // Show an expanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
+                //fill the notificationCursor
+                if(notification.get_noteId() >= 0) {
+                    hasAlarm = true;
                 } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(AudioNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
+                    hasAlarm = false;
                 }
-            } else {
-                saveToExternalStorage();
-            }
-            return true;
-        } else if (id == R.id.action_share) {
 
-            File audioFile = new File(mFilePath);
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("audio/*");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(sendIntent, null));
-        }
+                if (hasAlarm) {
+                    //ask whether to delete or update the current alarm
+                    PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
+                    popupMenu.inflate(R.menu.reminder);
+                    popupMenu.setOnMenuItemClickListener(this);
+                    popupMenu.show();
+                } else {
+                    //create a new one
+                    int year = c.get(Calendar.YEAR);
+                    int month = c.get(Calendar.MONTH);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
 
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_cancel:
+                    DatePickerDialog dpd = new DatePickerDialog(AudioNoteActivity.this, this, year, month, day);
+                    dpd.getDatePicker().setMinDate(c.getTimeInMillis());
+                    dpd.show();
+                }
+                return true;
+            case R.id.action_export:
+                if (ContextCompat.checkSelfPermission(AudioNoteActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(AudioNoteActivity.this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        // Show an expanation to the user *asynchronously* -- don't block
+                        // this thread waiting for the user's response! After the user
+                        // sees the explanation, try again to request the permission.
+                        ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    } else {
+                        // No explanation needed, we can request the permission.
+                        ActivityCompat.requestPermissions(AudioNoteActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_CODE_EXTERNAL_STORAGE);
+                    }
+                } else {
+                    saveToExternalStorage();
+                }
+                return true;
+            case R.id.action_share:
+                File audioFile = new File(mFilePath);
+                Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "org.secuso.privacyfriendlynotes", audioFile);
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.setType("audio/*");
+                sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(sendIntent, null));
+                break;
+            case R.id.action_cancel:
                 Toast.makeText(getBaseContext(), R.string.toast_canceled, Toast.LENGTH_SHORT).show();
                 shouldSave = false;
                 finish();
                 break;
-            case R.id.btn_delete:
-                if (edit) { //note only exists in edit mode
-                    displayTrashDialog();
-                }
-                break;
-            case R.id.btn_save:
+            case R.id.action_save:
                 Intent intent = getIntent();
                 if(seekBar.isEnabled() || (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
@@ -474,6 +449,20 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
                     Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case R.id.action_delete:
+                if (edit) { //note only exists in edit mode
+                    displayTrashDialog();
+                }
+                break;
+            default:
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.btn_record:
                 if (!recording) {
                     startRecording();
@@ -602,7 +591,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     private void updateNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat >= 0 ? currentCat : savedCat);
         note.set_id(id);
         createEditNoteViewModel.update(note);
         Toast.makeText(getApplicationContext(), R.string.toast_updated, Toast.LENGTH_SHORT).show();
@@ -610,7 +599,7 @@ public class AudioNoteActivity extends AppCompatActivity implements View.OnClick
 
     private void saveNote(){
         fillNameIfEmpty();
-        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat);
+        Note note = new Note(etName.getText().toString(),mFileName,DbContract.NoteEntry.TYPE_AUDIO,currentCat >= 0 ? currentCat : savedCat);
         createEditNoteViewModel.insert(note);
         Toast.makeText(getApplicationContext(), R.string.toast_saved, Toast.LENGTH_SHORT).show();
     }
