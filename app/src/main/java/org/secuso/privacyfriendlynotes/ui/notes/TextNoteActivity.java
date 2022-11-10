@@ -396,7 +396,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.action_save:
                 Intent intent = getIntent();
-                if(!Objects.equals(Html.toHtml(etContent.getText()),"")|| (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
+                if(!Objects.equals(Html.toHtml(etContent.getText()),"") || (currentCat != intent.getIntExtra(EXTRA_CATEGORY, -1) & -5 != intent.getIntExtra(EXTRA_CATEGORY, -5))){ //safe only if note is not empty
                     shouldSave = true; //safe on exit
                     finish();
                 } else {
@@ -563,6 +563,10 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void saveNote(){
+        if (etName.getText().toString().isEmpty() && etContent.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Note not saved", Toast.LENGTH_SHORT).show();
+            return;
+        }
         fillNameIfEmpty();
         Note note = new Note(etName.getText().toString(),Html.toHtml(etContent.getText()),DbContract.NoteEntry.TYPE_TEXT,currentCat >= 0 ? currentCat : savedCat);
         createEditNoteViewModel.insert(note);

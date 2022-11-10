@@ -367,64 +367,31 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_reminder) {
-            //open the schedule dialog
-            final Calendar c = Calendar.getInstance();
-
-            //fill the notificationCursor
-            hasAlarm = notification.get_noteId() >= 0;
-
-            if (hasAlarm) {
-                //ask whether to delete or update the current alarm
-                PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
-                popupMenu.inflate(R.menu.reminder);
-                popupMenu.setOnMenuItemClickListener(this);
-                popupMenu.show();
-            } else {
-                //create a new one
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
-                dpd.getDatePicker().setMinDate(c.getTimeInMillis());
-                dpd.show();
-            }
-            return true;
-        } else if (id == R.id.action_save) {
-            if (ContextCompat.checkSelfPermission(ChecklistNoteActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ChecklistNoteActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    // Show an expanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(ChecklistNoteActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_EXTERNAL_STORAGE);
-                }
-            } else {
-                saveToExternalStorage();
-            }
-            return true;
-        } else if (id == R.id.action_share){
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
-            startActivity(Intent.createChooser(sendIntent, null));
-        }
-
         switch (id) {
+            case R.id.action_reminder:
+                //open the schedule dialog
+                final Calendar c = Calendar.getInstance();
+
+                //fill the notificationCursor
+                hasAlarm = notification.get_noteId() >= 0;
+
+                if (hasAlarm) {
+                    //ask whether to delete or update the current alarm
+                    PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.action_reminder));
+                    popupMenu.inflate(R.menu.reminder);
+                    popupMenu.setOnMenuItemClickListener(this);
+                    popupMenu.show();
+                } else {
+                    //create a new one
+                    int year = c.get(Calendar.YEAR);
+                    int month = c.get(Calendar.MONTH);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
+
+                    DatePickerDialog dpd = new DatePickerDialog(ChecklistNoteActivity.this, this, year, month, day);
+                    dpd.getDatePicker().setMinDate(c.getTimeInMillis());
+                    dpd.show();
+                }
+                return true;
             case R.id.action_export:
                 if (ContextCompat.checkSelfPermission(ChecklistNoteActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -467,6 +434,13 @@ public class ChecklistNoteActivity extends AppCompatActivity implements View.OnC
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.toast_emptyNote, Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case R.id.action_share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, etName.getText().toString() + "\n\n" + getContentString());
+                startActivity(Intent.createChooser(sendIntent, null));
                 break;
             default:
                 break;
