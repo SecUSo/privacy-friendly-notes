@@ -564,7 +564,7 @@ public class TextNoteActivity extends AppCompatActivity implements View.OnClickL
 
     private void saveNote(){
         if (etName.getText().toString().isEmpty() && etContent.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Note not saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.note_not_saved, Toast.LENGTH_SHORT).show();
             return;
         }
         fillNameIfEmpty();

@@ -146,5 +146,6 @@
     <string name="action_export">輸出</string>
     <string name="action_category">カテゴリを選択</string>
     <string name="text_note_fab_menu_desc">フォーマッティング</string>
+    <string name="note_not_saved">メモが保存されていません</string>
 
 </resources>

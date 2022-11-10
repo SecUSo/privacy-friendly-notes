@@ -149,6 +149,7 @@
     <string name="settings_settings_show_preview_title">Show note previews</string>
     <string name="settings_settings_settings_show_preview_sum">Display a short preview of notes in the overview</string>
     <string name="text_note_fab_menu_desc">Formatting</string>
+    <string name="note_not_saved">Note not saved</string>
 
 
 </resources>
