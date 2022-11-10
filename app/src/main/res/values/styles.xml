@@ -26,6 +26,7 @@
 
     <style name="AppTheme.Category.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" />
     <style name="AppTheme.Note.Title" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
+    <style name="AppTheme.Note.ColorSelector" parent="Widget.MaterialComponents.Button.OutlinedButton" />
 
     <!-- FAB library -->
     <style name="menu_labels_style">

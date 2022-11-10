@@ -15,19 +15,21 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <EditText
+        <include
+            layout="@layout/note_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="5dp"
+            />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.Note.ColorSelector"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:id="@+id/btn_color_selector"
-            android:background="@color/black"/>
+            />
     </LinearLayout>
 
     <com.simplify.ink.InkView
@@ -37,7 +39,5 @@
         android:id="@+id/draw_view"
         android:background="@drawable/border"
         android:padding="3dp"/>
-
-    <include layout="@layout/bottom_line"></include>
 
 </LinearLayout>
