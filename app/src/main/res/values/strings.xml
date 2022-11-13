@@ -47,7 +47,7 @@
     <string name="action_italics">I</string>
     <string name="action_underline"><u>U</u></string>
     <string name="action_export">Export</string>
-    <string name="action_category">Select Category</string>
+    <string name="action_category">Category</string>
 
 
     <string name="hint_name">Name</string>
