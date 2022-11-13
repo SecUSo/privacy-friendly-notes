@@ -74,7 +74,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getCategoryNameFromId(categoryId: Integer): LiveData<String?> {
+    fun getCategoryNameFromId(categoryId: Int): LiveData<String?> {
 
         viewModelScope.launch(Dispatchers.Default){
             withContext(Dispatchers.Main){
@@ -82,7 +82,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
                     _categoryName.removeSource(_categoryNameLast!!)
                 }
             }
-            _categoryNameLast = repository.categoryDao().categoryNameFromId(categoryId)
+            _categoryNameLast = repository.categoryDao().categoryNameFromId(categoryId as Integer)
 
             withContext(Dispatchers.Main){
                 _categoryName.addSource(_categoryNameLast!!){
