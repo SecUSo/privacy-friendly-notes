@@ -150,7 +150,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (edit) {
-            menuInflater.inflate(R.menu.text, menu)
+            menuInflater.inflate(R.menu.base_note, menu)
         }
         return super.onCreateOptionsMenu(menu)
     }
