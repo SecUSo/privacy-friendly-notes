@@ -142,7 +142,12 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category)
     }
 
-    override fun noteToSave(name: String, category: Int): Note {
+    override fun noteToSave(name: String, category: Int): Note? {
+        val emptyBitmap = Bitmap.createBitmap(
+            drawView.bitmap.width,
+            drawView.bitmap.height,
+            drawView.bitmap.config
+        )
         val bitmap = drawView.bitmap
         try {
             val fo = FileOutputStream(File(mFilePath!!))
@@ -153,6 +158,9 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+        if (name.isEmpty() && bitmap.sameAs(emptyBitmap)) {
+            return null
         }
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category)
     }

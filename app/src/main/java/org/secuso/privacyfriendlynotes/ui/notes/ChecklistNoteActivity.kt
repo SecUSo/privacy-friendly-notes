@@ -193,7 +193,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         return Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category)
     }
 
-    override fun noteToSave(name: String, category: Int): Note {
+    override fun noteToSave(name: String, category: Int): Note? {
         val a: Adapter = lvItemList.adapter
         val jsonArray = JSONArray()
         try {
@@ -206,6 +206,9 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
         } catch (e: JSONException) {
             e.printStackTrace()
+        }
+        if (name.isEmpty() && jsonArray.length() == 0) {
+            return null
         }
         return Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category)
     }

@@ -60,6 +60,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private lateinit var mFilePath: String
     private var recording = false
     private var playing = false
+    private var isEmpty = true
     private var startTime = System.currentTimeMillis()
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,6 +160,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     private fun startRecording() {
+        isEmpty = false
         recording = true
         mRecorder = MediaRecorder()
         mRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -265,7 +267,10 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category)
     }
 
-    override fun noteToSave(name: String, category: Int): Note {
+    override fun noteToSave(name: String, category: Int): Note? {
+        if (isEmpty) {
+            return null
+        }
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category)
     }
 

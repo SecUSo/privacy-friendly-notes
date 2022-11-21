@@ -133,7 +133,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         setResult(Activity.RESULT_OK, intent)
 
         createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) {
-            s -> catSelection.setText(s ?: getString(R.string.default_category))
+            s -> catSelection.setText(s ?: getString(R.string.default_category), false)
         }
 
         // observe notifications
@@ -151,23 +151,17 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (edit) {
-            menuInflater.inflate(R.menu.base_note, menu)
-        }
+        menuInflater.inflate(R.menu.base_note, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (edit) {
-            reminder = menu.findItem(R.id.action_reminder)
-        }
+        reminder = menu.findItem(R.id.action_reminder)
         hasAlarm = notification!!._noteId >= 0
         if (hasAlarm) {
             reminder.setIcon(R.drawable.ic_alarm_on_white_24dp)
         } else {
-            if (edit) {
-                reminder.setIcon(R.drawable.ic_alarm_add_white_24dp)
-            }
+            reminder.setIcon(R.drawable.ic_alarm_add_white_24dp)
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -237,6 +231,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 return true
             }
             R.id.action_reminder -> {
+                saveOrUpdateNote()
+
                 //open the schedule dialog
                 val c = Calendar.getInstance()
 
@@ -260,6 +256,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 return true
             }
             R.id.action_export -> {
+                saveOrUpdateNote()
+
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED
                 ) {
@@ -274,9 +272,12 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 return true
             }
             R.id.action_share -> {
+                saveOrUpdateNote()
                 startActivity(Intent.createChooser(shareNote(etName.text.toString()), null))
             }
-            R.id.action_delete -> displayTrashDialog()
+            R.id.action_delete -> {
+                displayTrashDialog()
+            }
             R.id.action_cancel -> {
                 Toast.makeText(baseContext, R.string.toast_canceled, Toast.LENGTH_SHORT).show()
                 shouldSave = false
@@ -325,11 +326,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         super.onPause()
         //The Activity is not visible anymore. Save the work!
         if (shouldSave) {
-            if (edit) {
-                updateNote()
-            } else {
-                saveNote()
-            }
+            saveOrUpdateNote()
         }
     }
 
@@ -369,12 +366,19 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
+    private fun saveOrUpdateNote() {
+        if (edit) updateNote()
+        else saveNote()
+    }
+
     private fun saveNote() {
         val note = noteToSave(
-            if (etName.text.isEmpty()) generateStandardName() else etName.text.toString(),
+            etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
-        insertNoteIntoDB(note, null)
+        if (note != null) {
+            insertNoteIntoDB(note)
+        }
     }
 
     private fun updateNote() {
@@ -382,20 +386,20 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             if (etName.text.isEmpty()) generateStandardName() else etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
-        insertNoteIntoDB(note, id)
+        insertNoteIntoDB(note)
     }
 
-    private fun insertNoteIntoDB(note: Note?, id: Int?) {
+    private fun insertNoteIntoDB(note: Note?) {
         if (note != null) {
             if (etName.text.toString() != note.name) {
                 etName.setText(note.name)
             }
-            if (id != null) {
+            if (id != -1) {
                 note._id = id
                 createEditNoteViewModel.update(note)
                 Toast.makeText(applicationContext, R.string.toast_updated, Toast.LENGTH_SHORT).show()
             } else {
-                createEditNoteViewModel.insert(note)
+                id = createEditNoteViewModel.insert(note)
                 Toast.makeText(applicationContext, R.string.toast_saved, Toast.LENGTH_SHORT).show()
             }
         } else {
@@ -504,7 +508,9 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         val alarmtime = Calendar.getInstance()
         alarmtime[year, monthOfYear, dayOfMonth, hourOfDay] = minute
         val intent = intent
-        id = intent.getIntExtra(EXTRA_ID, -1)
+        if (id == -1) {
+            id = intent.getIntExtra(EXTRA_ID, -1)
+        }
         val notificationTimeSet = Notification(id, alarmtime.timeInMillis.toInt())
         if (hasAlarm) {
             //Update the current alarm

@@ -94,17 +94,20 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         return _categoryName
     }
 
-
-    fun insert(note: Note) {
-        viewModelScope.launch(Dispatchers.Default) {
-            database.noteDao().insert(note)
+    /**
+     * Returns id
+     */
+    fun insert(note: Note): Int {
+        val id = viewModelScope.run {
+            database.noteDao().insert(note).toInt()
         }
+        Log.e("id", "$id")
+        return id
     }
 
     fun update(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().update(note)
-
         }
     }
 
@@ -124,6 +127,6 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
     }
 
     companion object{
-        private val TAG = "CreateEditNoteViewModel"
+        private const val TAG = "CreateEditNoteViewModel"
     }
 }
