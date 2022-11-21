@@ -73,7 +73,7 @@ import java.util.List;
  * @see MainActivityViewModel
  */
 
-public class MainActivity<N> extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final int CAT_ALL = -1;

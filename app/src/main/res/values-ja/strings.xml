@@ -48,7 +48,7 @@
 
 
     <string name="hint_name">名前</string>
-    <string name="hint_note">手記</string>
+    <string name="hint_note">メモ</string>
     <string name="hint_new_item">新しいアイテム</string>
 
     <string name="toast_canceled">保存せずにキャンセルしました</string>
