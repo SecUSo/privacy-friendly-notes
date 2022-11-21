@@ -6,4 +6,5 @@
     android:layout_height="wrap_content"
     android:ellipsize="marquee"
     android:textAlignment="inherit"
-    android:textColor="@color/black"/>
+    android:textColor="@color/black"
+    android:backgroundTint="@color/red"/>

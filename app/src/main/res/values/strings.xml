@@ -46,11 +46,12 @@
     <string name="action_bold">B</string>
     <string name="action_italics">I</string>
     <string name="action_underline"><u>U</u></string>
-
+    <string name="action_export">Export</string>
+    <string name="action_category">Category</string>
 
 
     <string name="hint_name">Name</string>
-    <string name="hint_note">Multiline-\nNote</string>
+    <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
 
     <string name="toast_canceled">Canceled without saving</string>
@@ -147,6 +148,8 @@
     <string name="settings_appearance_heading">Appearance</string>
     <string name="settings_settings_show_preview_title">Show note previews</string>
     <string name="settings_settings_settings_show_preview_sum">Display a short preview of notes in the overview</string>
+    <string name="text_note_fab_menu_desc">Formatting</string>
+    <string name="note_not_saved">Note not saved</string>
 
 
 </resources>

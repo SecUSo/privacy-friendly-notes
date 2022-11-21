@@ -105,6 +105,11 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
                 holder.textViewDescription.setText(preview);
                 holder.textViewDescription.setMaxLines(3);
         }
+
+        // if the Description is empty, don't show it
+        if (holder.textViewDescription.getText().toString().isEmpty()) {
+            holder.textViewDescription.setVisibility(View.GONE);
+        }
     }
 
     @Override

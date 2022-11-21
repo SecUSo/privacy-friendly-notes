@@ -8,46 +8,33 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_weight="1"
     tools:context=".ui.notes.ChecklistNoteActivity">
+
+    <include layout="@layout/note_header" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
-
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/etNewItem"
+            android:singleLine="true"
+            android:layout_weight="1"
+            android:hint="@string/hint_new_item" />
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/etNewItem"
-                android:singleLine="true"
-                android:layout_weight="1"
-                android:hint="@string/hint_new_item" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_add"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:text="@string/action_add"/>
-        </LinearLayout>
-
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/itemList"></ListView>
+            android:id="@+id/btn_add"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="@string/action_add"/>
     </LinearLayout>
 
-
-    <include layout="@layout/bottom_line"></include>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/itemList"></ListView>
 
 </LinearLayout>

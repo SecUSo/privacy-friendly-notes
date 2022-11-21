@@ -10,18 +10,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ui.notes.AudioNoteActivity">
 
+    <include
+        layout="@layout/note_header"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="1">
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
+        android:layout_weight="1"
+        android:paddingTop="20dp">
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -56,7 +54,4 @@
         android:id="@+id/seekbar" />
 
     </LinearLayout>
-
-    <include layout="@layout/bottom_line"></include>
-
 </LinearLayout>

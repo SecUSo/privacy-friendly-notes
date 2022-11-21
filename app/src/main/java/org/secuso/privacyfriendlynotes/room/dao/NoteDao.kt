@@ -25,7 +25,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note
 @Dao
 interface NoteDao {
     @Insert
-    fun insert(note: Note)
+    fun insert(note: Note): Long
 
     @Update
     fun update(note: Note)

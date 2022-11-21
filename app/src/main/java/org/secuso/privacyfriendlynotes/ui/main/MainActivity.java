@@ -13,17 +13,20 @@
  */
 package org.secuso.privacyfriendlynotes.ui.main;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import android.text.Html;
-import android.text.Spanned;
 import android.widget.SearchView;
+
+import androidx.arch.core.util.Function;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,8 +47,6 @@ import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.secuso.privacyfriendlynotes.room.DbContract;
 import org.secuso.privacyfriendlynotes.room.model.Category;
 import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter;
@@ -54,6 +55,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.AboutActivity;
 import org.secuso.privacyfriendlynotes.ui.TutorialActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity;
+import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.HelpActivity;
 import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity;
@@ -62,8 +64,6 @@ import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -88,6 +88,18 @@ public class MainActivity extends AppCompatActivity
     private MainActivityViewModel mainActivityViewModel;
     NoteAdapter adapter;
     SearchView searchView;
+
+    // A launcher to receive and react to a NoteActivity returning a category
+    // The category is used to set the selectecCategory
+    ActivityResultLauncher<Intent> setCategoryResultAfter =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            selectedCategory = result.getData().getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL);
+                        }
+                    }
+            );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,55 +176,34 @@ public class MainActivity extends AppCompatActivity
         });
 
 
+
         /**
          * Handels when a note is clicked.
          */
-        adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Note note) {
-
-                switch (note.getType()) {
-                    case DbContract.NoteEntry.TYPE_TEXT:
-                        Intent i = new Intent(getApplication(), TextNoteActivity.class);
-                        i.putExtra(TextNoteActivity.EXTRA_ID, note.get_id());
-                        i.putExtra(TextNoteActivity.EXTRA_TITLE, note.getName());
-                        i.putExtra(TextNoteActivity.EXTRA_CONTENT, note.getContent());
-                        i.putExtra(TextNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
-
-                        startActivity(i);
-                        break;
-                    case DbContract.NoteEntry.TYPE_AUDIO:
-                        Intent i2 = new Intent(getApplication(), AudioNoteActivity.class);
-                        i2.putExtra(AudioNoteActivity.EXTRA_ID, note.get_id());
-                        i2.putExtra(AudioNoteActivity.EXTRA_TITLE, note.getName());
-                        i2.putExtra(AudioNoteActivity.EXTRA_CONTENT, note.getContent());
-                        i2.putExtra(AudioNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i2.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
-
-                        startActivity(i2);
-                        break;
-                    case DbContract.NoteEntry.TYPE_SKETCH:
-                        Intent i3 = new Intent(getApplication(), SketchActivity.class);
-                        i3.putExtra(SketchActivity.EXTRA_ID, note.get_id());
-                        i3.putExtra(SketchActivity.EXTRA_TITLE, note.getName());
-                        i3.putExtra(SketchActivity.EXTRA_CONTENT, note.getContent());
-                        i3.putExtra(SketchActivity.EXTRA_CATEGORY, note.getCategory());
-                        i3.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
-
-                        startActivity(i3);
-                        break;
-                    case DbContract.NoteEntry.TYPE_CHECKLIST:
-                        Intent i4 = new Intent(getApplication(), ChecklistNoteActivity.class);
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_ID, note.get_id());
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_TITLE, note.getName());
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_CONTENT, note.getContent());
-                        i4.putExtra(ChecklistNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                        i4.putExtra(TextNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
-
-                        startActivity(i4);
-                        break;
-                }
+        adapter.setOnItemClickListener(note -> {
+            Function<Class<? extends BaseNoteActivity>, Void> launchActivity = activity -> {
+                Intent i = new Intent(getApplication(), activity);
+                i.putExtra(BaseNoteActivity.EXTRA_ID, note.get_id());
+                i.putExtra(BaseNoteActivity.EXTRA_TITLE, note.getName());
+                i.putExtra(BaseNoteActivity.EXTRA_CONTENT, note.getContent());
+                i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, note.getCategory());
+                i.putExtra(BaseNoteActivity.EXTRA_ISTRASH, note.getIn_trash());
+                startActivity(i);
+                return null;
+            };
+            switch (note.getType()) {
+                case DbContract.NoteEntry.TYPE_TEXT:
+                    launchActivity.apply(TextNoteActivity.class);
+                    break;
+                case DbContract.NoteEntry.TYPE_AUDIO:
+                    launchActivity.apply(AudioNoteActivity.class);
+                    break;
+                case DbContract.NoteEntry.TYPE_SKETCH:
+                    launchActivity.apply(SketchActivity.class);
+                    break;
+                case DbContract.NoteEntry.TYPE_CHECKLIST:
+                    launchActivity.apply(ChecklistNoteActivity.class);
+                    break;
             }
         });
 
@@ -308,24 +299,28 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void onClick(View v) {
+        Function<Class<? extends  BaseNoteActivity>, Intent> intent = activity -> {
+            Intent i = new Intent(getApplication(), activity);
+            i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, selectedCategory);
+            return i;
+        };
+        Intent i = null;
         switch (v.getId()) {
             case R.id.fab_text:
-                startActivity(new Intent(getApplication(), TextNoteActivity.class));
-                fabMenu.collapseImmediately();
+                i = intent.apply(TextNoteActivity.class);
                 break;
             case R.id.fab_checklist:
-                startActivity(new Intent(getApplication(), ChecklistNoteActivity.class));
-                fabMenu.collapseImmediately();
+                i = intent.apply(ChecklistNoteActivity.class);
                 break;
             case R.id.fab_audio:
-                startActivity(new Intent(getApplication(), AudioNoteActivity.class));
-                fabMenu.collapseImmediately();
+                i = intent.apply(AudioNoteActivity.class);
                 break;
             case R.id.fab_sketch:
-                startActivity(new Intent(getApplication(), SketchActivity.class));
-                fabMenu.collapseImmediately();
+                i = intent.apply(SketchActivity.class);
                 break;
         }
+        setCategoryResultAfter.launch(i);
+        fabMenu.collapseImmediately();
     }
 
     private void buildDrawerMenu() {

@@ -74,7 +74,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getCategoryNameFromId(categoryId: Integer): LiveData<String?> {
+    fun getCategoryNameFromId(categoryId: Int): LiveData<String?> {
 
         viewModelScope.launch(Dispatchers.Default){
             withContext(Dispatchers.Main){
@@ -82,7 +82,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
                     _categoryName.removeSource(_categoryNameLast!!)
                 }
             }
-            _categoryNameLast = repository.categoryDao().categoryNameFromId(categoryId)
+            _categoryNameLast = repository.categoryDao().categoryNameFromId(categoryId as Integer)
 
             withContext(Dispatchers.Main){
                 _categoryName.addSource(_categoryNameLast!!){
@@ -94,17 +94,20 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         return _categoryName
     }
 
-
-    fun insert(note: Note) {
-        viewModelScope.launch(Dispatchers.Default) {
-            database.noteDao().insert(note)
+    /**
+     * Returns id
+     */
+    fun insert(note: Note): Int {
+        val id = viewModelScope.run {
+            database.noteDao().insert(note).toInt()
         }
+        Log.e("id", "$id")
+        return id
     }
 
     fun update(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().update(note)
-
         }
     }
 
@@ -124,6 +127,6 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
     }
 
     companion object{
-        private val TAG = "CreateEditNoteViewModel"
+        private const val TAG = "CreateEditNoteViewModel"
     }
 }

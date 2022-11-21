@@ -10,47 +10,41 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ui.notes.AudioNoteActivity">
 
+    <include
+        layout="@layout/note_header" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:paddingTop="20dp">
 
-        <EditText
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
+            android:padding="16dp"
+            android:id="@+id/btn_record"
+            android:background="@drawable/ic_mic_black_24dp" />
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/etName"
-            android:singleLine="true"
-            android:hint="@string/hint_name" />
-
-    <ImageButton
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp"
-        android:id="@+id/btn_record"
-        android:background="@drawable/ic_mic_black_24dp" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/recording_time"
-        android:layout_gravity="center_horizontal"/>
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:id="@+id/seekbar" />
-    <ImageButton
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp"
-        android:visibility="invisible"
-        android:id="@+id/btn_play_pause"
-        android:background="@drawable/ic_play_arrow_black_24dp"/>
+            android:id="@+id/recording_time"
+            android:layout_gravity="center_horizontal"/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:id="@+id/seekbar" />
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
+            android:padding="16dp"
+            android:visibility="invisible"
+            android:id="@+id/btn_play_pause"
+            android:background="@drawable/ic_play_arrow_black_24dp"/>
 
     </LinearLayout>
-
-    <include layout="@layout/bottom_line"></include>
-
 </LinearLayout>

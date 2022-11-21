@@ -30,7 +30,7 @@
     <string name="fab_text">Text</string>
     <string name="hint_name">Name</string>
     <string name="hint_new_item">Neuer Punkt</string>
-    <string name="hint_note">Mehrzeilige\nNotiz</string>
+    <string name="hint_note">Notiz</string>
     <string name="nav_all">Alle Notizen</string>
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>
@@ -66,6 +66,8 @@
     <string name="action_reminder_edit">Erinnerung bearbeiten</string>
     <string name="action_share">Teilen</string>
     <string name="action_edit">Bearbeiten</string>
+    <string name="action_export">Exportieren</string>
+    <string name="action_category">Kategorie</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -125,4 +127,6 @@
     <string name="settings_appearance_heading">Darstellung</string>
     <string name="settings_settings_show_preview_title">Notizvorschau anzeigen</string>
     <string name="settings_settings_settings_show_preview_sum">Zeigt eine kurze Vorschau der Notiz an</string>
+    <string name="text_note_fab_menu_desc">Formatierung</string>
+    <string name="note_not_saved">Notiz nicht gespeichert</string>
 </resources>
