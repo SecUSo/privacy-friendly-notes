@@ -150,7 +150,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     override fun determineToSaveOnAction(category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            itemNamesList.isNotEmpty() || category != intent.getIntExtra(
+            category != intent.getIntExtra(
                 EXTRA_CATEGORY,
                 -1
             ) && -5 != intent.getIntExtra(

@@ -115,7 +115,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun determineToSaveOnAction(category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair<Boolean, Int>(
-            Html.toHtml(etContent.text) != "" || category != intent.getIntExtra(EXTRA_CATEGORY, -1)
+            category != intent.getIntExtra(EXTRA_CATEGORY, -1)
                     && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
             R.string.toast_emptyNote
         )
