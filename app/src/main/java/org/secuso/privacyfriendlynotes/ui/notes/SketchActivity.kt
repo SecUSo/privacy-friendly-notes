@@ -178,11 +178,15 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
 
     private fun displayColorDialog() {
         ColorPicker(this)
-            .setOnFastChooseColorListener { _, color ->
-                drawView.setColor(color)
-                btnColorSelector.setBackgroundColor(color)
-            }
-                .setColors(R.array.mdcolor_500)
+            .setOnFastChooseColorListener(object : OnFastChooseColorListener {
+                override fun setOnFastChooseColorListener(position: Int, color: Int) {
+                    drawView.setColor(color)
+                    btnColorSelector.setBackgroundColor(color)
+                }
+
+                override fun onCancel() {}
+            })
+            .setColors(R.array.mdcolor_500)
             .setTitle(null)
             .show()
     }
