@@ -30,7 +30,7 @@
     <string name="fab_text">Text</string>
     <string name="hint_name">Name</string>
     <string name="hint_new_item">Neuer Punkt</string>
-    <string name="hint_note">Mehrzeilige\nNotiz</string>
+    <string name="hint_note">Notiz</string>
     <string name="nav_all">Alle Notizen</string>
     <string name="nav_manage_categories">Kategorien verwalten</string>
     <string name="nav_trash">Papierkorb</string>

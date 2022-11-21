@@ -81,7 +81,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var id = -1
 
     private var notification: Notification? = null
-    private var title: String? = null
     var allCategories: List<Category>? = null
     var adapter: ArrayAdapter<CharSequence>? = null
     private lateinit var createEditNoteViewModel: CreateEditNoteViewModel
@@ -198,8 +197,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             createEditNoteViewModel.getNoteByID(id.toLong()).observe(
                 this
             ) { note: Note ->
-                title = note.name
-                etName.setText(title)
+                etName.setText(note.name)
 
                 //find the current category and set spinner to that
                 currentCat = note.category
@@ -402,8 +400,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private fun cancelNotification() {
         //Create the intent that would be fired by AlarmManager
         removeNotificationFromAlarmManager(
-            this, id, DbContract.NoteEntry.TYPE_TEXT,
-            title!!
+            this, id, DbContract.NoteEntry.TYPE_TEXT, etName.text.toString()
         )
         val intent = intent
         id = intent.getIntExtra(EXTRA_ID, -1)
@@ -516,8 +513,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
         //Store a reference for the notification in the database. This is later used by the service.
         addNotificationToAlarmManager(
-            this, id, noteType,
-            title!!, alarmtime.timeInMillis
+            this, id, noteType, etName.text.toString(), alarmtime.timeInMillis
         )
         showAlertScheduledToast(this, dayOfMonth, monthOfYear, year, hourOfDay, minute)
         loadActivity(false)
