@@ -15,6 +15,7 @@ package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
 import android.app.TimePickerDialog
@@ -33,7 +34,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
@@ -128,6 +128,9 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         val intent = intent
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, 0)
         savedCat = currentCat
+
+        // Return the given intent as result to return to the same category as started
+        setResult(Activity.RESULT_OK, intent)
 
         createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) {
             s -> catSelection.setText(s ?: getString(R.string.default_category))
@@ -229,6 +232,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         // Note that any actions listed here will only be clickable if the menu is shown
         // That's currently the case iff the user edits an existing note
         when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
             R.id.action_reminder -> {
                 //open the schedule dialog
                 val c = Calendar.getInstance()
@@ -327,9 +334,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     }
 
     override fun onBackPressed() {
-        Toast.makeText(baseContext, R.string.toast_canceled, Toast.LENGTH_SHORT).show()
-        shouldSave = false
-        finish()
+        shouldSave = true
+        super.onBackPressed()
     }
 
     override fun onResume() {

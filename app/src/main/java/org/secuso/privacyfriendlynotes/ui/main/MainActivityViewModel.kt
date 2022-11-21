@@ -20,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
@@ -34,7 +33,6 @@ import org.secuso.privacyfriendlynotes.room.model.Note
  */
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val activeNotes: LiveData<List<Note>> = repository.noteDao().allActiveNotes
@@ -50,7 +48,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun update(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.noteDao().update(note)
-
         }
     }
 
