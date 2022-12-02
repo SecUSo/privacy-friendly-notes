@@ -106,7 +106,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         return sendIntent
     }
 
-    override fun determineToSaveOnAction(category: Int): Pair<Boolean, Int> {
+    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
         val emptyBitmap = Bitmap.createBitmap(
             drawView.bitmap.width,
             drawView.bitmap.height,
@@ -114,7 +114,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         )
         val intent = intent
         return Pair(
-            !drawView.bitmap.sameAs(emptyBitmap) || -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
+            !drawView.bitmap.sameAs(emptyBitmap) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
             R.string.toast_emptyNote
         )
     }
