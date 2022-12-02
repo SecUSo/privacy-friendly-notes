@@ -95,7 +95,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun shareNote(name: String): Intent
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
-    protected abstract fun determineToSaveOnAction(category: Int): Pair<Boolean, Int>
+    protected abstract fun determineToSave(title: String, category: Int): Pair<Boolean, Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -284,13 +284,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 finish()
             }
             R.id.action_save -> {
-                val (toSave, mes) = determineToSaveOnAction(if (currentCat >= 0) currentCat else savedCat)
-                if (toSave) {
-                    shouldSave = true
-                    finish()
-                } else {
-                    Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
-                }
+                shouldSave = true
+                finish()
             }
             else -> {}
         }
@@ -367,8 +362,16 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     }
 
     private fun saveOrUpdateNote() {
-        if (edit) updateNote()
-        else saveNote()
+        val (toSave, mes) = determineToSave(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
+        if (toSave) {
+            if (etName.text.isEmpty()) {
+                etName.setText(generateStandardName())
+            }
+            if (edit) updateNote()
+            else saveNote()
+        } else {
+            Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun saveNote() {
@@ -383,7 +386,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     private fun updateNote() {
         val note = updateNoteToSave(
-            if (etName.text.isEmpty()) generateStandardName() else etName.text.toString(),
+            etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
         insertNoteIntoDB(note)
