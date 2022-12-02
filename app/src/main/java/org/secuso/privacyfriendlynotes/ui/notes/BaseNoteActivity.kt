@@ -91,7 +91,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun updateNoteToSave(name: String, category: Int): Note?
     protected abstract fun onLoadActivity()
     protected abstract fun onSaveExternalStorage(basePath: File, name: String)
-    protected abstract fun noteFromIntent(intent: Intent): Note
     protected abstract fun shareNote(name: String): Intent
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
@@ -438,33 +437,33 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     private fun displayTrashDialog() {
         val sp = getSharedPreferences(PreferenceKeys.SP_DATA, MODE_PRIVATE)
-        val note = noteFromIntent(intent)
-        note._id = id
-        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)) {
-            //we never displayed the message before, so show it now
-            AlertDialog.Builder(this)
-                .setTitle(getString(R.string.dialog_trash_title))
-                .setMessage(getString(R.string.dialog_trash_message))
-                .setPositiveButton(R.string.dialog_ok) { _, _ ->
-                    shouldSave = false
-                    sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
+        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) { note ->
+            if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)) {
+                //we never displayed the message before, so show it now
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.dialog_trash_title))
+                    .setMessage(getString(R.string.dialog_trash_message))
+                    .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                        shouldSave = false
+                        sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
+                        note.in_trash = 1
+                        createEditNoteViewModel.update(note)
+                        finish()
+                    }
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+                sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
+            } else {
+                shouldSave = false
+                note.in_trash = intent.getIntExtra(EXTRA_ISTRASH, 0)
+                if (note.in_trash == 1) {
+                    createEditNoteViewModel.delete(note)
+                } else {
                     note.in_trash = 1
                     createEditNoteViewModel.update(note)
-                    finish()
                 }
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
-            sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
-        } else {
-            shouldSave = false
-            note.in_trash = intent.getIntExtra(EXTRA_ISTRASH, 0)
-            if (note.in_trash == 1) {
-                createEditNoteViewModel.delete(note)
-            } else {
-                note.in_trash = 1
-                createEditNoteViewModel.update(note)
+                finish()
             }
-            finish()
         }
     }
 

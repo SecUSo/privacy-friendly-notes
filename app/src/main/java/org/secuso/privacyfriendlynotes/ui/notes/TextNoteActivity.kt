@@ -93,17 +93,6 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         adaptFontSize(etContent)
     }
 
-    override fun noteFromIntent(intent: Intent): Note {
-        return Note(
-            intent.getStringExtra(EXTRA_TITLE)!!,
-            intent.getStringExtra(EXTRA_CONTENT)!!,
-            DbContract.NoteEntry.TYPE_TEXT,
-            intent.getIntExtra(
-                EXTRA_CATEGORY, -1
-            )
-        )
-    }
-
     public override fun shareNote(name: String): Intent {
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
