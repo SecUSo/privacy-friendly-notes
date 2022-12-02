@@ -165,17 +165,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category)
     }
 
-    override fun noteFromIntent(intent: Intent): Note {
-        return Note(
-            intent.getStringExtra(EXTRA_TITLE)!!,
-            intent.getStringExtra(EXTRA_CONTENT)!!,
-            DbContract.NoteEntry.TYPE_SKETCH,
-            intent.getIntExtra(
-                EXTRA_CATEGORY, -1
-            )
-        )
-    }
-
     private fun displayColorDialog() {
         ColorPicker(this)
             .setOnFastChooseColorListener(object : OnFastChooseColorListener {

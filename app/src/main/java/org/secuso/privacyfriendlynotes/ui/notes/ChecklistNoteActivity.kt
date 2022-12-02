@@ -208,17 +208,6 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         return Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category)
     }
 
-    override fun noteFromIntent(intent: Intent): Note {
-        return Note(
-            intent.getStringExtra(EXTRA_TITLE)!!,
-            intent.getStringExtra(EXTRA_CONTENT)!!,
-            DbContract.NoteEntry.TYPE_CHECKLIST,
-            intent.getIntExtra(
-                EXTRA_CATEGORY, -1
-            )
-        )
-    }
-
     override fun onSaveExternalStorage(basePath: File, name: String) {
         val file = File(basePath, "/checklist_$name.txt")
         try {

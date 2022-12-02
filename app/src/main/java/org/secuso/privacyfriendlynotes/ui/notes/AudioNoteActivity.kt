@@ -271,17 +271,6 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category)
     }
 
-    override fun noteFromIntent(intent: Intent): Note {
-        return Note(
-            intent.getStringExtra(EXTRA_TITLE)!!,
-            intent.getStringExtra(EXTRA_CONTENT)!!,
-            DbContract.NoteEntry.TYPE_AUDIO,
-            intent.getIntExtra(
-                EXTRA_CATEGORY, 0
-            )
-        )
-    }
-
     override fun onSaveExternalStorage(basePath: File, name: String) {
         val file = File(basePath, "/$name.aac")
         try {
