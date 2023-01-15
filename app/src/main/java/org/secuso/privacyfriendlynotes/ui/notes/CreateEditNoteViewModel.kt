@@ -117,8 +117,8 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getNoteByID(id: Long): LiveData<Note> {
-        val note = MutableLiveData<Note>()
+    fun getNoteByID(id: Long): LiveData<Note?> {
+        val note = MutableLiveData<Note?>()
         Log.d(TAG, "Fetching note $id from database")
         viewModelScope.launch(Dispatchers.IO) {
             note.postValue(database.noteDao().getNoteByID(id))
