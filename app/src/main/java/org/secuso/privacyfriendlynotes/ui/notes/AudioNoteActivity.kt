@@ -283,9 +283,10 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
                     destination = FileOutputStream(file).channel
                     destination.transferFrom(source, 0, source.size())
                 } finally {
-                    source!!.close()
-                    destination!!.close()
+                    source?.close()
+                    destination?.close()
                 }
+
                 // Tell the media scanner about the new file so that it is
                 // immediately available to the user.
                 MediaScannerConnection.scanFile(
