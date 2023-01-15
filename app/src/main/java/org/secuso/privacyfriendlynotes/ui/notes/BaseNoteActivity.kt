@@ -192,17 +192,19 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
             createEditNoteViewModel.getNoteByID(id.toLong()).observe(
                 this
-            ) { note: Note ->
-                etName.setText(note.name)
+            ) { note ->
+                if (note != null) {
+                    etName.setText(note.name)
 
-                //find the current category and set spinner to that
-                currentCat = note.category
-                savedCat = currentCat
+                    //find the current category and set spinner to that
+                    currentCat = note.category
+                    savedCat = currentCat
 
-                //fill the notificationCursor
-                hasAlarm = notification!!._noteId >= 0
+                    //fill the notificationCursor
+                    hasAlarm = notification!!._noteId >= 0
 
-                onNoteLoadedFromDB(note)
+                    onNoteLoadedFromDB(note)
+                }
             }
         } else {
             onNewNote()
@@ -438,6 +440,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private fun displayTrashDialog() {
         val sp = getSharedPreferences(PreferenceKeys.SP_DATA, MODE_PRIVATE)
         createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) { note ->
+            if (note == null) {
+                shouldSave = false
+                finish()
+                return@observe
+            }
             if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)) {
                 //we never displayed the message before, so show it now
                 AlertDialog.Builder(this)
