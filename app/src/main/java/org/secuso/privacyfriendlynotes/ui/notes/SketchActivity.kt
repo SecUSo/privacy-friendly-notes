@@ -42,6 +42,13 @@ import java.io.IOException
  */
 class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
+    private val emptyBitmap by lazy {
+        Bitmap.createBitmap(
+            drawView.bitmap.width,
+            drawView.bitmap.height,
+            drawView.bitmap.config
+        )
+    }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
     private var mFileName = "finde_die_datei.mp4"
     private var mFilePath: String? = null
@@ -74,18 +81,15 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     override fun shareNote(name: String): Intent {
         val tempPath = mFilePath!!.substring(0, mFilePath!!.length - 3) + "jpg"
         val sketchFile = File(tempPath)
-        val bm = overlay(
-            BitmapDrawable(
-                resources, mFilePath
-            ).bitmap, drawView.bitmap
-        )
+
+        val map = BitmapDrawable(resources, mFilePath).bitmap ?: emptyBitmap
+        val bm = overlay(drawView.bitmap, map)
         val canvas = Canvas(bm)
         canvas.drawColor(Color.WHITE)
         canvas.drawBitmap(
             overlay(
-                BitmapDrawable(
-                    resources, mFilePath
-                ).bitmap, drawView.bitmap
+                drawView.bitmap,
+                map
             ), 0f, 0f, null
         )
         try {
@@ -107,11 +111,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     }
 
     override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
-        val emptyBitmap = Bitmap.createBitmap(
-            drawView.bitmap.width,
-            drawView.bitmap.height,
-            drawView.bitmap.config
-        )
         val intent = intent
         return Pair(
             !drawView.bitmap.sameAs(emptyBitmap) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
@@ -143,11 +142,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     }
 
     override fun noteToSave(name: String, category: Int): Note? {
-        val emptyBitmap = Bitmap.createBitmap(
-            drawView.bitmap.width,
-            drawView.bitmap.height,
-            drawView.bitmap.config
-        )
         val bitmap = drawView.bitmap
         try {
             val fo = FileOutputStream(File(mFilePath!!))
@@ -224,11 +218,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
 
     companion object {
         //taken from http://stackoverflow.com/a/10616868
-        fun overlay(bmp1: Bitmap, bmp2: Bitmap?): Bitmap {
+        fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
             val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height, bmp1.config)
             val canvas = Canvas(bmOverlay)
             canvas.drawBitmap(bmp1, Matrix(), null)
-            canvas.drawBitmap(bmp2!!, 0f, 0f, null)
+            canvas.drawBitmap(bmp2, 0f, 0f, null)
             return bmOverlay
         }
     }
