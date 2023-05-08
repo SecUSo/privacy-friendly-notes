@@ -155,12 +155,12 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         )
     }
 
-    override fun shareNote(name: String): Intent {
+    override fun shareNote(name: String): ActionResult<Intent, Int> {
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "text/plain"
         sendIntent.putExtra(Intent.EXTRA_TEXT, "$name\n\n${getContentString()}")
-        return sendIntent
+        return ActionResult(true, sendIntent)
     }
 
     override fun onClick(v: View) {
@@ -171,7 +171,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): Note {
+    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
         val a: Adapter = lvItemList.adapter
         val jsonArray = JSONArray()
         try {
@@ -185,10 +185,10 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-        return Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category)
+        return ActionResult(true, Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category))
     }
 
-    override fun noteToSave(name: String, category: Int): Note? {
+    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
         val a: Adapter = lvItemList.adapter
         val jsonArray = JSONArray()
         try {
@@ -203,9 +203,9 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             e.printStackTrace()
         }
         if (name.isEmpty() && jsonArray.length() == 0) {
-            return null
+            return ActionResult(false, null)
         }
-        return Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category)
+        return ActionResult(true, Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category))
     }
 
     override fun onSaveExternalStorage(basePath: File, name: String) {

@@ -93,12 +93,12 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         adaptFontSize(etContent)
     }
 
-    public override fun shareNote(name: String): Intent {
+    public override fun shareNote(name: String): ActionResult<Intent, Int> {
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "text/plain"
         sendIntent.putExtra(Intent.EXTRA_TEXT, "$name \n\n ${etContent.text}")
-        return sendIntent
+        return ActionResult(true, sendIntent)
     }
 
     override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
@@ -350,15 +350,15 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         etContent.setSelection(startSelection)
     }
 
-    override fun updateNoteToSave(name: String, category: Int): Note {
-        return Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category)
+    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
+        return ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
     }
 
-    override fun noteToSave(name: String, category: Int): Note? {
+    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
-            null
+            ActionResult(false, null)
         } else {
-            Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category)
+            ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
         }
     }
 

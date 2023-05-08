@@ -52,7 +52,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private val btnRecord: ImageButton by lazy { findViewById(R.id.btn_record) }
     private val tvRecordingTime: TextView  by lazy { findViewById(R.id.recording_time) }
     private val seekBar: SeekBar by lazy { findViewById(R.id.seekbar) }
-    
+
     private var mRecorder: MediaRecorder? = null
     private var mPlayer: MediaPlayer? = null
     private val mHandler = Handler()
@@ -62,13 +62,13 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private var playing = false
     private var isEmpty = true
     private var startTime = System.currentTimeMillis()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_audio_note)
 
         findViewById<View>(R.id.btn_record).setOnClickListener(this)
         btnPlayPause.setOnClickListener(this)
-        
+
         if (ContextCompat.checkSelfPermission(this@AudioNoteActivity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this@AudioNoteActivity, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_CODE_AUDIO)
         }
@@ -115,7 +115,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         }
     }
 
-    override fun shareNote(name: String): Intent {
+    override fun shareNote(name: String): ActionResult<Intent, Int> {
         val audioFile = File(mFilePath)
         val contentUri = FileProvider.getUriForFile(
             applicationContext,
@@ -127,7 +127,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         sendIntent.type = "audio/*"
         sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
         sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        return sendIntent
+        return ActionResult(true, sendIntent)
     }
 
     override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
@@ -260,15 +260,15 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): Note {
-        return Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category)
+    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
+        return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
     }
 
-    override fun noteToSave(name: String, category: Int): Note? {
+    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
         if (isEmpty) {
-            return null
+            return ActionResult(false, null, null)
         }
-        return Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category)
+        return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
     }
 
     override fun onSaveExternalStorage(basePath: File, name: String) {
