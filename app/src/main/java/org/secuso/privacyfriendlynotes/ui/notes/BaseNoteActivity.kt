@@ -87,11 +87,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     private val noteType by lazy { noteType }
 
-    protected abstract fun noteToSave(name: String, category: Int): Note?
-    protected abstract fun updateNoteToSave(name: String, category: Int): Note?
+    protected abstract fun noteToSave(name: String, category: Int): ActionResult<Note, Int>
+    protected abstract fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int>
     protected abstract fun onLoadActivity()
     protected abstract fun onSaveExternalStorage(basePath: File, name: String)
-    protected abstract fun shareNote(name: String): Intent
+    protected abstract fun shareNote(name: String): ActionResult<Intent, Int>
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
     protected abstract fun determineToSave(title: String, category: Int): Pair<Boolean, Int>
@@ -273,8 +273,14 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 return true
             }
             R.id.action_share -> {
-                saveOrUpdateNote()
-                startActivity(Intent.createChooser(shareNote(etName.text.toString()), null))
+                val result = shareNote(etName.text.toString())
+                if (saveOrUpdateNote()) {
+                    if (result.isOk()) {
+                        startActivity(Intent.createChooser(result.ok, null))
+                    } else {
+                        Toast.makeText(applicationContext, result.err!!, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             R.id.action_delete -> {
                 displayTrashDialog()
@@ -362,9 +368,9 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveOrUpdateNote() {
+    private fun saveOrUpdateNote(): Boolean {
         val (toSave, mes) = determineToSave(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
-        if (toSave) {
+        return if (toSave) {
             if (etName.text.isEmpty()) {
                 etName.setText(generateStandardName())
             }
@@ -372,25 +378,30 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             else saveNote()
         } else {
             Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+            false
         }
     }
 
-    private fun saveNote() {
+    private fun saveNote(): Boolean {
         val note = noteToSave(
             etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
-        if (note != null) {
-            insertNoteIntoDB(note)
+        if (note.isOk()) {
+            insertNoteIntoDB(note.ok)
         }
+        return note.isOk()
     }
 
-    private fun updateNote() {
+    private fun updateNote(): Boolean {
         val note = updateNoteToSave(
             etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
-        insertNoteIntoDB(note)
+        if (note.isOk()) {
+            insertNoteIntoDB(note.ok)
+        }
+        return note.isOk()
     }
 
     private fun insertNoteIntoDB(note: Note?) {
@@ -538,5 +549,14 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         )
         showAlertScheduledToast(this, dayOfMonth, monthOfYear, year, hourOfDay, minute)
         loadActivity(false)
+    }
+
+    class ActionResult<O, E>(private val status: Boolean, val ok: O?, val err: E? = null) {
+        fun isOk(): Boolean {
+            return this.status
+        }
+        fun isErr(): Boolean {
+            return !this.status
+        }
     }
 }
