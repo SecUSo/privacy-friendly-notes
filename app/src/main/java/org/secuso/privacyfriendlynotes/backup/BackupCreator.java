@@ -15,31 +15,24 @@ package org.secuso.privacyfriendlynotes.backup;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.JsonWriter;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.room.Room;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
 import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
 import org.secuso.privacyfriendlynotes.NotesApplication;
-import org.secuso.privacyfriendlynotes.room.NoteDatabase;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
@@ -47,7 +40,7 @@ import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 public class BackupCreator implements IBackupCreator {
 
     @Override
-    public void writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
+    public boolean writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
         // lock application, so no changes can be made as long as this backup is created
         // depending on the size of the application - this could take a bit
         ((NotesApplication) context.getApplicationContext()).lock();
@@ -89,10 +82,12 @@ public class BackupCreator implements IBackupCreator {
         } catch (Exception e) {
             Log.e("PFA BackupCreator", "Error occurred", e);
             e.printStackTrace();
+            return false;
         }
 
         Log.d("PFA BackupCreator", "Backup created successfully");
 
         ((NotesApplication) context.getApplicationContext()).release();
+        return true;
     }
 }
