@@ -41,17 +41,17 @@ public class BackupRestorer implements IBackupRestorer {
     private void readFiles(@NonNull JsonReader reader, @NonNull Context context) throws IOException {
         reader.beginObject();
 
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String name = reader.nextName();
 
-            switch(name) {
+            switch (name) {
                 case "sketches":
                 case "audio_notes":
                     File f = new File(context.getFilesDir(), name);
                     FileUtil.readPath(reader, f);
                     break;
                 default:
-                    throw new RuntimeException("Unknown folder "+name);
+                    throw new RuntimeException("Unknown folder " + name);
             }
         }
 
@@ -62,13 +62,13 @@ public class BackupRestorer implements IBackupRestorer {
         reader.beginObject();
 
         String n1 = reader.nextName();
-        if(!n1.equals("version")) {
+        if (!n1.equals("version")) {
             throw new RuntimeException("Unknown value " + n1);
         }
         int version = reader.nextInt();
 
         String n2 = reader.nextName();
-        if(!n2.equals("content")) {
+        if (!n2.equals("content")) {
             throw new RuntimeException("Unknown value " + n2);
         }
 
@@ -76,7 +76,7 @@ public class BackupRestorer implements IBackupRestorer {
 
         // delete if file already exists
         File restoreDatabaseFile = context.getDatabasePath(restoreDatabaseName);
-        if(restoreDatabaseFile.exists()) {
+        if (restoreDatabaseFile.exists()) {
             DatabaseUtil.deleteRoomDatabase(context, restoreDatabaseName);
         }
 
@@ -117,19 +117,20 @@ public class BackupRestorer implements IBackupRestorer {
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String name = reader.nextName();
 
-            switch(name) {
+            switch (name) {
                 case "settings_use_custom_font_size":
                 case "settings_del_notes":
+                case "settings_show_preview":
                     editor.putBoolean(name, reader.nextBoolean());
                     break;
                 case "settings_font_size":
                     editor.putString(name, reader.nextString());
                     break;
                 default:
-                    throw new RuntimeException("Unknown preference "+name);
+                    throw new RuntimeException("Unknown preference " + name);
             }
         }
 
@@ -147,10 +148,10 @@ public class BackupRestorer implements IBackupRestorer {
             // START
             reader.beginObject();
 
-            while(reader.hasNext()) {
+            while (reader.hasNext()) {
                 String type = reader.nextName();
 
-                switch(type) {
+                switch (type) {
                     case "database":
                         readDatabase(reader, context);
                         break;
@@ -161,7 +162,7 @@ public class BackupRestorer implements IBackupRestorer {
                         readFiles(reader, context);
                         break;
                     default:
-                        throw new RuntimeException("Can not parse type "+type);
+                        throw new RuntimeException("Can not parse type " + type);
                 }
 
             }
