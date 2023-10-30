@@ -10,37 +10,45 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.service.NotificationService
 
 object NotificationHelper {
-    private val TAG = "NotificationHelper"
+    private const val TAG = "NotificationHelper"
 
     @JvmStatic
-    fun addNotificationToAlarmManager(context: Context, note_id: Int, noteType: Int, notificationTitle: String, alarmTimeMillis: Long) {
-        Log.d(TAG, "Scheduling notification. ID=$note_id;Type=$noteType;Title=$notificationTitle;Time=$alarmTimeMillis")
+    fun addNotificationToAlarmManager(context: Context, noteId: Int, noteType: Int, notificationTitle: String, alarmTimeMillis: Long) {
+        Log.d(TAG, "Scheduling notification. ID=$noteId;Type=$noteType;Title=$notificationTitle;Time=$alarmTimeMillis")
 
         //Create the intent that is fired by AlarmManager
-        val pi = createNotificationPendingIntent(context, note_id, noteType, notificationTitle)
+        val pi = createNotificationPendingIntent(context, noteId, noteType, notificationTitle)
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) {
+            // For versions < S, we do not need to check for the permission
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+            // For versions >= S, we need to check for the permission
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+        } else {
+            // We don't have the permission to schedule exact alarms
+            return
+        }
     }
 
     @JvmStatic
-    fun removeNotificationFromAlarmManager(context: Context, note_id: Int, noteType: Int, notificationTitle: String) {
+    fun removeNotificationFromAlarmManager(context: Context, noteId: Int, noteType: Int, notificationTitle: String) {
         //Create the intent that would be fired by AlarmManager
-        val pi = createNotificationPendingIntent(context, note_id, noteType, notificationTitle)
+        val pi = createNotificationPendingIntent(context, noteId, noteType, notificationTitle)
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pi)
     }
 
-    private fun createNotificationPendingIntent(context: Context, note_id: Int, noteType: Int, notificationTitle: String): PendingIntent {
+    private fun createNotificationPendingIntent(context: Context, noteId: Int, noteType: Int, notificationTitle: String): PendingIntent {
         val i = Intent(context, NotificationService::class.java)
-        i.putExtra(NotificationService.NOTIFICATION_ID, note_id)
+        i.putExtra(NotificationService.NOTIFICATION_ID, noteId)
         i.putExtra(NotificationService.NOTIFICATION_TYPE, noteType)
         i.putExtra(NotificationService.NOTIFICATION_TITLE, notificationTitle)
 
-        val pi = PendingIntent.getService(context, note_id, i, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        return pi
+        return PendingIntent.getService(context, noteId, i, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     @JvmStatic
