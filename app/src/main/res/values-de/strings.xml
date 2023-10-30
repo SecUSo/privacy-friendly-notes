@@ -129,4 +129,6 @@
     <string name="settings_settings_settings_show_preview_sum">Zeigt eine kurze Vorschau der Notiz an</string>
     <string name="text_note_fab_menu_desc">Formatierung</string>
     <string name="note_not_saved">Notiz nicht gespeichert</string>
+    <string name="dialog_need_permission_notifications_and_exact_alarm_title">Benachrichtigungen aktivieren</string>
+    <string name="dialog_need_permission_notifications_and_exact_alarm_message">Für diese Funktion ist die Berechtigung zum Senden von Benachrichtigungen und zur Planung von Alarmen und Erinnerungen erforderlich.</string>
 </resources>

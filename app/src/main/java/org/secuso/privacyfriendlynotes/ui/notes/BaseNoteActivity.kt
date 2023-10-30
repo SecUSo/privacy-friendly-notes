@@ -16,15 +16,19 @@ package org.secuso.privacyfriendlynotes.ui.notes
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
 import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,6 +39,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -60,6 +65,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
         const val REQUEST_CODE_EXTERNAL_STORAGE = 1
         const val REQUEST_CODE_AUDIO = 2
+        const val REQUEST_CODE_POST_NOTIFICATION = 3
 
     }
 
@@ -73,7 +79,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var savedCat = 0
 
     private var dayOfMonth = 0
-    private  var monthOfYear = 0
+    private var monthOfYear = 0
     private var year = 0
 
     protected var shouldSave = true
@@ -102,7 +108,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         createEditNoteViewModel = ViewModelProvider(this)[CreateEditNoteViewModel::class.java]
 
         //CategorySpinner
-        adapter = ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_item,
+        adapter = ArrayAdapter<CharSequence>(
+            this, R.layout.simple_spinner_item,
             mutableListOf(getString(R.string.default_category)) as List<CharSequence>
         )
         catSelection.setAdapter(adapter)
@@ -115,10 +122,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
             currentCat = -1
             for (cat: Category in allCategories!!) {
-            if (catName == cat.name) {
-                currentCat = cat._id
+                if (catName == cat.name) {
+                    currentCat = cat._id
+                }
             }
-        }}
+        }
         createEditNoteViewModel.allCategoriesLive.observe(this) { categories ->
             allCategories = categories
             adapter!!.addAll(categories!!.map { cat -> cat.name })
@@ -131,8 +139,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         // Return the given intent as result to return to the same category as started
         setResult(Activity.RESULT_OK, intent)
 
-        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) {
-            s -> catSelection.setText(s ?: getString(R.string.default_category), false)
+        createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) { s ->
+            catSelection.setText(s ?: getString(R.string.default_category), false)
         }
 
         // observe notifications
@@ -231,9 +239,34 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 onBackPressed()
                 return true
             }
+
             R.id.action_reminder -> {
                 saveOrUpdateNote()
 
+                //Check for notification permission and exact alarm permission
+                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                            && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                    ||
+                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !(getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms())
+                ) {
+                    MaterialAlertDialogBuilder(this)
+                        .setMessage(R.string.dialog_need_permission_notifications_and_exact_alarm_message)
+                        .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_POST_NOTIFICATION)
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !(getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()) {
+                                startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+                            }
+                        }
+                        .setTitle(R.string.dialog_need_permission_notifications_and_exact_alarm_title)
+                        .setCancelable(true)
+                        .create()
+                        .show()
+                    return true
+                }
                 //open the schedule dialog
                 val c = Calendar.getInstance()
 
@@ -256,6 +289,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 }
                 return true
             }
+
             R.id.action_export -> {
                 saveOrUpdateNote()
 
@@ -272,6 +306,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 }
                 return true
             }
+
             R.id.action_share -> {
                 val result = shareNote(etName.text.toString())
                 if (saveOrUpdateNote()) {
@@ -282,18 +317,22 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     }
                 }
             }
+
             R.id.action_delete -> {
                 displayTrashDialog()
             }
+
             R.id.action_cancel -> {
                 Toast.makeText(baseContext, R.string.toast_canceled, Toast.LENGTH_SHORT).show()
                 shouldSave = false
                 finish()
             }
+
             R.id.action_save -> {
                 shouldSave = true
                 finish()
             }
+
             else -> {}
         }
         return super.onOptionsItemSelected(item)
@@ -359,6 +398,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     Toast.LENGTH_LONG
                 ).show()
             }
+
             REQUEST_CODE_AUDIO -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //Do nothing. App should work
             } else {
@@ -555,6 +595,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         fun isOk(): Boolean {
             return this.status
         }
+
         fun isErr(): Boolean {
             return !this.status
         }
