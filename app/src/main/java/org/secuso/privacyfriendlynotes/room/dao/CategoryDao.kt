@@ -15,7 +15,7 @@ package org.secuso.privacyfriendlynotes.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy.Companion.REPLACE
 import org.secuso.privacyfriendlynotes.room.model.Category
 
 /**

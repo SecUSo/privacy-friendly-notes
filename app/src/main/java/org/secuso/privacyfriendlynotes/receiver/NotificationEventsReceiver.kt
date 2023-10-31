@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.receiver
 
+import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -24,21 +25,25 @@ import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Notification
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper
 
-class BootReceiver : BroadcastReceiver() {
-    var allNotifications: List<Notification>? = null
-    override fun onReceive(context: Context, intent: Intent) {
-        if (Intent.ACTION_BOOT_COMPLETED != intent.action) return
+class NotificationEventsReceiver : BroadcastReceiver() {
+    companion object {
+        const val TAG = "NotificationEventsRecei"
+    }
 
-        Log.d(javaClass.simpleName, "Running onReceive...")
+    private var allNotifications: List<Notification>? = null
+    override fun onReceive(context: Context, intent: Intent) {
+        if (Intent.ACTION_BOOT_COMPLETED != intent.action && AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED != intent.action) return
+
+        Log.d(TAG, "Running onReceive..." + intent.action)
         runBlocking {
             launch(Dispatchers.IO) {
                 allNotifications = NoteDatabase.getInstance(context).notificationDao().getAllNotifications()
 
-                Log.d(javaClass.simpleName, allNotifications!!.size.toString() + " Notifications found.")
-                for ((notification_id, time) in allNotifications!!) {
+                Log.d(TAG, allNotifications!!.size.toString() + " Notifications found.")
+                for ((notificationId, time) in allNotifications!!) {
 
                     val alarmTime = time.toLong()
-                    val note = NoteDatabase.getInstance(context).noteDao().getNoteByID(notification_id.toLong())
+                    val note = NoteDatabase.getInstance(context).noteDao().getNoteByID(notificationId.toLong())
                     note?.let {
                         NotificationHelper.addNotificationToAlarmManager(context, note._id, note.type, note.name, alarmTime)
                     }
