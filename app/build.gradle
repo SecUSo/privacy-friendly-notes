@@ -18,14 +18,13 @@ android {
         }
     }
 
-    compileSdkVersion 34
-
     defaultConfig {
         applicationId "org.secuso.privacyfriendlynotes"
         minSdkVersion 21
+        compileSdk 34
         targetSdkVersion 34
-        versionCode 16
-        versionName "1.4.3"
+        versionCode 17
+        versionName "1.4.4"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -34,8 +33,8 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.all {
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
             outputFileName = "pfa-notes-${variant.name}-v${variant.versionName}.apk"
         }
     }
