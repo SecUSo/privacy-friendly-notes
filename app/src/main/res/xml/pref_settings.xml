@@ -8,6 +8,14 @@
             android:summary="@string/settings_del_notes_sum"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_appearance_heading">
+        <ListPreference
+            android:key="settings_day_night_theme"
+            android:title="@string/select_day_night_theme"
+            android:summary="%s"
+            android:defaultValue="-1"
+            android:entries="@array/array_day_night_theme"
+            android:entryValues="@array/array_day_night_theme_values"
+            />
         <SwitchPreference
             android:key="settings_use_custom_font_size"
             android:defaultValue="false"

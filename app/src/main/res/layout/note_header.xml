@@ -34,7 +34,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="none"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:textColor="?attr/editTextColor"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

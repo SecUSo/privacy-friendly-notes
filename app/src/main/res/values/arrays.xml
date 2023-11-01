@@ -47,4 +47,10 @@
         <item>30</item>
     </string-array>
 
+    <string-array name="array_day_night_theme_values">
+        <item>-1</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
 </resources>

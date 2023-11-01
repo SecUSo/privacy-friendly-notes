@@ -30,7 +30,7 @@
                 android:id="@+id/btn_play_pause"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/ic_play_arrow_black_24dp"
+                android:background="@drawable/ic_play_arrow_icon_24dp"
                 android:padding="16dp"
                 android:visibility="invisible" />
 
@@ -38,7 +38,7 @@
                 android:id="@+id/btn_record"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/ic_mic_black_24dp"
+                android:background="@drawable/ic_mic_icon_24dp"
                 android:padding="16dp" />
         </FrameLayout>
 

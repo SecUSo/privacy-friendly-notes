@@ -15,6 +15,7 @@ package org.secuso.privacyfriendlynotes.ui.main;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
@@ -24,8 +25,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.util.Log;
 import android.widget.SearchView;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.arch.core.util.Function;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
         //set the OnClickListeners
         findViewById(R.id.fab_text).setOnClickListener(this);
         findViewById(R.id.fab_checklist).setOnClickListener(this);
@@ -208,6 +211,10 @@ public class MainActivity extends AppCompatActivity
         });
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
+
+        String theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1");
+        Log.d("Theme", theme);
+        AppCompatDelegate.setDefaultNightMode(Integer.parseInt(theme));
     }
 
     @Override

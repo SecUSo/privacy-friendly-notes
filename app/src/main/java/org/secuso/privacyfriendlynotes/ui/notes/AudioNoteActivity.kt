@@ -254,9 +254,9 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
 
     private fun togglePlayPauseButton() {
         if (playing) {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_black_24dp)
+            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_icon_24dp)
         } else {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp)
+            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_icon_24dp)
         }
     }
 

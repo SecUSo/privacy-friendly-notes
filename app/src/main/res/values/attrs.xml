@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AppTheme">
+        <attr name="colorSurfaceSecondary" format="color" />
+        <attr name="colorBackground" format="color" />
+        <attr name="colorNavbarHeaderBackground" format="color" />
+        <attr name="colorNavbarHeaderSurface" format="color" />
+        <attr name="colorNavbarHeaderText" format="color"/>
+        <attr name="colorIconFill" format="color" />
+    </declare-styleable>
+</resources>
