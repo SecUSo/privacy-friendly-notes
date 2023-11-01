@@ -71,6 +71,8 @@
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
+    <string name="dialog_delete_all_title">Delete all Notes</string>
+    <string name="dialog_delete_all_message">Are you sure you want to delete all Notes</string>
     <string name="dialog_trash_title">Moving to recycle bin</string>
     <string name="dialog_trash_message">Notes will be moved to the recycle bin. You can recover or permanently delete them there. Notifications cannot be restored.</string>
     <string name="dialog_save_title">Deleting selected items.</string>
