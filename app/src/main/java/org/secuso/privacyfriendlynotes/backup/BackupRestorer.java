@@ -124,6 +124,7 @@ public class BackupRestorer implements IBackupRestorer {
                 case "settings_use_custom_font_size":
                 case "settings_del_notes":
                 case "settings_show_preview":
+                case "settings_dialog_on_trashing":
                     editor.putBoolean(name, reader.nextBoolean());
                     break;
                 case "settings_font_size":

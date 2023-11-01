@@ -6,6 +6,11 @@
             android:defaultValue="false"
             android:title="@string/settings_del_notes_title"
             android:summary="@string/settings_del_notes_sum"/>
+        <SwitchPreference
+            android:key="settings_dialog_on_trashing"
+            android:defaultValue="true"
+            android:title="@string/settings_note_trashing_dialog_title"
+            android:summary="@string/settings_note_trashing_dialog_desc"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_appearance_heading">
         <ListPreference

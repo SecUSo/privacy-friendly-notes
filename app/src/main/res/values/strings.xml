@@ -106,6 +106,8 @@
     <string name="settings_general_heading">General</string>
     <string name="settings_del_notes_title">Delete notes in category</string>
     <string name="settings_del_notes_sum">Also delete notes that are in the category that is deleted.</string>
+    <string name="settings_note_trashing_dialog_title">Confirmation before trashing note</string>
+    <string name="settings_note_trashing_dialog_desc">Ask for confirmation before moving a note into the trash.</string>
     <string name="settings_use_custom_font_size_title">Custom font size</string>
     <string name="settings_use_custom_font_size_sum">Use a custom font size in the text note editor.</string>
     <string name="settings_font_size_title">Font size</string>
