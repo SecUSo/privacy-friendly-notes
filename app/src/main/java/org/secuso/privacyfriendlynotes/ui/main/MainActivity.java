@@ -18,6 +18,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -110,7 +112,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
         //set the OnClickListeners
         findViewById(R.id.fab_text).setOnClickListener(this);
         findViewById(R.id.fab_checklist).setOnClickListener(this);
@@ -154,9 +155,20 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 Note note = adapter.getNoteAt(viewHolder.getAdapterPosition());
-                note.setIn_trash(1);
-                mainActivityViewModel.update(note);
-                Toast.makeText(MainActivity.this,getString(R.string.toast_deleted),Toast.LENGTH_SHORT).show();
+                if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("settings_dialog_on_trashing", false)) {
+                    new MaterialAlertDialogBuilder(MainActivity.this, R.style.AppTheme_PopupOverlay_DialogAlert)
+                        .setTitle(String.format(getString(R.string.dialog_delete_title),note.getName()))
+                        .setMessage(String.format(getString(R.string.dialog_delete_message), note.getName()))
+                        .setPositiveButton(R.string.dialog_option_delete, (dialogInterface,i) -> {
+                            trashNote(note);
+                        })
+                        .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
+                            mainActivityViewModel.update(note);
+                        })
+                        .show();
+                } else {
+                    trashNote(note);
+                }
             }
         }).attachToRecyclerView(recyclerView);
 
@@ -391,6 +403,12 @@ public class MainActivity extends AppCompatActivity
         mainActivityViewModel.getActiveNotesFilteredFromCategory(filter, category).observe(this, notes -> {
             adapter.setNotes(notes);
         });
+    }
+
+    private void trashNote(Note note) {
+        note.setIn_trash(1);
+        Toast.makeText(MainActivity.this,getString(R.string.toast_deleted),Toast.LENGTH_SHORT).show();
+        mainActivityViewModel.update(note);
     }
 
 }

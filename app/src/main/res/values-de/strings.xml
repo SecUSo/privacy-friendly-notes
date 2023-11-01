@@ -99,6 +99,8 @@
     <string name="settings_del_notes_sum">Lösche die Notizen einer Kategorie, wenn diese gelöscht wird.</string>
     <string name="settings_font_size_title">Schriftgröße</string>
     <string name="settings_font_size_sum">Hier klicken um die Schriftgröße auszuwählen.</string>
+    <string name="settings_note_trashing_dialog_title">Bestätige Löschung einer Notiz</string>
+    <string name="settings_note_trashing_dialog_desc">Frage nach Bestätigung bevor eine Notiz in den Papierkorb geschoben wird.</string>
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
