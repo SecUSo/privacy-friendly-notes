@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
+import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -286,7 +287,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     val year = c[Calendar.YEAR]
                     val month = c[Calendar.MONTH]
                     val day = c[Calendar.DAY_OF_MONTH]
-                    val dpd = DatePickerDialog(this, this, year, month, day)
+                    val dpd = DatePickerDialog(ContextThemeWrapper(this, R.style.AppTheme_PopupOverlay_Calendar), this, year, month, day)
                     dpd.datePicker.minDate = c.timeInMillis
                     dpd.show()
                 }

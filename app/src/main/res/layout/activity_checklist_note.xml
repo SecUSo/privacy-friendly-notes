@@ -23,7 +23,8 @@
             android:id="@+id/etNewItem"
             android:singleLine="true"
             android:layout_weight="1"
-            android:hint="@string/hint_new_item" />
+            android:hint="@string/hint_new_item"
+            android:textColor="?attr/colorOnBackground" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

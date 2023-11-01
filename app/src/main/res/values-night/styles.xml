@@ -18,4 +18,18 @@
 
     </style>
 
+    <style name="AppTheme.PopupOverlay.DialogAlert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarButtonStyle">@style/AppTheme.PopupOverlay.Button</item>
+    </style>
+    <style name="AppTheme.PopupOverlay.Button" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="AppTheme.PopupOverlay.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/red</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="buttonBarButtonStyle">@style/AppTheme.PopupOverlay.Button</item>
+        <item name="buttonBarPositiveButtonStyle">@style/AppTheme.PopupOverlay.Button.Positive</item>
+    </style>
 </resources>

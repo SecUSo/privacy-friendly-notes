@@ -43,4 +43,7 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="AppTheme.PopupOverlay.DialogAlert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog" />
+
+    <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar" />
 </resources>
