@@ -25,9 +25,10 @@
             />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/AppTheme.Note.ColorSelector"
+            android:theme="@style/AppTheme.NoteHeader.ColorSelector"
             android:layout_width="50dp"
             android:layout_height="match_parent"
+            android:layout_marginTop="-10dp"
             android:id="@+id/btn_color_selector"
             />
     </LinearLayout>

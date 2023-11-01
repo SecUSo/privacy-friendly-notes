@@ -5,6 +5,7 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorSurface">@color/colorSurfaceDark</item>
+        <item name="colorOnSurface">@color/white</item>
         <item name="colorSurfaceSecondary">@color/colorSurfaceSecondaryDark</item>
         <item name="colorBackground">@color/colorBackgroundDark</item>
         <item name="colorOnBackground">@color/white</item>
@@ -18,18 +19,13 @@
 
     </style>
 
-    <style name="AppTheme.PopupOverlay.DialogAlert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="buttonBarButtonStyle">@style/AppTheme.PopupOverlay.Button</item>
+    <style name="AppTheme.PopupOverlay.DialogAlert" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="colorPrimary">?attr/colorOnSurface</item>
     </style>
-    <style name="AppTheme.PopupOverlay.Button" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/white</item>
-    </style>
-    <style name="AppTheme.PopupOverlay.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/red</item>
-    </style>
-
     <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
         <item name="buttonBarButtonStyle">@style/AppTheme.PopupOverlay.Button</item>
-        <item name="buttonBarPositiveButtonStyle">@style/AppTheme.PopupOverlay.Button.Positive</item>
+    </style>
+    <style name="AppTheme.PopupOverlay.Button" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 </resources>

@@ -28,9 +28,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import android.util.Log;
-import android.widget.SearchView;
+import android.view.ContextThemeWrapper;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SearchView;
 import androidx.arch.core.util.Function;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -156,19 +157,19 @@ public class MainActivity extends AppCompatActivity
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 Note note = adapter.getNoteAt(viewHolder.getAdapterPosition());
                 if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("settings_dialog_on_trashing", false)) {
-                    new MaterialAlertDialogBuilder(MainActivity.this, R.style.AppTheme_PopupOverlay_DialogAlert)
+                    new MaterialAlertDialogBuilder(new ContextThemeWrapper(MainActivity.this, R.style.AppTheme_PopupOverlay_DialogAlert))
                         .setTitle(String.format(getString(R.string.dialog_delete_title),note.getName()))
                         .setMessage(String.format(getString(R.string.dialog_delete_message), note.getName()))
                         .setPositiveButton(R.string.dialog_option_delete, (dialogInterface,i) -> {
                             trashNote(note);
                         })
-                        .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                            mainActivityViewModel.update(note);
-                        })
+                        .setNegativeButton(android.R.string.cancel, null)
                         .show();
                 } else {
                     trashNote(note);
                 }
+                mainActivityViewModel.update(note);
+
             }
         }).attachToRecyclerView(recyclerView);
 
