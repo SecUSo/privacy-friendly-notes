@@ -128,6 +128,7 @@ public class BackupRestorer implements IBackupRestorer {
                     editor.putBoolean(name, reader.nextBoolean());
                     break;
                 case "settings_font_size":
+                case "settings_day_night_theme":
                     editor.putString(name, reader.nextString());
                     break;
                 default:
