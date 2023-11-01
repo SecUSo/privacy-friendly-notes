@@ -11,7 +11,7 @@
         android:layout_weight="1"
         android:textColor="@color/black"
         android:textSize="20sp"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp" />
 
     <CheckBox
         android:layout_width="24dp"
