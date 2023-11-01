@@ -21,9 +21,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
+import java.io.File
 
 /**
  * The MainActivityViewModel provides the data for the MainActivity.
@@ -38,6 +40,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val activeNotes: LiveData<List<Note>> = repository.noteDao().allActiveNotes
     val trashedNotes: LiveData<List<Note>> = repository.noteDao().allTrashedNotes
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
+    val filesDir = application.filesDir
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -54,6 +57,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun delete(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.noteDao().delete(note)
+            if (note.type == DbContract.NoteEntry.TYPE_AUDIO) {
+                File(filesDir.path + "/audio_notes" + note.content).delete()
+            } else if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
+                File(filesDir.path + "/sketches" + note.content).delete()
+                File(filesDir.path + "/sketches" + note.content.substring(0, note.content.length - 3) + "jpg").delete()
+            }
         }
     }
 
