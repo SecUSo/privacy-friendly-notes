@@ -154,5 +154,11 @@
     <string name="text_note_fab_menu_desc">Formatting</string>
     <string name="note_not_saved">Note not saved</string>
 
+    <string name="select_day_night_theme">Design</string>
+    <string-array name="array_day_night_theme">
+        <item>System</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
 
 </resources>

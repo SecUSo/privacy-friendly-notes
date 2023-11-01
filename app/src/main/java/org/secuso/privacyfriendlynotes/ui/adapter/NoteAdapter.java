@@ -71,18 +71,18 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
         switch (currentNote.getType()) {
             case DbContract.NoteEntry.TYPE_TEXT:
-                holder.imageViewcategory.setImageResource(R.drawable.ic_short_text_black_24dp);
+                holder.imageViewcategory.setImageResource(R.drawable.ic_short_text_icon_24dp);
                 holder.textViewDescription.setText(Html.fromHtml(currentNote.getContent()));
                 holder.textViewDescription.setMaxLines(3);
                 break;
             case DbContract.NoteEntry.TYPE_AUDIO:
-                holder.imageViewcategory.setImageResource(R.drawable.ic_mic_black_24dp);
+                holder.imageViewcategory.setImageResource(R.drawable.ic_mic_icon_24dp);
                 break;
             case DbContract.NoteEntry.TYPE_SKETCH:
-                holder.imageViewcategory.setImageResource(R.drawable.ic_photo_black_24dp);
+                holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp);
                 break;
             case DbContract.NoteEntry.TYPE_CHECKLIST:
-                holder.imageViewcategory.setImageResource(R.drawable.ic_format_list_bulleted_black_24dp);
+                holder.imageViewcategory.setImageResource(R.drawable.ic_format_list_bulleted_icon_24dp);
                 String preview = "";
                 try {
                     JSONArray content = new JSONArray(currentNote.getContent());
