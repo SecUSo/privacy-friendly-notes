@@ -37,7 +37,7 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="?attr/colorPrimary"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_italics"
@@ -49,7 +49,7 @@
                 android:textSize="24sp"
                 android:textStyle="italic"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="?attr/colorPrimary"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_underline"
@@ -60,7 +60,7 @@
                 android:text="@string/action_underline"
                 android:textSize="24sp"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="?attr/colorPrimary"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -74,6 +74,6 @@
         android:src="@drawable/ic_baseline_format_color_text_24"
         android:contentDescription="@string/text_note_fab_menu_desc"
         app:tint="@color/white"
-        app:backgroundTint="@color/colorAccent"
+        app:backgroundTint="?attr/colorPrimary"
         app:borderWidth="0dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
