@@ -14,13 +14,18 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.text.Html
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
@@ -41,6 +46,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val trashedNotes: LiveData<List<Note>> = repository.noteDao().allTrashedNotes
     val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
     val filesDir = application.filesDir
+    val resources = application.resources
 
     fun insert(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -119,11 +125,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return filteredNotes
     }
 
-    fun getTrashedNotesFiltered(filter: String): LiveData<List<Note?>?>{
-        var filteredNotes = MutableLiveData<List<Note?>>();
+    fun getTrashedNotesFiltered(filter: String): LiveData<List<Note>?>{
+        var filteredNotes = MutableLiveData<List<Note>>();
         viewModelScope.launch(Dispatchers.Main) {
             filterNoteFlow(filter, repository.noteDao().trashedNotesFiltered(filter)).collect {
-                filteredNotes.value = it
+                filteredNotes.value = it.filterNotNull()
             }
         }
         return filteredNotes
@@ -154,6 +160,30 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun delete(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.categoryDao().delete(category)
+        }
+    }
+
+    fun sketchPreview(note: Note, size: Int): Bitmap {
+        if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
+            var bitmap = BitmapDrawable( resources, filesDir.path + "/sketches" + note.content)
+            return Bitmap.createScaledBitmap(bitmap.bitmap, size, size, false)
+        } else {
+            throw IllegalArgumentException("Only sketch notes allowed")
+        }
+    }
+
+    fun checklistPreview(note: Note): List<Pair<Boolean, String>> {
+        if (note.type != DbContract.NoteEntry.TYPE_CHECKLIST) {
+            throw IllegalArgumentException("Only checklist notes allowed")
+        }
+        try {
+            val content = JSONArray(note.content)
+            return (0 until content.length()).map {
+                val obj = content.getJSONObject(it)
+                return@map Pair(obj.getBoolean("checked"), String.format("[%s] ${obj.getString("name")}", if (obj.getBoolean("checked")) "x" else "  "))
+            }.toList()
+        } catch (ex: JSONException) {
+            return ArrayList()
         }
     }
 
