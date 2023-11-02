@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.secuso.privacyfriendlynotes.R
+import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 
@@ -35,7 +36,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 class RecycleActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilterRecycle) }
-    private var adapter: NoteAdapter = NoteAdapter()
+    private var adapter: NoteAdapter = NoteAdapter(mainActivityViewModel)
     private var filter: MutableLiveData<String> = MutableLiveData("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +62,12 @@ class RecycleActivity : AppCompatActivity() {
         })
         filter.observe(this) { it ->
             mainActivityViewModel.getTrashedNotesFiltered(it).observe(this) { notes ->
-                adapter.setNotes(notes)
+                if (notes != null) {
+                    adapter.setNotes(notes)
+                }
             }
         }
-        adapter.setOnItemClickListener { note ->
+        adapter.setOnItemClickListener { note: Note ->
             AlertDialog.Builder(this@RecycleActivity)
                 .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
                 .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))

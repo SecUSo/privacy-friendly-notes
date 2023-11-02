@@ -72,6 +72,8 @@ import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
 import java.util.List;
 
+import kotlin.Unit;
+
 /**
  * The MainActivity includes the functionality of the primary screen.
  * It provides the possibility to access existing notes and add new ones.
@@ -131,15 +133,15 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Fill from Room database
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
+        //Fill from Room database
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-        adapter = new NoteAdapter();
+        adapter = new NoteAdapter(mainActivityViewModel);
         recyclerView.setAdapter(adapter);
 
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(@Nullable List<Note> notes) {
@@ -193,7 +195,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        /**
+        /*
          * Handels when a note is clicked.
          */
         adapter.setOnItemClickListener(note -> {
@@ -208,19 +210,12 @@ public class MainActivity extends AppCompatActivity
                 return null;
             };
             switch (note.getType()) {
-                case DbContract.NoteEntry.TYPE_TEXT:
-                    launchActivity.apply(TextNoteActivity.class);
-                    break;
-                case DbContract.NoteEntry.TYPE_AUDIO:
-                    launchActivity.apply(AudioNoteActivity.class);
-                    break;
-                case DbContract.NoteEntry.TYPE_SKETCH:
-                    launchActivity.apply(SketchActivity.class);
-                    break;
-                case DbContract.NoteEntry.TYPE_CHECKLIST:
-                    launchActivity.apply(ChecklistNoteActivity.class);
-                    break;
+                case DbContract.NoteEntry.TYPE_TEXT -> launchActivity.apply(TextNoteActivity.class);
+                case DbContract.NoteEntry.TYPE_AUDIO -> launchActivity.apply(AudioNoteActivity.class);
+                case DbContract.NoteEntry.TYPE_SKETCH -> launchActivity.apply(SketchActivity.class);
+                case DbContract.NoteEntry.TYPE_CHECKLIST -> launchActivity.apply(ChecklistNoteActivity.class);
             }
+            return Unit.INSTANCE;
         });
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
