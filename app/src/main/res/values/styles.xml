@@ -46,4 +46,8 @@
     <style name="AppTheme.PopupOverlay.DialogAlert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog" />
 
     <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar" />
+
+    <style name="AppTheme.ChecklistItem">
+        <item name="android:textColor">?attr/colorOnBackground</item>
+    </style>
 </resources>
