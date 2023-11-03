@@ -18,6 +18,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.Spannable
@@ -36,6 +37,7 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import java.io.File
 import java.io.IOException
+import java.io.InputStreamReader
 import java.io.PrintWriter
 
 /**
@@ -86,7 +88,18 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNewNote() {
-
+        if (intent != null) {
+            val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
+            if (uri != null) {
+                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines();
+                super.setTitle(text[0])
+                etContent.setText(Html.fromHtml(text.subList(1,text.size).joinToString(System.lineSeparator())))
+            }
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            if (text != null) {
+                etContent.setText(Html.fromHtml(text))
+            }
+        }
     }
 
     override fun onLoadActivity() {

@@ -592,6 +592,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         loadActivity(false)
     }
 
+    fun setTitle(title: String) {
+        etName.setText(title)
+    }
+
     class ActionResult<O, E>(private val status: Boolean, val ok: O?, val err: E? = null) {
         fun isOk(): Boolean {
             return this.status
