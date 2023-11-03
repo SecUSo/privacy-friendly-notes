@@ -70,7 +70,12 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
 
             DbContract.NoteEntry.TYPE_SKETCH -> {
                 holder.imageViewcategory.visibility = View.VISIBLE
-                holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 360))
+                val bitmap = mainActivityViewModel.sketchPreview(currentNote, 360)
+                if (bitmap != null) {
+                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 360))
+                } else {
+                    holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
+                }
             }
 
             DbContract.NoteEntry.TYPE_CHECKLIST -> {
@@ -78,6 +83,7 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
                 Log.d("Checklist", preview.toString())
                 holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
                 holder.textViewExtraText.visibility = View.VISIBLE
+                holder.imageViewcategory.visibility = View.GONE
                 holder.textViewDescription.text = preview.take(3).joinToString(System.lineSeparator()) { it.second }
                 holder.textViewDescription.maxLines = 3
             }

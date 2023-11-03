@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         adapter = new NoteAdapter(mainActivityViewModel);
         recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
         mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
             @Override
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity
                         .setTitle(String.format(getString(R.string.dialog_delete_title),note.getName()))
                         .setMessage(String.format(getString(R.string.dialog_delete_message), note.getName()))
                         .setPositiveButton(R.string.dialog_option_delete, (dialogInterface,i) -> {
+                            adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                             trashNote(note);
                         })
                         .setNegativeButton(android.R.string.cancel, null)

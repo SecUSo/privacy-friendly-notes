@@ -36,7 +36,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 class RecycleActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilterRecycle) }
-    private var adapter: NoteAdapter = NoteAdapter(mainActivityViewModel)
+    private val adapter: NoteAdapter by lazy { NoteAdapter(mainActivityViewModel) }
     private var filter: MutableLiveData<String> = MutableLiveData("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
