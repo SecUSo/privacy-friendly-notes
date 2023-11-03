@@ -17,7 +17,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.text.Html
-import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
-import org.json.JSONObject
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
@@ -163,10 +162,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun sketchPreview(note: Note, size: Int): Bitmap {
+    fun sketchPreview(note: Note, size: Int): Bitmap? {
         if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
-            var bitmap = BitmapDrawable( resources, filesDir.path + "/sketches" + note.content)
-            return Bitmap.createScaledBitmap(bitmap.bitmap, size, size, false)
+            val path = "${filesDir.path}/sketches${note.content}"
+            return if (File(path).exists()) {
+                BitmapDrawable( resources, filesDir.path + "/sketches" + note.content).toBitmap(size, size, Bitmap.Config.ARGB_8888)
+            } else {
+                null
+            }
         } else {
             throw IllegalArgumentException("Only sketch notes allowed")
         }
