@@ -17,6 +17,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.Spannable
@@ -31,9 +32,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
+import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
-
 
 /**
  * Activity that allows to add, edit and delete text notes.
@@ -83,7 +84,18 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNewNote() {
-
+        if (intent != null) {
+            val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
+            if (uri != null) {
+                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines();
+                super.setTitle(text[0])
+                etContent.setText(Html.fromHtml(text.subList(1,text.size).joinToString(System.lineSeparator())))
+            }
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            if (text != null) {
+                etContent.setText(Html.fromHtml(text))
+            }
+        }
     }
 
     override fun onLoadActivity() {
