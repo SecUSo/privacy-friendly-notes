@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.notes
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -22,6 +23,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -43,9 +47,14 @@ import java.io.IOException
 class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
+    private lateinit var undoButton: MenuItem
+    private lateinit var redoButton: MenuItem
     private var mFileName = "finde_die_datei.mp4"
     private var mFilePath: String? = null
     private var sketchLoaded = false
+    private val undoStates = mutableListOf<Bitmap>()
+    private var redoStates = mutableListOf<Bitmap>()
+    private var state: Bitmap? = null
 
     private fun emptyBitmap(): Bitmap {
         return Bitmap.createBitmap(
@@ -55,6 +64,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         )
     }
     
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_sketch)
 
@@ -63,6 +73,22 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         drawView.setColor(Color.BLACK)
         drawView.setMinStrokeWidth(1.5f)
         drawView.setMaxStrokeWidth(6f)
+        drawView.setOnTouchListener { view, motionEvent ->
+            if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
+                if (state == null) {
+                    state = emptyBitmap()
+                }
+                undoStates.add(state!!)
+                redoStates.clear()
+                if (undoStates.size > 32) {
+                    undoStates.removeFirst()
+                }
+                state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                undoButton.isEnabled = true
+                redoButton.isEnabled = false
+            }
+            return@setOnTouchListener view.onTouchEvent(motionEvent)
+        }
         super.onCreate(savedInstanceState)
     }
 
@@ -79,6 +105,42 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
         mFilePath = filesDir.path + "/sketches"
         File(mFilePath!!).mkdirs() //ensure that the file exists
         mFilePath = filesDir.path + "/sketches" + mFileName
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_sketch, menu)
+        undoButton = menu!!.findItem(R.id.action_sketch_undo)
+        redoButton = menu.findItem(R.id.action_sketch_redo)
+        undoButton.isEnabled = false
+        redoButton.isEnabled = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_sketch_undo -> {
+                drawView.clear()
+                if (undoStates.isNotEmpty()) {
+                    redoStates.add(state!!)
+                    undoRedoState(undoStates.removeLast())
+                }
+            }
+            R.id.action_sketch_redo -> {
+                if (redoStates.isNotEmpty()) {
+                    undoStates.add(state!!)
+                    undoRedoState(redoStates.removeLast())
+                }
+            }
+            else -> {}
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun undoRedoState(state: Bitmap) {
+        this.state = state
+        drawView.drawBitmap(state, 0F, 0F, null)
+        undoButton.isEnabled = undoStates.isNotEmpty()
+        redoButton.isEnabled = redoStates.isNotEmpty()
     }
 
     override fun shareNote(name: String): ActionResult<Intent, Int> {
