@@ -15,7 +15,6 @@ package org.secuso.privacyfriendlynotes.ui.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -60,6 +59,7 @@ import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.ui.AboutActivity;
 import org.secuso.privacyfriendlynotes.ui.TutorialActivity;
+import org.secuso.privacyfriendlynotes.ui.helper.SortingOptionDialog;
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
@@ -141,14 +141,8 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         adapter = new NoteAdapter(mainActivityViewModel);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
 
-        mainActivityViewModel.getActiveNotes().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                adapter.setNotes(notes);
-            }
-        });
+        mainActivityViewModel.getActiveNotes().observe(this, notes -> adapter.setNotes(notes));
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT) {
             @Override
@@ -259,9 +253,16 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_sort_alphabetical) {
-            //switch to an alphabetically ascending or descending order
-            updateListAlphabetical(searchView.getQuery().toString());
-            return true;
+            SortingOptionDialog dialog = new SortingOptionDialog(
+                this,
+                R.array.notes_sort_ordering_text,
+                R.array.notes_sort_ordering_icons,
+                option -> {
+                    mainActivityViewModel.setOrder(option);
+                    updateList(searchView.getQuery().toString());
+                }
+            );
+            dialog.chooseSortingOption();
         }
 
         return super.onOptionsItemSelected(item);
@@ -371,10 +372,8 @@ public class MainActivity extends AppCompatActivity
      * Sorts filtered notes alphabetical in descending or ascending order.
      * @param filter
      */
-    private void updateListAlphabetical(String filter) {
-        LiveData<List<Note>> data = alphabeticalAsc ?
-                mainActivityViewModel.getActiveNotesFiltered(filter)
-                : mainActivityViewModel.getActiveNotesFilteredAlphabetical(filter);
+    private void updateList(String filter) {
+        LiveData<List<Note>> data = mainActivityViewModel.getActiveNotesFiltered(filter);
 
         data.observe(this, notes -> {
             adapter.setNotes(notes);

@@ -165,4 +165,12 @@
         <item>Dark</item>
     </string-array>
 
+    <!-- Text for sorting options of notes in main activity   -->
+    <!-- Order has to match the ordering of model/SortingOrder   -->
+    <string-array name="notes_sort_ordering_text">
+        <item>Alphabetical</item>
+        <item>Note Type</item>
+        <item>Creation Time</item>
+    </string-array>
+
 </resources>
