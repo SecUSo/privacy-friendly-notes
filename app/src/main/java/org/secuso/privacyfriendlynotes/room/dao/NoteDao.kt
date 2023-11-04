@@ -51,6 +51,9 @@ interface NoteDao {
     @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY _id ASC")
     val allActiveNotesCreation: Flow<List<Note>>
 
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY last_modified DESC")
+    val allActiveNotesModified: Flow<List<Note>>
+
     @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY name DESC")
     val allTrashedNotes: LiveData<List<Note>>
 
@@ -65,6 +68,9 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY _id ASC")
     fun activeNotesFilteredCreation(thisFilterText: String): Flow<List<Note?>?>
+
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY last_modified DESC")
+    fun activeNotesFilteredModified(thisFilterText: String): Flow<List<Note?>?>
 
     @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND  type = 3) OR type = 1) AND in_trash='1' ORDER BY name DESC")
     fun trashedNotesFiltered(thisFilterText: String): Flow<List<Note>>

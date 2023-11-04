@@ -20,6 +20,7 @@ class SortingOrder(context: Context) {
     enum class Options {
         AlphabeticalAscending,
         TypeAscending,
-        Creation
+        Creation,
+        LastModified
     }
 }

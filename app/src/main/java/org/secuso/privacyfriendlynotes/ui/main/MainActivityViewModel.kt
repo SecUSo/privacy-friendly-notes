@@ -116,6 +116,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().allActiveNotesAlphabetical
                 SortingOrder.Options.TypeAscending -> repository.noteDao().allActiveNotesType
                 SortingOrder.Options.Creation -> repository.noteDao().allActiveNotesCreation
+                SortingOrder.Options.LastModified -> repository.noteDao().allActiveNotesModified
             }
             flow.collect {
                 notes.value = it
@@ -131,6 +132,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().activeNotesFilteredAlphabetical(filter)
                 SortingOrder.Options.TypeAscending -> repository.noteDao().activeNotesFilteredType(filter)
                 SortingOrder.Options.Creation -> repository.noteDao().activeNotesFilteredCreation(filter)
+                SortingOrder.Options.LastModified -> repository.noteDao().activeNotesFilteredModified(filter)
             }
             filterNoteFlow(filter, flow).collect {
                 filteredNotes.value = it

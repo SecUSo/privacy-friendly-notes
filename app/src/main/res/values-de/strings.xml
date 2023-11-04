@@ -142,5 +142,6 @@
         <item>Alphabetisch</item>
         <item>Notizart</item>
         <item>Erstellungszeit</item>
+        <item>Zuletzt verändert</item>
     </string-array>
 </resources>
