@@ -24,11 +24,19 @@ import androidx.room.PrimaryKey
 data class Category(
         @PrimaryKey(autoGenerate = true)
         val _id: Int,
-        val name: String) {
+        val name: String,
+        val color: String?
+) {
 
-        constructor(name: String) : this(
+        constructor(name: String): this(
                 name = name,
-                _id = 0
+                _id = 0,
+                color = null
+        )
+        constructor(name: String, color: String?) : this(
+                name = name,
+                _id = 0,
+                color = color
         )
 
 }

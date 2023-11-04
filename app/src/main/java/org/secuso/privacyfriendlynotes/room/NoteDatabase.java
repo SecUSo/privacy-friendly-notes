@@ -47,7 +47,7 @@ import java.io.File;
 )
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
     public static final String DATABASE_NAME = "allthenotes";
     private static NoteDatabase instance;
 
@@ -90,6 +90,43 @@ public abstract class NoteDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
+        }
+    };
+
+    static final Migration MIGRATION_4_5 = new Migration(4,5) {
+
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+
+            // Adds new color field
+            database.execSQL("ALTER TABLE categories ADD COLUMN color TEXT");
+
+            // Adds new fields to sort by
+            database.execSQL(
+                    "CREATE TABLE notes_new (_id INTEGER NOT NULL DEFAULT 0,"
+                    + "in_trash INTEGER NOT NULL DEFAULT 0,"
+                    + "name TEXT NOT NULL DEFAULT 'TEXT',"
+                    + "type INTEGER NOT NULL DEFAULT 0,"
+                    + "category INTEGER NOT NULL DEFAULT 0,"
+                    + "content TEXT NOT NULL DEFAULT 'TEXT',"
+                    + "last_modified TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                    + "custom_order INTEGER NOT NULL DEFAULT 0,"
+                    + "PRIMARY KEY(_id));");
+            database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content,custom_order) SELECT _id, in_trash,name,type,category,content,_id as custom_order FROM notes ORDER BY _id ASC;");
+            database.execSQL("DROP TABLE notes;");
+            database.execSQL("ALTER TABLE notes_new RENAME TO notes");
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateLastModified] AFTER UPDATE ON notes FOR EACH ROW WHEN NEW.last_modified = OLD.last_modified " +
+                        "BEGIN " +
+                            "UPDATE notes SET last_modified = DateTime('now') WHERE _id=NEW._id; " +
+                        "END;"
+            );
+            database.execSQL(
+                    "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                            "END;"
+            );
         }
     };
 
@@ -233,6 +270,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             MIGRATION_1_2,
             MIGRATION_1_3,
             MIGRATION_2_3,
-            MIGRATION_3_4
+            MIGRATION_3_4,
+            MIGRATION_4_5
     };
 }
