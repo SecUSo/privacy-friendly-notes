@@ -50,4 +50,12 @@
     <style name="AppTheme.ChecklistItem">
         <item name="android:textColor">?attr/colorOnBackground</item>
     </style>
+
+    <style name="AppTheme.Material3Switch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="trackTint">?attr/colorBackground</item>
+    </style>
+    <style name="AppTheme.CategoryButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/black</item>
+    </style>
+
 </resources>
