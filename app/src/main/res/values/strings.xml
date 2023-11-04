@@ -48,6 +48,8 @@
     <string name="action_underline"><u>U</u></string>
     <string name="action_export">Export</string>
     <string name="action_category">Category</string>
+    <string name="action_sketch_undo">Undo</string>
+    <string name="action_sketch_redo">Redo</string>
 
 
     <string name="hint_name">Name</string>

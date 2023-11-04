@@ -28,6 +28,8 @@
     <string name="fab_checklist">Checklist</string>
     <string name="fab_sketch">Skizze</string>
     <string name="fab_text">Text</string>
+    <string name="action_sketch_undo">Rückgängig</string>
+    <string name="action_sketch_redo">Wiederherstellen</string>
     <string name="hint_name">Name</string>
     <string name="hint_new_item">Neuer Punkt</string>
     <string name="hint_note">Notiz</string>
