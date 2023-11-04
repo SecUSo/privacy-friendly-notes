@@ -41,4 +41,7 @@ interface CategoryDao {
 
     @Query("SELECT name FROM categories WHERE _id=:thisCategoryId ")
     fun categoryNameFromId(thisCategoryId: Integer): LiveData<String?>
+
+    @Query("SELECT color FROM categories WHERE _id=:category ")
+    fun getCategoryColor(category: Int): String?
 }

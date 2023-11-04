@@ -18,6 +18,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.text.Html
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.util.Consumer
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -73,6 +74,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 File(filesDir.path + "/sketches" + note.content).delete()
                 File(filesDir.path + "/sketches" + note.content.substring(0, note.content.length - 3) + "jpg").delete()
             }
+        }
+    }
+
+    fun categoryColor(category: Int, consumer: Consumer<String?>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            consumer.accept(repository.categoryDao().getCategoryColor(category))
         }
     }
 

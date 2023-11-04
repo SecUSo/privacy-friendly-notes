@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.content.res.Configuration
+import android.graphics.Color
 import android.preference.PreferenceManager
 import android.text.Html
 import android.util.Log
@@ -33,7 +35,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
  *
  * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
-class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
+class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
     private var notes: MutableList<Note> = ArrayList()
     private var listener: ((Note) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
@@ -59,6 +61,21 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
         holder.textViewExtraText.text = null
         holder.imageViewcategory.visibility = View.GONE
         holder.imageViewcategory.setImageResource(0)
+
+        mainActivityViewModel.categoryColor(currentNote.category) {
+            if (it != null) {
+                when(holder.textViewTitle.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                    Configuration.UI_MODE_NIGHT_YES -> {
+                        holder.textViewTitle.setTextColor(Color.parseColor(it))
+                        holder.textViewExtraText.setTextColor(Color.parseColor(it))
+                    }
+                    else -> {
+                        holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
+                    }
+                }
+            }
+        }
+
         when (currentNote.type) {
             DbContract.NoteEntry.TYPE_TEXT -> {
                 holder.textViewDescription.text = Html.fromHtml(currentNote.content)
@@ -112,12 +129,14 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
         val textViewDescription: TextView
         val imageViewcategory: ImageView
         val textViewExtraText: TextView
+        val viewNoteItem: View
 
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
             textViewDescription = itemView.findViewById(R.id.text_view_description)
             imageViewcategory = itemView.findViewById(R.id.imageView_category)
             textViewExtraText = itemView.findViewById(R.id.note_text_extra)
+            viewNoteItem = itemView.findViewById(R.id.note_item)
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (listener != null && position != RecyclerView.NO_POSITION) {
