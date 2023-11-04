@@ -59,6 +59,7 @@
         <item>@drawable/ic_sort_by_alpha_icon_24dp</item>
         <item>@drawable/ic_baseline_edit_note_icon_24dp</item>
         <item>@drawable/ic_baseline_access_time_icon_24dp</item>
+        <item>@drawable/ic_baseline_mode_edit_24dp</item>
         <!--        <item>Alphabetical Descending</item>-->
     </integer-array>
 

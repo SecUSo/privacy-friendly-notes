@@ -171,6 +171,7 @@
         <item>Alphabetical</item>
         <item>Note Type</item>
         <item>Creation Time</item>
+        <item>Last Modified</item>
     </string-array>
 
 </resources>
