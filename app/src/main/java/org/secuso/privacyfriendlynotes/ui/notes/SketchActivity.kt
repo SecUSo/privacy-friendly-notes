@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -29,13 +30,15 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
 import com.simplify.ink.InkView
+import eltos.simpledialogfragment.SimpleDialog
+import eltos.simpledialogfragment.color.SimpleColorDialog
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
-import petrov.kristiyan.colorpicker.ColorPicker
-import petrov.kristiyan.colorpicker.ColorPicker.OnFastChooseColorListener
+
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -44,7 +47,8 @@ import java.io.IOException
 /**
  * Activity that allows to add, edit and delete sketch notes.
  */
-class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
+class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), SimpleDialog.OnDialogResultListener {
+
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
     private lateinit var undoButton: MenuItem
@@ -225,18 +229,23 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     }
 
     private fun displayColorDialog() {
-        ColorPicker(this)
-            .setOnFastChooseColorListener(object : OnFastChooseColorListener {
-                override fun setOnFastChooseColorListener(position: Int, color: Int) {
-                    drawView.setColor(color)
-                    btnColorSelector.setBackgroundColor(color)
-                }
+        SimpleColorDialog.build()
+            .title("")
+            .allowCustom(true)
+            .cancelable(true) //allows close by tapping outside of dialog
+            .colors(this, R.array.mdcolor_500)
+            .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
+            .show(this, SketchActivity.TAG_COLORDIALOG)
+    }
 
-                override fun onCancel() {}
-            })
-            .setColors(R.array.mdcolor_500)
-            .setTitle(null)
-            .show()
+    override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
+        if (dialogTag == SketchActivity.TAG_COLORDIALOG && which == DialogInterface.BUTTON_POSITIVE) {
+            @ColorInt val color = extras.getInt(SimpleColorDialog.COLOR)
+            drawView.setColor(color)
+            btnColorSelector.setBackgroundColor(color)
+            return true
+        }
+        return false
     }
 
     override fun onSaveExternalStorage(basePath: File, name: String) {
@@ -282,6 +291,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     }
 
     companion object {
+        private val TAG_COLORDIALOG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
+
         //taken from http://stackoverflow.com/a/10616868
         fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
             val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height, bmp1.config)
