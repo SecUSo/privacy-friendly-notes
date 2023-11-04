@@ -135,4 +135,12 @@
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Für diese Funktion ist die Berechtigung zum Senden von Benachrichtigungen und zur Planung von Alarmen und Erinnerungen erforderlich.</string>
     <string name="dialog_delete_all_title">Alle Notizen löschen</string>
     <string name="dialog_delete_all_message">Wollen Sie alle Notizen entgültig löschen?</string>
+
+    <!-- Text for sorting options of notes in main activity   -->
+    <!-- Order has to match the ordering of model/SortingOrder   -->
+    <string-array name="notes_sort_ordering_text">
+        <item>Alphabetisch</item>
+        <item>Notizart</item>
+        <item>Erstellungszeit</item>
+    </string-array>
 </resources>

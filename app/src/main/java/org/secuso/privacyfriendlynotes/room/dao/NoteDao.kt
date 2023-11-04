@@ -39,8 +39,17 @@ interface NoteDao {
     @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name ASC")
     val allNotesAlphabetical: LiveData<List<Note>>
 
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name ASC")
+    val allActiveNotesAlphabetical: Flow<List<Note>>
+
     @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name DESC")
-    val allActiveNotes: LiveData<List<Note>>
+    val allActiveNotesAlphabeticalDesc: Flow<List<Note>>
+
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY type ASC")
+    val allActiveNotesType: Flow<List<Note>>
+
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY _id ASC")
+    val allActiveNotesCreation: Flow<List<Note>>
 
     @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY name DESC")
     val allTrashedNotes: LiveData<List<Note>>
@@ -48,11 +57,14 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE category=:thisCategory AND in_trash='0'")
     fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
 
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY name DESC")
-    fun activeNotesFiltered(thisFilterText: String): Flow<List<Note?>?>
-
     @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY name ASC")
     fun activeNotesFilteredAlphabetical(thisFilterText: String): Flow<List<Note?>?>
+
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY type ASC")
+    fun activeNotesFilteredType(thisFilterText: String): Flow<List<Note?>?>
+
+    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY _id ASC")
+    fun activeNotesFilteredCreation(thisFilterText: String): Flow<List<Note?>?>
 
     @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND  type = 3) OR type = 1) AND in_trash='1' ORDER BY name DESC")
     fun trashedNotesFiltered(thisFilterText: String): Flow<List<Note>>
