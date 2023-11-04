@@ -13,7 +13,6 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
-import android.opengl.Visibility
 import android.preference.PreferenceManager
 import android.text.Html
 import android.util.Log
@@ -35,8 +34,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
  * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
 class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
-    private var notes: List<Note> = ArrayList()
-    private val notesFilteredList: List<Note> = ArrayList()
+    private var notes: MutableList<Note> = ArrayList()
     private var listener: ((Note) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -57,6 +55,10 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
         holder.textViewDescription.text = ""
         val pref = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context)
         holder.textViewDescription.visibility = if (pref.getBoolean("settings_show_preview", true)) View.VISIBLE else View.GONE
+        holder.textViewExtraText.visibility = View.GONE
+        holder.textViewExtraText.text = null
+        holder.imageViewcategory.visibility = View.GONE
+        holder.imageViewcategory.setImageResource(0)
         when (currentNote.type) {
             DbContract.NoteEntry.TYPE_TEXT -> {
                 holder.textViewDescription.text = Html.fromHtml(currentNote.content)
@@ -100,7 +102,8 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel) : Re
     }
 
     fun setNotes(notes: List<Note>) {
-        this.notes = notes
+        this.notes.clear()
+        this.notes.addAll(notes)
         notifyDataSetChanged()
     }
 

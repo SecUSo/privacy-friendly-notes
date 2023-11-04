@@ -38,7 +38,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/draw_view"
-        android:background="@drawable/border"
+        android:background="?attr/colorSurface"
         android:padding="3dp"/>
 
 </LinearLayout>
