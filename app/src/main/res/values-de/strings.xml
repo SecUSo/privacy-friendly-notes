@@ -80,6 +80,8 @@
     <string name="note_standardname">Notiz %d</string>
     <string name="action_help">Hilfe</string>
     <string name="help_intro">Wilkommen auf der Hilfe Seite. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen.</string>
+    <string name="settings_color_category_title">Färbe Notizen nach Kategorie</string>
+    <string name="settings_color_category_summary">Nutze eine ausgewählte Farbe pro Kategorie um Notizen nach ihrer Kategorie einzufärben.</string>
     <string name="help_overview_heading">Übersicht</string>
     <string name="title_help">Hilfe</string>
     <string name="help_privacy_heading">Privatsphäre</string>

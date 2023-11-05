@@ -75,13 +75,17 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
                 .show()
         }
 
-        btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
-        btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
-        btnResetColor.setOnClickListener {
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)) {
             btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
-            catColor = null
+            btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
+            btnResetColor.setOnClickListener {
+                btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
+                catColor = null
+            }
+            btnColorSelector.setOnClickListener { displayColorDialog() }
+        } else {
+            btnExpandMenu.visibility = View.GONE
         }
-        btnColorSelector.setOnClickListener { displayColorDialog() }
     }
 
     override fun onClick(v: View) {

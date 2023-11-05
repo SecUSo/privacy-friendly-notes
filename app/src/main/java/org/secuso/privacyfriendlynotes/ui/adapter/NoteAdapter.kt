@@ -63,7 +63,7 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : 
         holder.imageViewcategory.setImageResource(0)
 
         mainActivityViewModel.categoryColor(currentNote.category) {
-            if (it != null) {
+            if (it != null && PreferenceManager.getDefaultSharedPreferences(holder.textViewTitle.context).getBoolean("settings_color_category", true)) {
                 when(holder.textViewTitle.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                     Configuration.UI_MODE_NIGHT_YES -> {
                         holder.textViewTitle.setTextColor(Color.parseColor(it))

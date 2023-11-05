@@ -114,6 +114,8 @@
     <string name="settings_use_custom_font_size_sum">Use a custom font size in the text note editor.</string>
     <string name="settings_font_size_title">Font size</string>
     <string name="settings_font_size_sum">Click here to select the font size.</string>
+    <string name="settings_color_category_title">Color notes by category</string>
+    <string name="settings_color_category_summary">Use a custom color per category and display notes colored in their category.</string>
 
     <string name="help_overview_heading">Overview</string>
     <string name="help_intro">Welcome to the help page. This app lets you take and manage notes without compromising your privacy.</string>
