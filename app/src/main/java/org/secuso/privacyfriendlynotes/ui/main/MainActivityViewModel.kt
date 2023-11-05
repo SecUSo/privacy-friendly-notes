@@ -31,6 +31,7 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
 
 /**
@@ -203,14 +204,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         if (note.type != DbContract.NoteEntry.TYPE_CHECKLIST) {
             throw IllegalArgumentException("Only checklist notes allowed")
         }
-        try {
-            val content = JSONArray(note.content)
-            return (0 until content.length()).map {
-                val obj = content.getJSONObject(it)
-                return@map Pair(obj.getBoolean("checked"), String.format("[%s] ${obj.getString("name")}", if (obj.getBoolean("checked")) "x" else "  "))
-            }.toList()
-        } catch (ex: JSONException) {
-            return ArrayList()
+        return ChecklistUtil.parse(note.content).map {(checked, name) ->
+            return@map Pair(checked, String.format("[%s] $name", if (checked) "x" else "  "))
         }
     }
 

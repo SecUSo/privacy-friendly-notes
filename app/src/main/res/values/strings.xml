@@ -93,7 +93,7 @@
 
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
-    <string name="dialog_checklist_edit">You change the item: </string>
+    <string name="dialog_checklist_edit">You change the item: %s</string>
 
 
     <string name="fab_text">New text</string>

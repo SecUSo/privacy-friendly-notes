@@ -83,7 +83,7 @@
 
     <string name="dialog_option_delete">削除</string>
     <string name="dialog_option_restore">復元</string>
-    <string name="dialog_checklist_edit">アイテムを変更します。 </string>
+    <string name="dialog_checklist_edit">アイテムを変更します。 %s</string>
 
 
     <string name="fab_text">新しいテキスト</string>
