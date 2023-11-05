@@ -121,18 +121,13 @@ public class BackupRestorer implements IBackupRestorer {
             String name = reader.nextName();
 
             switch (name) {
-                case "settings_use_custom_font_size":
-                case "settings_del_notes":
-                case "settings_show_preview":
-                case "settings_dialog_on_trashing":
-                    editor.putBoolean(name, reader.nextBoolean());
-                    break;
-                case "settings_font_size":
-                case "settings_day_night_theme":
-                    editor.putString(name, reader.nextString());
-                    break;
-                default:
-                    throw new RuntimeException("Unknown preference " + name);
+                case    "settings_use_custom_font_size",
+                        "settings_del_notes",
+                        "settings_show_preview",
+                        "settings_dialog_on_trashing",
+                        "settings_color_category" -> editor.putBoolean(name, reader.nextBoolean());
+                case "settings_font_size", "settings_day_night_theme" -> editor.putString(name, reader.nextString());
+                default -> throw new RuntimeException("Unknown preference " + name);
             }
         }
 
