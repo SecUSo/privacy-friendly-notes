@@ -28,6 +28,7 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
+import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
 
 /**
  * Adapter that provides a binding for notes
@@ -64,14 +65,11 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : 
 
         mainActivityViewModel.categoryColor(currentNote.category) {
             if (it != null && PreferenceManager.getDefaultSharedPreferences(holder.textViewTitle.context).getBoolean("settings_color_category", true)) {
-                when(holder.textViewTitle.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                    Configuration.UI_MODE_NIGHT_YES -> {
-                        holder.textViewTitle.setTextColor(Color.parseColor(it))
-                        holder.textViewExtraText.setTextColor(Color.parseColor(it))
-                    }
-                    else -> {
-                        holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
-                    }
+                if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
+                    holder.textViewTitle.setTextColor(Color.parseColor(it))
+                    holder.textViewExtraText.setTextColor(Color.parseColor(it))
+                } else {
+                    holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
                 }
             }
         }

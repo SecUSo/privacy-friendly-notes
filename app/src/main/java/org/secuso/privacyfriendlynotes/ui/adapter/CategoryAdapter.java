@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter;
 
+import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.secuso.privacyfriendlynotes.R;
 import org.secuso.privacyfriendlynotes.room.model.Category;
+import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull CategoryHolder holder, int position) {
         Category currentCategory = categories.get(position);
         holder.textViewCategoryName.setText(currentCategory.getName());
+        if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.getContext()).getBoolean("settings_color_category", true) && currentCategory.getColor() != null) {
+            if (DarkModeUtil.Companion.isDarkMode(holder.textViewCategoryName.getContext())) {
+                holder.textViewCategoryName.setTextColor(Color.parseColor(currentCategory.getColor()));
+            } else {
+                holder.itemView.setBackgroundColor(Color.parseColor(currentCategory.getColor()));
+            }
+        }
     }
 
     @Override
