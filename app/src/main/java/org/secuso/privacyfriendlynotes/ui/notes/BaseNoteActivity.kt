@@ -88,8 +88,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var id = -1
 
     private var notification: Notification? = null
-    var allCategories: List<Category>? = null
-    var adapter: ArrayAdapter<CharSequence>? = null
+    private var allCategories: List<Category>? = null
+    private var adapter: ArrayAdapter<CharSequence>? = null
     private lateinit var createEditNoteViewModel: CreateEditNoteViewModel
 
     private val noteType by lazy { noteType }

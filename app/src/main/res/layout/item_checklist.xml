@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:attr/activatedBackgroundIndicator">
+    android:layout_height="wrap_content">
 
-    <TextView
+    <EditText
         android:id="@+id/item_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:theme="@style/AppTheme.ChecklistItem"
         android:textSize="20sp"
-        android:layout_margin="10dp" />
+        android:padding="10dp"/>
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:layout_width="24dp"
         android:layout_height="wrap_content"
         android:id="@+id/item_checkbox"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="15dp"
-        android:focusable="false"
-        android:clickable="false" />
+        android:layout_marginEnd="15dp" />
 </LinearLayout>

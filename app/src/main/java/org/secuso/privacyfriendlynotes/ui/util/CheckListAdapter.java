@@ -50,10 +50,10 @@ public class CheckListAdapter extends ArrayAdapter <CheckListItem> {
         CheckListItem item = getItem(position);
 
         if (item != null) {
-            CheckBox checkBox = (CheckBox) v.findViewById(R.id.item_checkbox);
+//            CheckBox checkBox = (CheckBox) v.findViewById(R.id.item_checkbox);
             TextView textView = (TextView) v.findViewById(R.id.item_name);
 
-            checkBox.setChecked(item.isChecked());
+//            checkBox.setChecked(item.isChecked());
             textView.setText(item.getName());
             // Should we set a custom font size?
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
