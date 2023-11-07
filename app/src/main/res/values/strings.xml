@@ -176,6 +176,7 @@
         <item>Note Type</item>
         <item>Creation Time</item>
         <item>Last Modified</item>
+        <item>Custom Order</item>
     </string-array>
 
 </resources>

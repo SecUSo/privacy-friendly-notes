@@ -47,4 +47,15 @@ data class Note(
                 last_modified = Calendar.getInstance().time.toString(),
                 custom_order = 0
         )
+
+        constructor(name: String, content: String, type: Int, category: Int, custom_order: Int) : this(
+                name = name,
+                content = content,
+                type = type,
+                category = category,
+                in_trash = 0,
+                _id = 0,
+                last_modified = Calendar.getInstance().time.toString(),
+                custom_order = custom_order
+        )
 }

@@ -66,6 +66,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun updateAll(notes: List<Note>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.noteDao().updateAll(notes)
+        }
+    }
+
     fun delete(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.noteDao().delete(note)
@@ -84,7 +90,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun filterNoteFlow (filter: String, notes: Flow<List<Note?>?>): Flow<List<Note?>> {
+    private fun filterNoteFlow (filter: String, notes: Flow<List<Note>?>): Flow<List<Note>> {
         return notes.map {
             it.orEmpty().filter { note ->
                 if (note!!.type == 1) {
@@ -117,14 +123,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         };
     }
 
-    fun getActiveNotes(): LiveData<List<Note?>?> {
-        val notes = MutableLiveData<List<Note?>>();
+    fun getActiveNotes(): LiveData<List<Note>?> {
+        val notes = MutableLiveData<List<Note>>();
         viewModelScope.launch(Dispatchers.Main) {
             val flow = when(sortingOrder.ordering) {
                 SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().allActiveNotesAlphabetical
                 SortingOrder.Options.TypeAscending -> repository.noteDao().allActiveNotesType
                 SortingOrder.Options.Creation -> repository.noteDao().allActiveNotesCreation
                 SortingOrder.Options.LastModified -> repository.noteDao().allActiveNotesModified
+                SortingOrder.Options.Custom -> repository.noteDao().allActiveNotesCustom
             }
             flow.collect {
                 notes.value = it
@@ -133,14 +140,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return notes
     }
 
-    fun getActiveNotesFiltered(filter: String): LiveData<List<Note?>?> {
-        val filteredNotes = MutableLiveData<List<Note?>>();
+    fun getActiveNotesFiltered(filter: String): LiveData<List<Note>?> {
+        val filteredNotes = MutableLiveData<List<Note>>();
         viewModelScope.launch(Dispatchers.Main) {
             val flow = when(sortingOrder.ordering) {
                 SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().activeNotesFilteredAlphabetical(filter)
                 SortingOrder.Options.TypeAscending -> repository.noteDao().activeNotesFilteredType(filter)
                 SortingOrder.Options.Creation -> repository.noteDao().activeNotesFilteredCreation(filter)
                 SortingOrder.Options.LastModified -> repository.noteDao().activeNotesFilteredModified(filter)
+                SortingOrder.Options.Custom -> repository.noteDao().activeNotesFilteredCustom(filter)
             }
             filterNoteFlow(filter, flow).collect {
                 filteredNotes.value = it
@@ -159,8 +167,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return filteredNotes
     }
 
-    fun getActiveNotesFilteredFromCategory(filter: String,category: Integer): LiveData<List<Note?>?>{
-        var filteredNotes = MutableLiveData<List<Note?>>();
+    fun getActiveNotesFilteredFromCategory(filter: String,category: Int): LiveData<List<Note>?>{
+        var filteredNotes = MutableLiveData<List<Note>>();
         viewModelScope.launch(Dispatchers.Main) {
             filterNoteFlow(filter, repository.noteDao().activeNotesFilteredFromCategory(filter,category)).collect {
                 filteredNotes.value = it
@@ -206,6 +214,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
         return ChecklistUtil.parse(note.content).map {(checked, name) ->
             return@map Pair(checked, String.format("[%s] $name", if (checked) "x" else "  "))
+        }
+    }
+
+    fun swapNotesCustomOrder(a: Note, b: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.noteDao().update(a)
+            repository.noteDao().update(b)
         }
     }
 

@@ -36,7 +36,7 @@
             android:inputType="none"
             android:singleLine="true"
             android:textColor="?attr/editTextColor"
-            />
+            android:scrollbars="vertical" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>
