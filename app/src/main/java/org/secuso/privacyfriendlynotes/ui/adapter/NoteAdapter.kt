@@ -36,8 +36,14 @@ import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
  *
  * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
-class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
-    private var notes: MutableList<Note> = ArrayList()
+class NoteAdapter(
+    private val mainActivityViewModel: MainActivityViewModel,
+    var colorCategory: Boolean,
+) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
+    var startDrag: ((NoteAdapter.NoteHolder) -> Unit)? = null
+    var notes: MutableList<Note> = ArrayList()
+        private set
+
     private var listener: ((Note) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -62,14 +68,20 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : 
         holder.textViewExtraText.text = null
         holder.imageViewcategory.visibility = View.GONE
         holder.imageViewcategory.setImageResource(0)
+        holder.dragHandle.setOnTouchListener { v, _ ->
+            startDrag?.let { it(holder) }
+            v.performClick()
+        }
 
-        mainActivityViewModel.categoryColor(currentNote.category) {
-            if (it != null && PreferenceManager.getDefaultSharedPreferences(holder.textViewTitle.context).getBoolean("settings_color_category", true)) {
-                if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
-                    holder.textViewTitle.setTextColor(Color.parseColor(it))
-                    holder.textViewExtraText.setTextColor(Color.parseColor(it))
-                } else {
-                    holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
+        if (colorCategory) {
+            mainActivityViewModel.categoryColor(currentNote.category) {
+                if (it != null) {
+                    if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
+                        holder.textViewTitle.setTextColor(Color.parseColor(it))
+                        holder.textViewExtraText.setTextColor(Color.parseColor(it))
+                    } else {
+                        holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
+                    }
                 }
             }
         }
@@ -128,6 +140,7 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : 
         val imageViewcategory: ImageView
         val textViewExtraText: TextView
         val viewNoteItem: View
+        val dragHandle: View
 
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
@@ -135,6 +148,7 @@ class NoteAdapter(private val mainActivityViewModel: MainActivityViewModel, ) : 
             imageViewcategory = itemView.findViewById(R.id.imageView_category)
             textViewExtraText = itemView.findViewById(R.id.note_text_extra)
             viewNoteItem = itemView.findViewById(R.id.note_item)
+            dragHandle = itemView.findViewById(R.id.drag_handle)
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (listener != null && position != RecyclerView.NO_POSITION) {

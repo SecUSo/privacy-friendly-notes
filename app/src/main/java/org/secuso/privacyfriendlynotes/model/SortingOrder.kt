@@ -21,6 +21,7 @@ class SortingOrder(context: Context) {
         AlphabeticalAscending,
         TypeAscending,
         Creation,
-        LastModified
+        LastModified,
+        Custom
     }
 }

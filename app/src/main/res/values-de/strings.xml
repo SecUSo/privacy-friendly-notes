@@ -147,5 +147,6 @@
         <item>Notizart</item>
         <item>Erstellungszeit</item>
         <item>Zuletzt verändert</item>
+        <item>Benutzerdefinierte Sortierung</item>
     </string-array>
 </resources>

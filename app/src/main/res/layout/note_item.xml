@@ -57,14 +57,13 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
+        <ImageView
+            android:id="@+id/drag_handle"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            app:tint="?attr/colorIconFill"
+            android:src="@drawable/ic_baseline_drag_indicator_icon_24dp"/>
+
     </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="8dp">
-
-
-    </RelativeLayout>
 
 </androidx.cardview.widget.CardView>
