@@ -14,6 +14,8 @@
 package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.graphics.Paint
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,9 +25,11 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import org.secuso.privacyfriendlynotes.R
 
 
-class ChecklistAdapter(var items: MutableList<Pair<Boolean, String>>) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
+class ChecklistAdapter(
+    var items: MutableList<Pair<Boolean, String>>,
+    private val startDrag: (ItemHolder) -> Unit
+) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
 
-    private var onLongClickListener: ((View) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_checklist, parent, false)
@@ -36,6 +40,10 @@ class ChecklistAdapter(var items: MutableList<Pair<Boolean, String>>) : Recycler
         val (checked, item) = items[position]
         holder.textView.text = item
         holder.checkbox.isChecked = checked
+        holder.dragHandle.setOnTouchListener { v, _ ->
+            startDrag(holder)
+            v.performClick()
+        }
 
         holder.textView.apply {
             paintFlags = if (checked) {
@@ -60,19 +68,30 @@ class ChecklistAdapter(var items: MutableList<Pair<Boolean, String>>) : Recycler
         notifyItemRemoved(position)
     }
 
-    fun setOnLongClickListener(listener: (View) -> Unit) {
-        this.onLongClickListener = listener
-    }
-
     inner class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.item_name)
         val checkbox: MaterialCheckBox = itemView.findViewById(R.id.item_checkbox)
+        val dragHandle: View = itemView.findViewById(R.id.drag_handle)
 
         init {
             checkbox.setOnClickListener { _ ->
-                items[adapterPosition] = Pair(checkbox.isChecked, items[adapterPosition].second)
-                notifyItemChanged(adapterPosition)
+                items[bindingAdapterPosition] = Pair(checkbox.isChecked, textView.text.toString())
+                notifyItemChanged(bindingAdapterPosition)
             }
+            textView.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun afterTextChanged(text: Editable?) {
+                    items[bindingAdapterPosition] = Pair(checkbox.isChecked, (text ?: "").toString())
+                }
+
+            })
         }
     }
 }

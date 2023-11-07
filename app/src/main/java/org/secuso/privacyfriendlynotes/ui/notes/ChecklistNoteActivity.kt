@@ -67,22 +67,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     override fun onLoadActivity() {
-        //get rid of the old data. Otherwise we would have duplicates.
-        adapter = ChecklistAdapter(mutableListOf())
-        adapter.setOnLongClickListener {
-            it.tag = "it"
-            val clip = ClipData("it", arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN), ClipData.Item("it"))
-            checklist.startDrag(clip, View.DragShadowBuilder(it), null, 0)
-        }
-        checklist.adapter = adapter
-        checklist.layoutManager = LinearLayoutManager(this)
-        btnAdd.setOnClickListener {
-            if (etNewItem.text.isNotEmpty()) {
-                addItem()
-            }
-        }
         etNewItem.setOnEditorActionListener { _, _, event ->
-            if (event != null && etNewItem.text.isNotEmpty()) {
+            if (event == null && etNewItem.text.isNotEmpty()) {
                 addItem()
             }
             return@setOnEditorActionListener true
@@ -92,6 +78,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         ) {
+
+            override fun isLongPressDragEnabled() = false
 
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 val to = target.bindingAdapterPosition
@@ -107,8 +95,16 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
 
         }
-        ItemTouchHelper(itemTouchCallback).attachToRecyclerView(checklist)
-
+        val ith = ItemTouchHelper(itemTouchCallback)
+        adapter = ChecklistAdapter(mutableListOf()) { holder -> ith.startDrag(holder) }
+        checklist.adapter = adapter
+        checklist.layoutManager = LinearLayoutManager(this)
+        btnAdd.setOnClickListener {
+            if (etNewItem.text.isNotEmpty()) {
+                addItem()
+            }
+        }
+        ith.attachToRecyclerView(checklist)
         adaptFontSize(etNewItem)
 
 //        lvItemList.setMultiChoiceModeListener(object : MultiChoiceModeListener {
