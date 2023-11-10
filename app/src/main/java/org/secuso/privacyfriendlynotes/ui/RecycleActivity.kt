@@ -93,8 +93,8 @@ class RecycleActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_delete_all -> {
                 MaterialAlertDialogBuilder(this, R.style.AppTheme_PopupOverlay_DialogAlert)
-                    .setTitle(getString(R.string.dialog_delete_all_title))
-                    .setMessage(getString(R.string.dialog_delete_all_message))
+                    .setTitle(getString(R.string.dialog_delete_all_recycle_bin_title))
+                    .setMessage(getString(R.string.dialog_delete_all_recycle_bin_message))
                     .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
                         lifecycleScope.launch { trashedNotes.value.forEach { mainActivityViewModel.delete(it)} }
                     }
