@@ -89,6 +89,14 @@ public abstract class NoteDatabase extends RoomDatabase {
     private static RoomDatabase.Callback roomCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            // Adds a trigger to auto-set custom_order to _id
+            // Room currently supports no DEFAULT = COLUMN or @Trigger Annotation
+            db.execSQL(
+            "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                    "BEGIN " +
+                    "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                    "END;"
+            );
             super.onCreate(db);
         }
     };
