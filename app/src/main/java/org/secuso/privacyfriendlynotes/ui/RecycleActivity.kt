@@ -20,11 +20,16 @@ import android.view.MenuItem
 import android.widget.SearchView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter
@@ -37,7 +42,7 @@ class RecycleActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilterRecycle) }
     private val adapter: NoteAdapter by lazy { NoteAdapter(mainActivityViewModel, true) }
-    private var filter: MutableLiveData<String> = MutableLiveData("")
+    private val trashedNotes by lazy { mainActivityViewModel.trashedNotes.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).stateIn(lifecycleScope, SharingStarted.Lazily, listOf()) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycle)
@@ -46,27 +51,22 @@ class RecycleActivity : AppCompatActivity() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
-        mainActivityViewModel.trashedNotes.observe(
-            this
-        ) { notes -> adapter.setNotes(notes) }
+        lifecycleScope.launch {
+                trashedNotes.collect { adapter.setNotes(it) }
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
-                filter.value = newText
+                mainActivityViewModel.setFilter(newText)
                 return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                filter.value = query
+                mainActivityViewModel.setFilter(query)
                 return true
             }
         })
-        filter.observe(this) { it ->
-            mainActivityViewModel.getTrashedNotesFiltered(it).observe(this) { notes ->
-                if (notes != null) {
-                    adapter.setNotes(notes)
-                }
-            }
-        }
+
         adapter.setOnItemClickListener { note: Note ->
             AlertDialog.Builder(this@RecycleActivity)
                 .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
@@ -96,14 +96,9 @@ class RecycleActivity : AppCompatActivity() {
                     .setTitle(getString(R.string.dialog_delete_all_title))
                     .setMessage(getString(R.string.dialog_delete_all_message))
                     .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
-                        mainActivityViewModel.getTrashedNotesFiltered(filter.value!!).observe(this) {notes ->
-                            notes?.forEach { note -> if (note != null) { mainActivityViewModel.delete(note) }
-                            }
-                        }
+                        lifecycleScope.launch { trashedNotes.value.forEach { mainActivityViewModel.delete(it)} }
                     }
-                    .setNegativeButton(android.R.string.cancel) { _, _ ->
-                        // Do nothing
-                    }
+                    .setNegativeButton(android.R.string.cancel, null)
                     .show()
             }
         }

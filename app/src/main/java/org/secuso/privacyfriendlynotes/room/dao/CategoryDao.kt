@@ -16,6 +16,7 @@ package org.secuso.privacyfriendlynotes.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.Companion.REPLACE
+import kotlinx.coroutines.flow.Flow
 import org.secuso.privacyfriendlynotes.room.model.Category
 
 /**
@@ -34,10 +35,7 @@ interface CategoryDao {
     fun delete(category: Category)
 
     @get:Query("SELECT * FROM categories GROUP BY name")
-    val allCategoriesLive: LiveData<List<Category>>
-
-    @Query("SELECT * FROM categories GROUP BY name")
-    suspend fun getAllCategories(): List<Category>
+    val allCategories: Flow<List<Category>>
 
     @Query("SELECT name FROM categories WHERE _id=:thisCategoryId ")
     fun categoryNameFromId(thisCategoryId: Integer): LiveData<String?>

@@ -24,11 +24,13 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity
@@ -40,8 +42,7 @@ import org.secuso.privacyfriendlynotes.ui.adapter.CategoryAdapter
  * @see ManageCategoriesViewModel
  */
 class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDialogResultListener {
-    var manageCategoriesViewModel: ManageCategoriesViewModel? = null
-    var allCategories: List<Category>? = null
+    private val manageCategoriesViewModel: ManageCategoriesViewModel by lazy { ViewModelProvider(this)[ManageCategoriesViewModel::class.java] }
     private val etName: EditText by lazy { findViewById(R.id.etName) }
     private val recyclerList: RecyclerView by lazy { findViewById(R.id.recyclerview_category) }
     private val btnResetColor: ImageButton by lazy { findViewById(R.id.category_menu_color_reset) }
@@ -58,11 +59,13 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
         this.recyclerList.setHasFixedSize(true)
         val adapter = CategoryAdapter()
         this.recyclerList.adapter = adapter
-        manageCategoriesViewModel = ViewModelProvider(this).get(ManageCategoriesViewModel::class.java)
-        manageCategoriesViewModel!!.allCategoriesLive.observe(this) { categories ->
-                adapter.setCategories(categories)
-                allCategories = categories
+
+        lifecycleScope.launch {
+            manageCategoriesViewModel.allCategories.collect {
+                adapter.setCategories(it)
+            }
         }
+
         adapter.setOnItemClickListener { currentCategory ->
             AlertDialog.Builder(this@ManageCategoriesActivity)
                 .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
@@ -92,8 +95,8 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
         if (v.id == R.id.btn_add) {
             if (etName.text.isNotEmpty()) {
                 val category = Category(etName.text.toString(), catColor)
-                if (allCategories!!.firstOrNull { it.name == category.name } == null) {
-                    manageCategoriesViewModel!!.insert(category)
+                if (manageCategoriesViewModel.allCategories.value.count { it.name == category.name } == 0) {
+                    manageCategoriesViewModel.insert(category)
                 }
             }
             etName.setText("")
@@ -105,11 +108,13 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
         // Delete all notes from category if the option is set
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {
-            manageCategoriesViewModel!!.allNotesLiveData.observe(this) {
-                notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel!!.delete(it) }
+            lifecycleScope.launch {
+                manageCategoriesViewModel.notes.collect {
+                        notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }
+                }
             }
         }
-        manageCategoriesViewModel!!.delete(cat)
+        manageCategoriesViewModel.delete(cat)
     }
 
     private fun displayColorDialog() {

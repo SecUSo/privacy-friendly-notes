@@ -13,11 +13,10 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
-import android.content.res.Configuration
 import android.graphics.Color
 import android.preference.PreferenceManager
 import android.text.Html
-import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,13 +74,16 @@ class NoteAdapter(
 
         if (colorCategory) {
             mainActivityViewModel.categoryColor(currentNote.category) {
-                if (it != null) {
-                    if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
-                        holder.textViewTitle.setTextColor(Color.parseColor(it))
-                        holder.textViewExtraText.setTextColor(Color.parseColor(it))
-                    } else {
-                        holder.viewNoteItem.setBackgroundColor(Color.parseColor(it))
-                    }
+                val color: Int = it?.let { Color.parseColor(it) } ?: run {
+                    val value = TypedValue()
+                    holder.itemView.context.theme.resolveAttribute(R.attr.colorOnSurface, value, true)
+                    value.data
+                }
+                if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
+                    holder.textViewTitle.setTextColor(color)
+                    holder.textViewExtraText.setTextColor(color)
+                } else {
+                    holder.viewNoteItem.setBackgroundColor(color)
                 }
             }
         }
@@ -101,7 +103,7 @@ class NoteAdapter(
                 holder.imageViewcategory.visibility = View.VISIBLE
                 val bitmap = mainActivityViewModel.sketchPreview(currentNote, 360)
                 if (bitmap != null) {
-                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 360))
+                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 300))
                 } else {
                     holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
                 }
@@ -109,7 +111,6 @@ class NoteAdapter(
 
             DbContract.NoteEntry.TYPE_CHECKLIST -> {
                 val preview = mainActivityViewModel.checklistPreview(currentNote)
-                Log.d("Checklist", preview.toString())
                 holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
                 holder.textViewExtraText.visibility = View.VISIBLE
                 holder.imageViewcategory.visibility = View.GONE
@@ -150,9 +151,10 @@ class NoteAdapter(
             viewNoteItem = itemView.findViewById(R.id.note_item)
             dragHandle = itemView.findViewById(R.id.drag_handle)
             itemView.setOnClickListener {
-                val position = adapterPosition
-                if (listener != null && position != RecyclerView.NO_POSITION) {
-                    listener!!(notes[position])
+                bindingAdapterPosition.apply {
+                    if (listener != null && this != RecyclerView.NO_POSITION) {
+                        listener!!(notes[this])
+                    }
                 }
             }
         }
