@@ -3,7 +3,6 @@ package org.secuso.privacyfriendlynotes.ui.util
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.secuso.privacyfriendlynotes.room.model.Note
 
 class ChecklistUtil {
 
@@ -14,7 +13,7 @@ class ChecklistUtil {
                 return (0 until content.length()).map {
                     val obj = content.getJSONObject(it)
                     return@map Pair(obj.getBoolean("checked"), obj.getString("name"))
-                }.toList()
+                }
             } catch (ex: JSONException) {
                 return ArrayList()
             }

@@ -16,6 +16,7 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 import android.graphics.Paint
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +45,24 @@ class ChecklistAdapter(
             startDrag(holder)
             v.performClick()
         }
+        holder.checkbox.setOnClickListener { _ ->
+            items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, holder.textView.text.toString())
+            notifyItemChanged(holder.bindingAdapterPosition)
+        }
+        holder.textView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(text: Editable?) {
+                items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, (text ?: "").toString())
+            }
+
+        })
 
         holder.textView.apply {
             paintFlags = if (checked) {
@@ -72,26 +91,5 @@ class ChecklistAdapter(
         val textView: TextView = itemView.findViewById(R.id.item_name)
         val checkbox: MaterialCheckBox = itemView.findViewById(R.id.item_checkbox)
         val dragHandle: View = itemView.findViewById(R.id.drag_handle)
-
-        init {
-            checkbox.setOnClickListener { _ ->
-                items[bindingAdapterPosition] = Pair(checkbox.isChecked, textView.text.toString())
-                notifyItemChanged(bindingAdapterPosition)
-            }
-            textView.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(text: Editable?) {
-                    items[bindingAdapterPosition] = Pair(checkbox.isChecked, (text ?: "").toString())
-                }
-
-            })
-        }
     }
 }
