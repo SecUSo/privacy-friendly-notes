@@ -40,7 +40,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -131,10 +133,14 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 }
             }
         }
-        createEditNoteViewModel.allCategoriesLive.observe(this) { categories ->
-            allCategories = categories
-            adapter!!.addAll(categories!!.map { cat -> cat.name })
+
+        lifecycleScope.launch {
+            createEditNoteViewModel.categories.collect { categories ->
+                allCategories = categories
+                adapter!!.addAll(categories.map { cat -> cat.name })
+            }
         }
+
 
         val intent = intent
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, 0)

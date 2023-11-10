@@ -17,6 +17,8 @@
         <item name="colorNavbarHeaderText">@color/colorAccent</item>
 
         <item name="colorIconFill">@color/black</item>
+
+        <item name="alertDialogTheme">@style/SimpleDialogTheme.Material3</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

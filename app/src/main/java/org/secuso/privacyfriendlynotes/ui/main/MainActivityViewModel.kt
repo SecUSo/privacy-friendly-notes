@@ -14,19 +14,23 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.app.Application
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.preference.PreferenceManager
 import android.text.Html
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.util.Consumer
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONException
 import org.secuso.privacyfriendlynotes.model.SortingOrder
+import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
@@ -43,15 +47,44 @@ import java.io.File
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: NoteDatabase = NoteDatabase.getInstance(application)
-    val trashedNotes: LiveData<List<Note>> = repository.noteDao().allTrashedNotes
-    val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
-    val filesDir = application.filesDir
-    val resources = application.resources
-    val sortingOrder = SortingOrder(application)
+    private val prefManager = PreferenceManager.getDefaultSharedPreferences(application)
 
-    fun setOrder(ordering: SortingOrder.Options) {
-        this.sortingOrder.ordering = ordering
+    private val repository: NoteDatabase = NoteDatabase.getInstance(application)
+    private var filter: MutableStateFlow<String> = MutableStateFlow("")
+    private var ordering: MutableStateFlow<SortingOrder> = MutableStateFlow(
+        SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.LastModified.name)!!)
+    )
+    private var category: MutableStateFlow<Int> = MutableStateFlow(CAT_ALL)
+
+    val trashedNotes: Flow<List<Note>> = repository.noteDao().allTrashedNotes
+        .triggerOn(filter)
+        .filterNotes()
+    val activeNotes: Flow<List<Note>> = repository.noteDao().allActiveNotes
+        .triggerOn(filter, ordering, category)
+        .filterCategories()
+        .filterNotes()
+        .sortNotes()
+    val categories: Flow<List<Category>> = repository.categoryDao().allCategories
+    private val filesDir: File = application.filesDir
+    private val resources: Resources = application.resources
+
+    fun setFilter(filter: String) {
+        this.filter.value = filter
+    }
+
+    fun setOrder(ordering: SortingOrder) {
+        prefManager.edit()
+            .putString(PreferenceKeys.SP_NOTES_ORDERING, ordering.name)
+            .apply()
+        this.ordering.value = ordering
+    }
+
+    fun setCategory(id: Int) {
+        this.category.value = id
+    }
+
+    fun getCategory(): Int {
+        return this.category.value
     }
 
     fun insert(note: Note) {
@@ -90,91 +123,47 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun filterNoteFlow (filter: String, notes: Flow<List<Note>?>): Flow<List<Note>> {
-        return notes.map {
-            it.orEmpty().filter { note ->
-                if (note!!.type == 1) {
-                    val spanned = Html.fromHtml(note!!.content)
-                    val text = spanned.toString()
-                    if (text.contains(filter)) {
-                        return@filter true
-                    }
-                } else {
-                    if (note!!.type == 3) {
-                        try {
-                            val content = JSONArray(note!!.content)
-                            for (i in 0 until content.length()) {
-                                val o = content.getJSONObject(i)
-                                if (o.getString("name")
-                                        .contains(filter) || note!!.name.contains(filter)
-                                ) {
-                                    return@filter true
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    } else {
-                        return@filter true
-                    }
+    private fun StateFlow<SortingOrder>.comparator(): (Note, Note) -> Int {
+        return when (this.value) {
+            SortingOrder.AlphabeticalAscending -> { a, b -> a.name.compareTo(b.name) }
+            SortingOrder.LastModified -> { a, b -> a.last_modified.compareTo(b.last_modified) }
+            SortingOrder.Creation -> { a, b -> a._id.compareTo(b._id) }
+            SortingOrder.Custom -> { a, b -> a.custom_order.compareTo(b.custom_order) }
+            SortingOrder.TypeAscending -> { a, b -> a.type.compareTo(b.type) }
+        }
+    }
+
+    private fun Flow<List<Note>>.filterNotes(): Flow<List<Note>> {
+        return this.map {
+            it.filter { note ->
+                if (note.name.contains(filter.value)) {
+                    return@filter true
                 }
-                return@filter false;
-            };
-        };
-    }
-
-    fun getActiveNotes(): LiveData<List<Note>?> {
-        val notes = MutableLiveData<List<Note>>();
-        viewModelScope.launch(Dispatchers.Main) {
-            val flow = when(sortingOrder.ordering) {
-                SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().allActiveNotesAlphabetical
-                SortingOrder.Options.TypeAscending -> repository.noteDao().allActiveNotesType
-                SortingOrder.Options.Creation -> repository.noteDao().allActiveNotesCreation
-                SortingOrder.Options.LastModified -> repository.noteDao().allActiveNotesModified
-                SortingOrder.Options.Custom -> repository.noteDao().allActiveNotesCustom
-            }
-            flow.collect {
-                notes.value = it
+                when(note.type) {
+                    DbContract.NoteEntry.TYPE_TEXT -> {
+                        return@filter Html.fromHtml(note.content).toString().contains(filter.value)
+                    }
+                    DbContract.NoteEntry.TYPE_CHECKLIST -> {
+                        return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value)
+                    }
+                    else -> return@filter false
+                }
             }
         }
-        return notes
     }
 
-    fun getActiveNotesFiltered(filter: String): LiveData<List<Note>?> {
-        val filteredNotes = MutableLiveData<List<Note>>();
-        viewModelScope.launch(Dispatchers.Main) {
-            val flow = when(sortingOrder.ordering) {
-                SortingOrder.Options.AlphabeticalAscending -> repository.noteDao().activeNotesFilteredAlphabetical(filter)
-                SortingOrder.Options.TypeAscending -> repository.noteDao().activeNotesFilteredType(filter)
-                SortingOrder.Options.Creation -> repository.noteDao().activeNotesFilteredCreation(filter)
-                SortingOrder.Options.LastModified -> repository.noteDao().activeNotesFilteredModified(filter)
-                SortingOrder.Options.Custom -> repository.noteDao().activeNotesFilteredCustom(filter)
-            }
-            filterNoteFlow(filter, flow).collect {
-                filteredNotes.value = it
-            }
-        }
-        return filteredNotes
+    private fun Flow<List<Note>>.sortNotes(): Flow<List<Note>> {
+        return this.map { it.sortedWith(ordering.comparator()) }
     }
 
-    fun getTrashedNotesFiltered(filter: String): LiveData<List<Note>?>{
-        var filteredNotes = MutableLiveData<List<Note>>();
-        viewModelScope.launch(Dispatchers.Main) {
-            filterNoteFlow(filter, repository.noteDao().trashedNotesFiltered(filter)).collect {
-                filteredNotes.value = it.filterNotNull()
-            }
+    private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {
+        return this.map {
+            it.filter { note -> note.category == category.value || category.value == CAT_ALL }
         }
-        return filteredNotes
     }
 
-    fun getActiveNotesFilteredFromCategory(filter: String,category: Int): LiveData<List<Note>?>{
-        var filteredNotes = MutableLiveData<List<Note>>();
-        viewModelScope.launch(Dispatchers.Main) {
-            filterNoteFlow(filter, repository.noteDao().activeNotesFilteredFromCategory(filter,category)).collect {
-                filteredNotes.value = it
-            }
-        }
-        return filteredNotes
+    private fun<T> Flow<T>.triggerOn(vararg flows: Flow<*>): Flow<T> {
+        return flows.fold(this) { acc, flow -> acc.combine(flow) { a, _ -> a} }
     }
 
     fun insert(category: Category) {
@@ -217,11 +206,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun swapNotesCustomOrder(a: Note, b: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.noteDao().update(a)
-            repository.noteDao().update(b)
-        }
+    companion object {
+        private const val CAT_ALL = -1
     }
-
 }

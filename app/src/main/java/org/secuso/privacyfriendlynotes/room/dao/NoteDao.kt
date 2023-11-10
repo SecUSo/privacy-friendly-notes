@@ -13,7 +13,6 @@
  */
 package org.secuso.privacyfriendlynotes.room.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -36,56 +35,11 @@ interface NoteDao {
     @Delete
     fun delete(note: Note)
 
-    @get:Query("SELECT * FROM notes ORDER BY category DESC")
-    val allNotes: LiveData<List<Note>>
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY category DESC")
+    val allActiveNotes: Flow<List<Note>>
 
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name ASC")
-    val allNotesAlphabetical: LiveData<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name ASC")
-    val allActiveNotesAlphabetical: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY name DESC")
-    val allActiveNotesAlphabeticalDesc: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY type ASC")
-    val allActiveNotesType: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY _id ASC")
-    val allActiveNotesCreation: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY last_modified DESC")
-    val allActiveNotesModified: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY custom_order ASC")
-    val allActiveNotesCustom: Flow<List<Note>>
-
-    @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY name DESC")
-    val allTrashedNotes: LiveData<List<Note>>
-
-    @Query("SELECT * FROM notes WHERE category=:thisCategory AND in_trash='0'")
-    fun notesFromCategory(thisCategory: Integer): LiveData<List<Note?>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY name ASC")
-    fun activeNotesFilteredAlphabetical(thisFilterText: String): Flow<List<Note>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY type ASC")
-    fun activeNotesFilteredType(thisFilterText: String): Flow<List<Note>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY _id ASC")
-    fun activeNotesFilteredCreation(thisFilterText: String): Flow<List<Note>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY last_modified DESC")
-    fun activeNotesFilteredModified(thisFilterText: String): Flow<List<Note>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1) AND in_trash='0' ORDER BY custom_order ASC")
-    fun activeNotesFilteredCustom(thisFilterText: String): Flow<List<Note>?>
-
-    @Query("SELECT * FROM notes WHERE ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND  type = 3) OR type = 1) AND in_trash='1' ORDER BY name DESC")
-    fun trashedNotesFiltered(thisFilterText: String): Flow<List<Note>>
-
-    @Query("SELECT * FROM notes WHERE (category=:thisCategory) AND (in_trash='0') AND ((LOWER(name) LIKE '%'|| LOWER(:thisFilterText) || '%') OR (LOWER(content) LIKE '%'|| LOWER(:thisFilterText) || '%' AND type = 3) OR type = 1)  ORDER BY name DESC")
-    fun activeNotesFilteredFromCategory(thisFilterText: String, thisCategory: Int): Flow<List<Note>?>
+    @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY category DESC")
+    val allTrashedNotes: Flow<List<Note>>
 
     @Query("SELECT * FROM notes")
     fun getNotesDebug() : List<Note>

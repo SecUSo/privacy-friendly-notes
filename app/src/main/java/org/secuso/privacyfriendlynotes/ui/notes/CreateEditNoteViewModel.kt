@@ -17,6 +17,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.secuso.privacyfriendlynotes.room.model.Category
@@ -33,7 +34,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotificationsLiveData
-    val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
+    val categories: Flow<List<Category>> = repository.categoryDao().allCategories
     private val _categoryName: MediatorLiveData<String?> = MediatorLiveData<String?>()
     private var _categoryNameLast: LiveData<String?>? = null
     private val database: NoteDatabase = NoteDatabase.getInstance(application)

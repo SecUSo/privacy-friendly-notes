@@ -34,12 +34,14 @@ import androidx.arch.core.util.Function
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.getbase.floatingactionbutton.FloatingActionsMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -66,8 +68,6 @@ import java.util.Collections
  * @see MainActivityViewModel
  */
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-    var categoryActivated = false
-    private var selectedCategory = CAT_ALL //ID of the currently selected category. Defaults to "all"
 
     //New Room variables
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
@@ -80,8 +80,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var setCategoryResultAfter = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
-        if (result.resultCode == RESULT_OK && result.data != null) {
-            selectedCategory = result.data!!.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL)
+        val data = result.data
+        if (result.resultCode == RESULT_OK && data != null) {
+            mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
     }
 
@@ -108,13 +109,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
-        adapter = NoteAdapter(mainActivityViewModel, PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true) && selectedCategory == CAT_ALL)
+        adapter = NoteAdapter(
+            mainActivityViewModel,
+            PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)
+                    && mainActivityViewModel.getCategory() == CAT_ALL)
         recyclerView.adapter = adapter
-        mainActivityViewModel.getActiveNotes().observe(this) { notes: List<Note>? ->
-            if (notes != null) {
-                adapter.setNotes(notes)
-            }
+
+        lifecycleScope.launch {
+            mainActivityViewModel.activeNotes.collect { notes -> adapter.setNotes(notes)}
         }
+
         val ith = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 val to = target.bindingAdapterPosition
@@ -153,11 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         adapter.startDrag = {holder -> ith.startDrag(holder)}
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
-                if (!categoryActivated) {
-                    applyFilter(newText)
-                } else {
-                    applyFilterCategory(newText, selectedCategory)
-                }
+                mainActivityViewModel.setFilter(newText)
                 return true
             }
 
@@ -225,9 +225,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this,
                 R.array.notes_sort_ordering_text,
                 R.array.notes_sort_ordering_icons
-            ) { option: SortingOrder.Options? ->
-                mainActivityViewModel!!.setOrder(option!!)
-                updateList(searchView!!.query.toString())
+            ) { option: SortingOrder? ->
+                mainActivityViewModel.setOrder(option!!)
+                updateList(searchView.query.toString())
             }
             dialog.chooseSortingOption()
         }
@@ -247,12 +247,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (id == R.id.nav_trash) {
             startActivity(Intent(application, RecycleActivity::class.java))
         } else if (id == R.id.nav_all) {
-            mainActivityViewModel!!.getActiveNotes().observe(this) { notes ->
-                if (notes != null) {
-                    adapter!!.setNotes(notes)
-                }
-            }
-            categoryActivated = false
+            mainActivityViewModel.setCategory(CAT_ALL)
         } else if (id == R.id.nav_manage_categories) {
             startActivity(Intent(application, ManageCategoriesActivity::class.java))
         } else if (id == R.id.nav_settings) {
@@ -264,9 +259,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else if (id == R.id.nav_tutorial) {
             startActivity(Intent(application, TutorialActivity::class.java))
         } else {
-            selectedCategory = id
-            categoryActivated = true
-            applyFilterCategory(searchView!!.query.toString(), selectedCategory)
+            mainActivityViewModel.setCategory(id)
         }
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         drawer.closeDrawer(GravityCompat.START)
@@ -281,7 +274,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent =
             Function { activity: Class<out BaseNoteActivity?>? ->
                 val i = Intent(application, activity)
-                i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, selectedCategory)
+                i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, mainActivityViewModel.getCategory())
                 i
             }
         var i: Intent? = null
@@ -292,7 +285,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.fab_sketch -> i = intent.apply(SketchActivity::class.java)
         }
         setCategoryResultAfter.launch(i)
-        fabMenu!!.collapseImmediately()
+        fabMenu.collapseImmediately()
     }
 
     override fun onPause() {
@@ -311,12 +304,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         menuInflater.inflate(R.menu.activity_main_drawer, navMenu)
 
         //Get the rest from the database
-        val mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        mainActivityViewModel.allCategoriesLive.observe(this) {
+        lifecycleScope.launch {
+            mainActivityViewModel.categories.collect {
                 navMenu.add(R.id.drawer_group2, 0, Menu.NONE, getString(R.string.default_category)).setIcon(R.drawable.ic_label_black_24dp)
                 for ((id, name) in it) {
                     navMenu.add(R.id.drawer_group2, id, Menu.NONE, name).setIcon(R.drawable.ic_label_black_24dp)
                 }
+            }
         }
     }
 
@@ -325,42 +319,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * @param filter
      */
     private fun updateList(filter: String) {
-         mainActivityViewModel.getActiveNotesFiltered(filter).observe(this) { notes: List<Note>? ->
-            if (notes != null) {
-                adapter.setNotes(notes)
-            }
-        }
-    }
-
-    /**
-     * Filters active notes.
-     * @param filter
-     */
-    private fun applyFilter(filter: String) {
-        mainActivityViewModel.getActiveNotesFiltered(filter).observe(this) { notes: List<Note>? ->
-            if (notes != null) {
-                adapter.setNotes(notes)
-            }
-        }
-    }
-
-    /**
-     * Filters active notes from category.
-     * @param filter
-     * @param category
-     */
-    private fun applyFilterCategory(filter: String, category: Int) {
-        mainActivityViewModel.getActiveNotesFilteredFromCategory(filter, category).observe(this) { notes: List<Note>? ->
-            if (notes != null) {
-                adapter.setNotes(notes)
-            }
-        }
+        mainActivityViewModel.setFilter(filter)
     }
 
     private fun trashNote(note: Note) {
         note.in_trash = 1
         Toast.makeText(this@MainActivity, getString(R.string.toast_deleted), Toast.LENGTH_SHORT).show()
-        mainActivityViewModel!!.update(note)
+        mainActivityViewModel.update(note)
     }
 
     companion object {

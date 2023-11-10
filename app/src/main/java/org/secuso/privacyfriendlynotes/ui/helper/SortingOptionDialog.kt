@@ -17,7 +17,7 @@ class SortingOptionDialog(
     context: Context,
     sortingOptionTextResId: Int,
     sortingOptionIconResId: Int,
-    onChosen: Consumer<SortingOrder.Options>
+    onChosen: Consumer<SortingOrder>
 ) {
 
     private val dialog = BottomSheetDialog(context)
@@ -35,7 +35,7 @@ class SortingOptionDialog(
             .mapIndexed { i, (text, icon) -> SortingOptionData(
                 text,
                 icon,
-                SortingOrder.Options.values()[i]
+                SortingOrder.values()[i]
             ) }
         icons.recycle()
         recyclerView.adapter = SortingOptionAdapter(options) { option ->
@@ -51,12 +51,12 @@ class SortingOptionDialog(
     data class SortingOptionData(
         val text: String,
         val icon: Int,
-        val option: SortingOrder.Options
+        val option: SortingOrder
     )
 
     inner class SortingOptionAdapter(
         private val options: List<SortingOptionData>,
-        private val onChosen: Consumer<SortingOrder.Options>
+        private val onChosen: Consumer<SortingOrder>
     ): RecyclerView.Adapter<SortingOptionAdapter.SortingOptionHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SortingOptionHolder {
