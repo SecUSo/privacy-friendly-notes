@@ -101,9 +101,9 @@ class NoteAdapter(
 
             DbContract.NoteEntry.TYPE_SKETCH -> {
                 holder.imageViewcategory.visibility = View.VISIBLE
-                val bitmap = mainActivityViewModel.sketchPreview(currentNote, 360)
+                val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
                 if (bitmap != null) {
-                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 300))
+                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))
                 } else {
                     holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
                 }

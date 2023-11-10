@@ -73,8 +73,8 @@
 
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
-    <string name="dialog_delete_all_title">Delete all Notes</string>
-    <string name="dialog_delete_all_message">Are you sure you want to delete all Notes</string>
+    <string name="dialog_delete_all_recycle_bin_title">Delete all Notes in recycle bin</string>
+    <string name="dialog_delete_all_recycle_bin_message">Are you sure you want to delete all Notes currently visible in the recycle bin?</string>
     <string name="dialog_trash_title">Moving to recycle bin</string>
     <string name="dialog_trash_message">Notes will be moved to the recycle bin. You can recover or permanently delete them there. Notifications cannot be restored.</string>
     <string name="dialog_save_title">Deleting selected items.</string>
@@ -108,8 +108,8 @@
     <string name="settings_general_heading">General</string>
     <string name="settings_del_notes_title">Delete notes in category</string>
     <string name="settings_del_notes_sum">Also delete notes that are in the category that is deleted.</string>
-    <string name="settings_note_trashing_dialog_title">Confirmation before trashing note</string>
-    <string name="settings_note_trashing_dialog_desc">Ask for confirmation before moving a note into the trash.</string>
+    <string name="settings_note_trashing_dialog_title">Confirmation before deleting note</string>
+    <string name="settings_note_trashing_dialog_desc">Ask for confirmation before moving a note into the recycling bin.</string>
     <string name="settings_use_custom_font_size_title">Custom font size</string>
     <string name="settings_use_custom_font_size_sum">Use a custom font size in the text note editor.</string>
     <string name="settings_font_size_title">Font size</string>

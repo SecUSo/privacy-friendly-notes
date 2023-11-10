@@ -68,7 +68,7 @@
                     android:layout_height="30dp"
                     android:layout_gravity="center_vertical"
                     android:backgroundTint="?attr/colorIconFill"
-                    android:background="@drawable/ic_delete_black_24dp"/>
+                    android:background="@drawable/ic_baseline_format_color_reset_icon_24dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_color_selector"
