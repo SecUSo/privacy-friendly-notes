@@ -137,8 +137,8 @@
     <string name="note_not_saved">Notiz nicht gespeichert</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Benachrichtigungen aktivieren</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Für diese Funktion ist die Berechtigung zum Senden von Benachrichtigungen und zur Planung von Alarmen und Erinnerungen erforderlich.</string>
-    <string name="dialog_delete_all_recycle_bin_title">Alle Notizen löschen</string>
-    <string name="dialog_delete_all_recycle_bin_message">Wollen Sie alle Notizen entgültig löschen?</string>
+    <string name="dialog_delete_all_recycle_bin_title">Alle Notizen im Papierkorb löschen</string>
+    <string name="dialog_delete_all_recycle_bin_message">Wollen Sie alle momentan sichtbaren Notizen im Papierkorb entgültig löschen?</string>
 
     <!-- Text for sorting options of notes in main activity   -->
     <!-- Order has to match the ordering of model/SortingOrder   -->
