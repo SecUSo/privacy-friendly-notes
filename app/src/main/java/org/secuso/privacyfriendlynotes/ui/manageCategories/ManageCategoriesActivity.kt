@@ -16,15 +16,16 @@ package org.secuso.privacyfriendlynotes.ui.manageCategories
 import android.content.DialogInterface
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -50,6 +51,7 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
     private val btnExpandMenu: ImageButton by lazy { findViewById(R.id.category_expand_menu_button) }
     private val expandMenu: LinearLayout by lazy { findViewById(R.id.category_expand_menu) }
     private var catColor: String? = null
+    private lateinit var adapter: CategoryAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_categories)
@@ -57,8 +59,29 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
 
         this.recyclerList.layoutManager = LinearLayoutManager(this)
         this.recyclerList.setHasFixedSize(true)
-        val adapter = CategoryAdapter()
+        adapter = CategoryAdapter()
+        adapter.displayColorDialog = { category, categoryHolder ->
+            val bundle = Bundle()
+            bundle.putInt(CATEGORY_COLOR,  categoryHolder.bindingAdapterPosition)
+            displayColorDialog(bundle)
+        }
+        adapter.updateCategory = { manageCategoriesViewModel.update(it)}
         this.recyclerList.adapter = adapter
+
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val currentCategory = adapter.categories[viewHolder.bindingAdapterPosition]
+                AlertDialog.Builder(this@ManageCategoriesActivity)
+                    .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
+                    .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.name))
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(R.string.dialog_ok) { dialog, which -> deleteCategory(currentCategory) }
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+            }
+        }).attachToRecyclerView(recyclerList)
 
         lifecycleScope.launch {
             manageCategoriesViewModel.allCategories.collect {
@@ -66,23 +89,14 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
             }
         }
 
-        adapter.setOnItemClickListener { currentCategory ->
-            AlertDialog.Builder(this@ManageCategoriesActivity)
-                .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
-                .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.name))
-                .setNegativeButton(android.R.string.no) { dialog, which ->
-                    //do nothing
-                }
-                .setPositiveButton(R.string.dialog_ok) { dialog, which -> deleteCategory(currentCategory) }
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
-        }
-
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)) {
-            btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
+            val value = TypedValue()
+            theme.resolveAttribute(R.attr.colorOnSurface, value, true)
+            btnColorSelector.setBackgroundColor(value.data)
             btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
             btnResetColor.setOnClickListener {
                 btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
+                manageCategoriesViewModel
                 catColor = null
             }
             btnColorSelector.setOnClickListener { displayColorDialog() }
@@ -117,21 +131,29 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
         manageCategoriesViewModel.delete(cat)
     }
 
-    private fun displayColorDialog() {
+    private fun displayColorDialog(bundle: Bundle = Bundle.EMPTY) {
         SimpleColorDialog.build()
             .title("")
             .allowCustom(true)
             .cancelable(true) //allows close by tapping outside of dialog
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
+            .extra(bundle)
             .show(this, TAG_COLORDIALOG)
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
         if (dialogTag == TAG_COLORDIALOG && which == DialogInterface.BUTTON_POSITIVE) {
-            @ColorInt val color = extras.getInt(SimpleColorDialog.COLOR)
-            btnColorSelector.setBackgroundColor(color)
-            catColor = "#${Integer.toHexString(color)}"
+            val color = extras.getInt(SimpleColorDialog.COLOR)
+            val position = extras.getInt(CATEGORY_COLOR, -1)
+
+            // Check if the user changes a category color
+            if (position != -1) {
+                manageCategoriesViewModel.update(adapter.categories[position], "#${Integer.toHexString(color)}")
+            } else {
+                btnColorSelector.setBackgroundColor(color)
+                catColor = "#${Integer.toHexString(color)}"
+            }
             return true
         }
         return false
@@ -139,5 +161,6 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
 
     companion object {
         private const val TAG_COLORDIALOG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
+        private const val CATEGORY_COLOR = "org.secuso.privacyfriendlynotes.CATEGORY_COLOR"
     }
 }

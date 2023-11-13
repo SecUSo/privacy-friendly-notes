@@ -25,7 +25,7 @@ data class Category(
         @PrimaryKey(autoGenerate = true)
         val _id: Int,
         val name: String,
-        val color: String?
+        var color: String?
 ) {
 
         constructor(name: String): this(

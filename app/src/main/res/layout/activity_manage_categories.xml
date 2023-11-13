@@ -88,7 +88,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_baseline_expand_more_icon_24dp"
-                android:background="?attr/colorSurface" />
+                android:background="@color/transparent"
+                app:tint="?attr/colorIconFill"
+                />
 
         </LinearLayout>
 
@@ -96,7 +98,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview_category"

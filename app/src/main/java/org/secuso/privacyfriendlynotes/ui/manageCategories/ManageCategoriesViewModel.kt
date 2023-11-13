@@ -48,6 +48,12 @@ class ManageCategoriesViewModel (application: Application) : AndroidViewModel(ap
         }
     }
 
+    fun update(category: Category, color: String?) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.categoryDao().update(category._id, color)
+        }
+    }
+
     fun delete(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.categoryDao().delete(category)
