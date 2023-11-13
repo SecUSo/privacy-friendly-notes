@@ -179,7 +179,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), Simpl
         return ActionResult(true, sendIntent)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
             sketchLoaded ||  !drawView.bitmap.sameAs(emptyBitmap()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
@@ -194,24 +194,9 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), Simpl
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        val oldSketch = BitmapDrawable(resources, mFilePath).bitmap
-        val newSketch = drawView.bitmap
-        try {
-            val fo = FileOutputStream(File(mFilePath!!))
-            overlay(oldSketch, newSketch).compress(Bitmap.CompressFormat.PNG, 0, fo)
-            fo.flush()
-            fo.close()
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        val bitmap = drawView.bitmap
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
+        val oldSketch = mFilePath?.let { BitmapDrawable(resources, it).bitmap } ?: emptyBitmap()
+        val bitmap = overlay(oldSketch, drawView.bitmap)
         try {
             val fo = FileOutputStream(File(mFilePath!!))
             bitmap.compress(Bitmap.CompressFormat.PNG, 0, fo)
@@ -235,11 +220,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), Simpl
             .cancelable(true) //allows close by tapping outside of dialog
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
-            .show(this, SketchActivity.TAG_COLORDIALOG)
+            .show(this, SketchActivity.TAG)
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
-        if (dialogTag == SketchActivity.TAG_COLORDIALOG && which == DialogInterface.BUTTON_POSITIVE) {
+        if (dialogTag == SketchActivity.TAG && which == DialogInterface.BUTTON_POSITIVE) {
             @ColorInt val color = extras.getInt(SimpleColorDialog.COLOR)
             drawView.setColor(color)
             btnColorSelector.setBackgroundColor(color)
@@ -291,7 +276,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), Simpl
     }
 
     companion object {
-        private val TAG_COLORDIALOG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
+        private const val TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
 
         //taken from http://stackoverflow.com/a/10616868
         fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {

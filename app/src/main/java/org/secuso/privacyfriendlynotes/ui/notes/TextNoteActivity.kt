@@ -54,6 +54,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val isItalic = MutableLiveData(false)
     private val isUnderline = MutableLiveData(false)
 
+    private var hasChanged = false
+    private var oldText: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
 
@@ -72,18 +75,22 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         underlineBtn.setOnClickListener(this)
 
         isBold.observe(this) { b: Boolean ->
+            hasChanged = true
             boldBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
         }
         isItalic.observe(this) { b: Boolean ->
+            hasChanged = true
             italicsBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
         }
         isUnderline.observe(this) { b: Boolean ->
+            hasChanged = true
             underlineBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
         }
         super.onCreate(savedInstanceState)
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
+        oldText = note.content
         etContent.setText(Html.fromHtml(note.content))
     }
 
@@ -114,12 +121,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
-        val intent = intent
-        return Pair<Boolean, Int>(
-            (title.isNotEmpty() || Html.toHtml(etContent.text) != "") && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
-            R.string.toast_emptyNote
-        )
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
+        hasChanged = hasChanged or (oldText == etContent.text.toString())
+        return if (hasChanged) {
+            Pair(false, R.string.note_not_saved)
+        } else {
+            Pair(title.isNotEmpty() || Html.toHtml(etContent.text).isNotEmpty(), R.string.toast_emptyNote)
+        }
     }
 
     override fun onClick(v: View) {
@@ -363,11 +371,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         etContent.setSelection(startSelection)
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        return ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {
