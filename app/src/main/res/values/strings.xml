@@ -163,6 +163,7 @@
     <string name="note_not_saved">Note not saved</string>
 
     <string name="select_day_night_theme">Design</string>
+    <string name="category_color">With Color</string>
     <string-array name="array_day_night_theme">
         <item>System</item>
         <item>Light</item>

@@ -149,4 +149,6 @@
         <item>Zuletzt verändert</item>
         <item>Benutzerdefinierte Sortierung</item>
     </string-array>
+    <string name="select_day_night_theme">Aussehen</string>
+    <string name="category_color">Mit Farbe</string>
 </resources>

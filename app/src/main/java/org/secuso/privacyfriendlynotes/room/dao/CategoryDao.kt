@@ -31,6 +31,9 @@ interface CategoryDao {
     @Update(onConflict = REPLACE)
     fun update(category: Category)
 
+    @Query("UPDATE categories SET color = :color WHERE _id = :id")
+    fun update(id: Int, color: String?)
+
     @Delete
     fun delete(category: Category)
 
