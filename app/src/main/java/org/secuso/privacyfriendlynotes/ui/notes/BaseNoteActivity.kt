@@ -77,7 +77,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private lateinit var reminder: MenuItem
 
     private var fontSize: Float = 15.0F
-    private var edit = false
+    private var isLoadedNote = false
     private var hasAlarm = false
     private var savedCat = 0
 
@@ -86,6 +86,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var year = 0
 
     protected var shouldSave = true
+    private var hasChanged = false
     private var currentCat = 0
     private var id = -1
 
@@ -96,8 +97,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     private val noteType by lazy { noteType }
 
-    protected abstract fun noteToSave(name: String, category: Int): ActionResult<Note, Int>
-    protected abstract fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int>
+    protected abstract fun onNoteSave(name: String, category: Int): ActionResult<Note, Int>
     protected abstract fun onLoadActivity()
     protected abstract fun onSaveExternalStorage(outputStream: OutputStream)
 
@@ -106,7 +106,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun shareNote(name: String): ActionResult<Intent, Int>
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
-    protected abstract fun determineToSave(title: String, category: Int): Pair<Boolean, Int>
+    protected abstract fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,6 +132,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     currentCat = cat._id
                 }
             }
+            hasChanged = true
         }
 
         lifecycleScope.launch {
@@ -190,7 +191,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             val intent = intent
             id = intent.getIntExtra(EXTRA_ID, -1)
         }
-        edit = id != -1
+        isLoadedNote = id != -1
 
         // Should we set a custom font size?
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
@@ -200,13 +201,18 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             adaptFontSize(etName)
         }
 
+        etName.setOnTouchListener {_,_ ->
+            hasChanged = true
+            false
+        }
+
         // Fill category spinner
         if (adapter!!.count == 0) {
             displayCategoryDialog()
         }
 
         //fill in values if update
-        if (edit) {
+        if (isLoadedNote) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
             createEditNoteViewModel.getNoteByID(id.toLong()).observe(
                 this
@@ -251,7 +257,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
 
             R.id.action_reminder -> {
-                saveOrUpdateNote()
+                saveNote()
 
                 //Check for notification permission and exact alarm permission
                 if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -301,7 +307,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
 
             R.id.action_export -> {
-                saveOrUpdateNote()
+                saveNote()
 
                 saveToExternalStorage()
                 return true
@@ -309,7 +315,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
             R.id.action_share -> {
                 val result = shareNote(etName.text.toString())
-                if (saveOrUpdateNote()) {
+                if (saveNote()) {
                     if (result.isOk()) {
                         startActivity(Intent.createChooser(result.ok, null))
                     } else {
@@ -367,7 +373,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         super.onPause()
         //The Activity is not visible anymore. Save the work!
         if (shouldSave) {
-            saveOrUpdateNote()
+            saveNote()
         }
     }
 
@@ -397,58 +403,37 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveOrUpdateNote(): Boolean {
-        val (toSave, mes) = determineToSave(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
-        return if (toSave) {
-            if (etName.text.isEmpty()) {
-                etName.setText(generateStandardName())
-            }
-            if (edit) updateNote()
-            else saveNote()
-        } else {
-            Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
-            false
-        }
-    }
-
     private fun saveNote(): Boolean {
-        val note = noteToSave(
+        val (changed, mes) = hasNoteChanged(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
+        if (!changed && !hasChanged) {
+            Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (etName.text.isEmpty()) {
+            etName.setText(generateStandardName())
+        }
+
+        val result = onNoteSave(
             etName.text.toString(),
             if (currentCat >= 0) currentCat else savedCat
         )
-        if (note.isOk()) {
-            insertNoteIntoDB(note.ok)
+        if (result.isErr()) {
+            Toast.makeText(applicationContext, getString(result.err ?: R.string.note_not_saved), Toast.LENGTH_SHORT).show()
+            return false
         }
-        return note.isOk()
-    }
-
-    private fun updateNote(): Boolean {
-        val note = updateNoteToSave(
-            etName.text.toString(),
-            if (currentCat >= 0) currentCat else savedCat
-        )
-        if (note.isOk()) {
-            insertNoteIntoDB(note.ok)
+        val note = result.ok!!
+        if (etName.text.toString() != note.name) {
+            etName.setText(note.name)
         }
-        return note.isOk()
-    }
-
-    private fun insertNoteIntoDB(note: Note?) {
-        if (note != null) {
-            if (etName.text.toString() != note.name) {
-                etName.setText(note.name)
-            }
-            if (id != -1) {
-                note._id = id
-                createEditNoteViewModel.update(note)
-                Toast.makeText(applicationContext, R.string.toast_updated, Toast.LENGTH_SHORT).show()
-            } else {
-                id = createEditNoteViewModel.insert(note)
-                Toast.makeText(applicationContext, R.string.toast_saved, Toast.LENGTH_SHORT).show()
-            }
+        if (isLoadedNote) {
+            note._id = id
+            createEditNoteViewModel.update(note)
+            Toast.makeText(applicationContext, R.string.toast_updated, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(applicationContext, R.string.note_not_saved, Toast.LENGTH_SHORT).show()
+            id = createEditNoteViewModel.insert(note)
+            Toast.makeText(applicationContext, R.string.toast_saved, Toast.LENGTH_SHORT).show()
         }
+        return true
     }
 
     private fun cancelNotification() {

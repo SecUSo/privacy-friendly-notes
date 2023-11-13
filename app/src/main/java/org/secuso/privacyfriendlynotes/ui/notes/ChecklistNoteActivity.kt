@@ -189,7 +189,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         adapter.notifyItemRangeInserted(0, adapter.itemCount - 1)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
             (title.isNotEmpty() || adapter.items.isNotEmpty()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
@@ -211,11 +211,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        return ActionResult(true, Note(name, ChecklistUtil.json(adapter.items).toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         val jsonArray = ChecklistUtil.json(adapter.items)
         if (name.isEmpty() && jsonArray.length() == 0) {
             return ActionResult(false, null)

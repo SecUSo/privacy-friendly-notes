@@ -128,7 +128,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
             seekBar.isEnabled && -5 != intent.getIntExtra(
@@ -260,11 +260,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         if (isEmpty) {
             return ActionResult(false, null, null)
         }
