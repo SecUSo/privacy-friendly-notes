@@ -50,7 +50,8 @@
     <string name="action_category">Category</string>
     <string name="action_sketch_undo">Undo</string>
     <string name="action_sketch_redo">Redo</string>
-
+    <string name="action_convert_to_checklist">Convert to checklist</string>
+    <string name="action_convert_to_text">Convert to note</string>
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>

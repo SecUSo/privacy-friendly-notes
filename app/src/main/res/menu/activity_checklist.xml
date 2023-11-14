@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_convert_to_note"
+        android:orderInCategory="150"
+        android:title="@string/action_convert_to_text"
+        android:icon="@drawable/ic_short_text_icon_24dp"
+        app:showAsAction="ifRoom"/>
+</menu>

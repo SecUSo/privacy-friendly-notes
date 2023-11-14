@@ -102,11 +102,16 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         val id = viewModelScope.run {
             database.noteDao().insert(note).toInt()
         }
-        Log.e("id", "$id")
         return id
     }
 
     fun update(note: Note) {
+        viewModelScope.launch(Dispatchers.Default) {
+            database.noteDao().update(note)
+        }
+    }
+
+    fun updateThen(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().update(note)
         }

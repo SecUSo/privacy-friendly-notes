@@ -403,11 +403,13 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveNote(): Boolean {
-        val (changed, mes) = hasNoteChanged(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
-        if (!changed && !hasChanged) {
-            Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
-            return false
+    private fun saveNote(force: Boolean = false): Boolean {
+        if (!force) {
+            val (changed, mes) = hasNoteChanged(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
+            if (!changed && !hasChanged) {
+                Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+                return false
+            }
         }
         if (etName.text.isEmpty()) {
             etName.setText(generateStandardName())
@@ -575,6 +577,19 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     fun setTitle(title: String) {
         etName.setText(title)
+    }
+
+    fun convertNote(content: String, type: Int, afterUpdate: (Int) -> Unit) {
+        saveNote(force = true)
+        shouldSave = false
+        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) {
+            if (it != null) {
+                it.content = content
+                it.type = type
+                createEditNoteViewModel.updateThen(it)
+                afterUpdate(it._id)
+            }
+        }
     }
 
     class ActionResult<O, E>(private val status: Boolean, val ok: O?, val err: E? = null) {
