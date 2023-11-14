@@ -27,6 +27,8 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -35,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
@@ -92,6 +95,27 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun onNoteLoadedFromDB(note: Note) {
         oldText = note.content
         etContent.setText(Html.fromHtml(note.content))
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_text, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_convert_to_checklist -> {
+                val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map { line -> Pair(false, line) })
+                super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                    val i = Intent(application, ChecklistNoteActivity::class.java)
+                    i.putExtra(BaseNoteActivity.EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
+            else -> {}
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onNewNote() {
@@ -372,6 +396,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
+        Log.d("Test", "${name}, ${etContent.text}")
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {

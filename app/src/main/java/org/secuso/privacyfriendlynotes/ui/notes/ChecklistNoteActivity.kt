@@ -13,12 +13,12 @@
  */
 package org.secuso.privacyfriendlynotes.ui.notes
 
-import android.content.ClipData
-import android.content.ClipDescription
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -160,6 +160,29 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 //        lvItemList.adapter = checklistAdapter
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_checklist, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_convert_to_note -> {
+
+                val text = adapter.items.joinToString(System.lineSeparator()) { (_, text) -> text }
+                super.convertNote(text, DbContract.NoteEntry.TYPE_TEXT) {
+                    Log.d("Test", "id: $it, content: $text")
+                    val i = Intent(application, TextNoteActivity::class.java)
+                    i.putExtra(BaseNoteActivity.EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
+            else -> {}
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onNewNote() {
 
     }
@@ -169,7 +192,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             adapter.items.clear()
         }
         adapter.items.addAll(ChecklistUtil.parse(note.content))
-        adapter.notifyItemRangeInserted(0, adapter.itemCount - 1)
+        adapter.notifyDataSetChanged()
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
