@@ -19,7 +19,7 @@ import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.media.MediaScannerConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -31,7 +31,6 @@ import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -40,9 +39,8 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.channels.FileChannel
+import java.io.OutputStream
 
 /**
  * Activity that allows to add, edit and delete audio notes.
@@ -50,7 +48,7 @@ import java.nio.channels.FileChannel
 class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private val btnPlayPause: ImageButton by lazy { findViewById(R.id.btn_play_pause) }
     private val btnRecord: ImageButton by lazy { findViewById(R.id.btn_record) }
-    private val tvRecordingTime: TextView  by lazy { findViewById(R.id.recording_time) }
+    private val tvRecordingTime: TextView by lazy { findViewById(R.id.recording_time) }
     private val seekBar: SeekBar by lazy { findViewById(R.id.seekbar) }
 
     private var mRecorder: MediaRecorder? = null
@@ -147,11 +145,13 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
             } else {
                 stopRecording()
             }
+
             R.id.btn_play_pause -> if (!playing) {
                 startPlaying()
             } else {
                 pausePlaying()
             }
+
             else -> {}
         }
     }
@@ -271,40 +271,20 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
     }
 
-    override fun onSaveExternalStorage(basePath: File, name: String) {
-        val file = File(basePath, "/$name.aac")
-        try {
-            // Make sure the directory exists.
-            if (basePath.exists() || basePath.mkdirs()) {
-                var source: FileChannel? = null
-                var destination: FileChannel? = null
-                try {
-                    source = FileInputStream(File(mFilePath)).channel
-                    destination = FileOutputStream(file).channel
-                    destination.transferFrom(source, 0, source.size())
-                } finally {
-                    source?.close()
-                    destination?.close()
-                }
+    override fun getFileExtension() = ".aac"
+    override fun getMimeType() = "audio/mp4a-latm"
 
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(
-                    this, arrayOf(file.toString()), null
-                ) { path, uri ->
-                    Log.i("ExternalStorage", "Scanned $path:")
-                    Log.i("ExternalStorage", "-> uri=$uri")
+    override fun onSaveExternalStorage(outputStream: OutputStream) {
+        FileInputStream(File(mFilePath)).use {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                it.transferTo(outputStream)
+            } else {
+                val buffer = ByteArray(8192)
+                var length: Int
+                while (it.read(buffer).also { length = it } != -1) {
+                    outputStream.write(buffer, 0, length)
                 }
-                Toast.makeText(
-                    applicationContext,
-                    String.format(getString(R.string.toast_file_exported_to), file.absolutePath),
-                    Toast.LENGTH_LONG
-                ).show()
             }
-        } catch (e: IOException) {
-            // Unable to create file, likely because external storage is
-            // not currently mounted.
-            Log.w("ExternalStorage", "Error writing $file", e)
         }
     }
 }

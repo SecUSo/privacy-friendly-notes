@@ -14,15 +14,18 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.content.Intent
-import android.media.MediaScannerConnection
 import android.os.Bundle
-import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
 import android.widget.AbsListView.MultiChoiceModeListener
+import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.util.forEach
 import org.json.JSONArray
@@ -33,8 +36,7 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.util.CheckListAdapter
 import org.secuso.privacyfriendlynotes.ui.util.CheckListItem
-import java.io.File
-import java.io.IOException
+import java.io.OutputStream
 import java.io.PrintWriter
 
 /**
@@ -86,6 +88,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
                         mode.finish() // Action picked, so close the CAB
                         true
                     }
+
                     R.id.action_edit -> {
                         val temp = ArrayList<CheckListItem?>()
                         lvItemList.checkedItemPositions.forEach { key, value -> if (value) temp.add(checklistAdapter.getItem(key)) }
@@ -116,6 +119,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
                             true
                         }
                     }
+
                     else -> false
                 }
             }
@@ -208,35 +212,14 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         return ActionResult(true, Note(name, jsonArray.toString(), DbContract.NoteEntry.TYPE_CHECKLIST, category))
     }
 
-    override fun onSaveExternalStorage(basePath: File, name: String) {
-        val file = File(basePath, "/checklist_$name.txt")
-        try {
-            // Make sure the directory exists.
-            if (basePath.exists() || basePath.mkdirs()) {
-                val out = PrintWriter(file)
-                out.println(name)
-                out.println()
-                out.println(getContentString())
-                out.close()
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(
-                    this, arrayOf(file.toString()), null
-                ) { path, uri ->
-                    Log.i("ExternalStorage", "Scanned $path:")
-                    Log.i("ExternalStorage", "-> uri=$uri")
-                }
-                Toast.makeText(
-                    applicationContext,
-                    String.format(getString(R.string.toast_file_exported_to), file.absolutePath),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        } catch (e: IOException) {
-            // Unable to create file, likely because external storage is
-            // not currently mounted.
-            Log.w("ExternalStorage", "Error writing $file", e)
-        }
+    override fun getMimeType() = "text/plain"
+
+    override fun getFileExtension() = ".txt"
+
+    override fun onSaveExternalStorage(outputStream: OutputStream) {
+        val out = PrintWriter(outputStream)
+        out.println(getContentString())
+        out.close()
     }
 
     private fun getContentString(): String {

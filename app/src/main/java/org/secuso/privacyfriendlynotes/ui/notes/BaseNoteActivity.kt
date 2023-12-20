@@ -26,7 +26,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.preference.PreferenceManager
 import android.provider.Settings
 import android.view.Menu
@@ -34,6 +33,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -51,7 +51,7 @@ import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.addNotificat
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.removeNotificationFromAlarmManager
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.showAlertScheduledToast
 import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity
-import java.io.File
+import java.io.OutputStream
 import java.util.*
 
 
@@ -96,7 +96,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun noteToSave(name: String, category: Int): ActionResult<Note, Int>
     protected abstract fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int>
     protected abstract fun onLoadActivity()
-    protected abstract fun onSaveExternalStorage(basePath: File, name: String)
+    protected abstract fun onSaveExternalStorage(outputStream: OutputStream)
+
+    protected abstract fun getFileExtension(): String
+    protected abstract fun getMimeType(): String
     protected abstract fun shareNote(name: String): ActionResult<Intent, Int>
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
@@ -293,17 +296,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             R.id.action_export -> {
                 saveOrUpdateNote()
 
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        REQUEST_CODE_EXTERNAL_STORAGE
-                    )
-                } else {
-                    saveToExternalStorage()
-                }
+                saveToExternalStorage()
                 return true
             }
 
@@ -388,17 +381,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_CODE_EXTERNAL_STORAGE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Save the file
-                saveToExternalStorage()
-            } else {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.toast_need_permission_write_external,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
             REQUEST_CODE_AUDIO -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //Do nothing. App should work
             } else {
@@ -525,21 +507,29 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveToExternalStorage() {
-        val state = Environment.getExternalStorageState()
-        if (Environment.MEDIA_MOUNTED == state) {
-            val path = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-                "/PrivacyFriendlyNotes"
-            )
-            onSaveExternalStorage(path, etName.text.toString())
-        } else {
-            Toast.makeText(
-                applicationContext,
-                R.string.toast_external_storage_not_mounted,
-                Toast.LENGTH_LONG
-            ).show()
+    val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let {uri ->
+                val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
+                fileOutputStream?.let {
+                    onSaveExternalStorage(it)
+                    Toast.makeText(
+                        applicationContext,
+                        String.format(getString(R.string.toast_file_exported_to), uri.toString()),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                fileOutputStream?.close()
+            }
         }
+    }
+
+    private fun saveToExternalStorage() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.putExtra(Intent.EXTRA_TITLE, etName.text.toString() + getFileExtension())
+        intent.type = getMimeType()
+        saveToExternalStorageResultLauncher.launch(intent)
     }
 
     private fun generateStandardName(): String {
