@@ -3,3 +3,6 @@ rootProject.name = "Notes"
 
 include ':backup-api'
 project(':backup-api').projectDir = new File('backup-api/BackupAPI')
+
+include ':privacy-friendly-core'
+project(':privacy-friendly-core').projectDir = new File('libs/privacy-friendly-core/app')

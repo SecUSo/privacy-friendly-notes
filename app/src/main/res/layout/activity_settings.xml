@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="org.secuso.privacyfriendlynotes.ui.SettingsActivity">
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_settings"
-        android:name="org.secuso.privacyfriendlynotes.ui.fragments.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

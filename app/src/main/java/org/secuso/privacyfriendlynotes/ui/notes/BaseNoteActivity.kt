@@ -49,7 +49,6 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.room.model.Notification
-import org.secuso.privacyfriendlynotes.ui.SettingsActivity
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.addNotificationToAlarmManager
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.removeNotificationFromAlarmManager
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.showAlertScheduledToast
@@ -192,8 +191,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
         // Should we set a custom font size?
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-            fontSize = sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")!!.toFloat()
+        if (sp.getBoolean("settings_use_custom_font_size", false)) {
+            fontSize = sp.getString("settings_font_size", "15")!!.toFloat()
             adaptFontSize(catSelection)
             adaptFontSize(etName)
         }

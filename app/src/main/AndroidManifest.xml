@@ -90,15 +90,15 @@
             android:parentActivityName=".ui.main.MainActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name="org.secuso.privacyfriendlycore.ui.activities.SettingsActivity"
             android:parentActivityName=".ui.main.MainActivity"
             android:label="@string/title_settings"/>
         <activity
-            android:name=".ui.HelpActivity"
+            android:name="org.secuso.privacyfriendlycore.ui.activities.HelpActivity"
             android:parentActivityName=".ui.main.MainActivity"
             android:label="@string/title_help" />
         <activity
-            android:name=".ui.AboutActivity"
+            android:name="org.secuso.privacyfriendlycore.ui.activities.AboutActivity"
             android:label="@string/title_about"
             android:parentActivityName=".ui.main.MainActivity" />
         <activity

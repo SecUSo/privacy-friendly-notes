@@ -34,7 +34,6 @@ import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.model.Category
-import org.secuso.privacyfriendlynotes.ui.SettingsActivity
 import org.secuso.privacyfriendlynotes.ui.adapter.CategoryAdapter
 
 /**
@@ -121,7 +120,7 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
 
         // Delete all notes from category if the option is set
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {
+        if (sp.getBoolean("settings_del_notes", false)) {
             lifecycleScope.launch {
                 manageCategoriesViewModel.notes.collect {
                         notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }

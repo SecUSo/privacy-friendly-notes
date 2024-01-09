@@ -14,21 +14,65 @@
 package org.secuso.privacyfriendlynotes;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.compose.runtime.State;
 import androidx.work.Configuration;
 
 import org.secuso.privacyfriendlybackup.api.pfa.BackupManager;
+import org.secuso.privacyfriendlycore.model.PFApplication;
+import org.secuso.privacyfriendlycore.ui.AboutData;
+import org.secuso.privacyfriendlycore.ui.help.Help;
+import org.secuso.privacyfriendlycore.ui.settings.ISettings;
+import org.secuso.privacyfriendlycore.ui.settings.SettingData;
+import org.secuso.privacyfriendlycore.ui.settings.Settings;
 import org.secuso.privacyfriendlynotes.backup.BackupCreator;
 import org.secuso.privacyfriendlynotes.backup.BackupRestorer;
+import org.secuso.privacyfriendlynotes.model.PFHelp;
+import org.secuso.privacyfriendlynotes.model.PFNoteSettings;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class NotesApplication extends Application implements Configuration.Provider {
+public class NotesApplication extends PFApplication implements Configuration.Provider {
+
+    @NonNull
+    @Override
+    public AboutData getAbout() {
+        return new AboutData(
+            getString(R.string.app_name_long),
+            BuildConfig.VERSION_NAME,
+            getString(R.string.about_author_names),
+            "https://github.com/SecUSo/privacy-friendly-notes"
+        );
+    }
+
+    @NonNull
+    @Override
+    public Help getHelp() {
+        return PFHelp.Companion.instance(this).getHelp();
+    }
+
+    @NonNull
+    @Override
+    public ISettings getSettings() {
+        return PFNoteSettings.Companion.instance(this).getSettings();
+    }
+
+    @NonNull
+    @Override
+    public String getApplicationName() {
+        return getString(R.string.app_name);
+    }
+
+    @Override
+    public boolean getLightMode() {
+        return PFNoteSettings.Companion.instance(this).getLightMode();
+    }
 
     @Override
     public void onCreate() {

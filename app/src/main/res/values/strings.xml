@@ -130,13 +130,12 @@
 
     <string name="about_version_number">Version</string>
     <string name="about_author">Authors: </string>
-    <string name="about_author_names" translatable="false">Robin Morawetz, Maximilian Zimmermann</string>
+    <string name="about_author_names" translatable="false">Robin Morawetz, Maximilian Zimmermann, Tobias Länge, Patrick Schneider</string>
     <string name="about_author_contributors">and contributors.</string>
     <string name="about_affiliation">In affiliation with</string>
     <string name="about_privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Karlsruhe Institute of Technology (KIT). Sourcecode licensed under GPLv3. Images copyright KIT and Google Inc.</string>
     <string name="about_more_info">More information can be found on:</string>
     <string name="about_url" translatable="false"><a href="https://www.secuso.org/pfa">SECUSO-Website</a></string>
-    <string name="about_github" translatable="false"><a href="https://github.com/SecUSo/privacy-friendly-notes">Github-Repo</a></string>
 
     <string name="note_item_title">Title</string>
     <string name="note_item_description">Description</string>

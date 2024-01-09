@@ -46,10 +46,8 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
-import org.secuso.privacyfriendlynotes.ui.AboutActivity
 import org.secuso.privacyfriendlynotes.ui.HelpActivity
 import org.secuso.privacyfriendlynotes.ui.RecycleActivity
-import org.secuso.privacyfriendlynotes.ui.SettingsActivity
 import org.secuso.privacyfriendlynotes.ui.TutorialActivity
 import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter
 import org.secuso.privacyfriendlynotes.ui.helper.SortingOptionDialog
@@ -251,11 +249,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else if (id == R.id.nav_manage_categories) {
             startActivity(Intent(application, ManageCategoriesActivity::class.java))
         } else if (id == R.id.nav_settings) {
-            startActivity(Intent(application, SettingsActivity::class.java))
+            startActivity(Intent(application, org.secuso.privacyfriendlycore.ui.activities.SettingsActivity::class.java))
         } else if (id == R.id.nav_help) {
-            startActivity(Intent(application, HelpActivity::class.java))
+            startActivity(Intent(application, org.secuso.privacyfriendlycore.ui.activities.HelpActivity::class.java))
         } else if (id == R.id.nav_about) {
-            startActivity(Intent(application, AboutActivity::class.java))
+            startActivity(Intent(application, org.secuso.privacyfriendlycore.ui.activities.AboutActivity::class.java))
         } else if (id == R.id.nav_tutorial) {
             startActivity(Intent(application, TutorialActivity::class.java))
         } else {

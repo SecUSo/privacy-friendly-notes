@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 def pfaFile = rootProject.file('pfa.properties')
 
@@ -39,6 +40,15 @@ android {
         }
     }
 
+    buildFeatures {
+        dataBinding true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.0"
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -59,15 +69,16 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     namespace 'org.secuso.privacyfriendlynotes'
 }
 
 dependencies {
     implementation project(path: ':backup-api')
+    implementation project(path: ':privacy-friendly-core')
+    implementation 'androidx.activity:activity-compose:1.8.2'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.room:room-testing:2.6.0'
@@ -90,7 +101,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    def room_version = "2.5.2"
+    def room_version = "2.6.0"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"

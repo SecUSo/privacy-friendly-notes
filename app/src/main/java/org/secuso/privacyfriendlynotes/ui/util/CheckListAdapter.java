@@ -20,11 +20,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.secuso.privacyfriendlynotes.R;
-import org.secuso.privacyfriendlynotes.ui.SettingsActivity;
 
 import java.util.List;
 
@@ -57,8 +55,8 @@ public class CheckListAdapter extends ArrayAdapter <CheckListItem> {
             textView.setText(item.getName());
             // Should we set a custom font size?
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-            if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
-                textView.setTextSize(Float.parseFloat(sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")));
+            if (sp.getBoolean("settings_use_custom_font_size", false)) {
+                textView.setTextSize(Float.parseFloat(sp.getString("settings_font_size", "15")));
             }
         }
 
