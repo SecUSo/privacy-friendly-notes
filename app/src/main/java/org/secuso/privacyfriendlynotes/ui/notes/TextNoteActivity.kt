@@ -17,7 +17,6 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
-import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.text.Html
 import android.text.Spannable
@@ -25,18 +24,16 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
-import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
-import java.io.File
-import java.io.IOException
+import java.io.OutputStream
 import java.io.PrintWriter
+
 
 /**
  * Activity that allows to add, edit and delete text notes.
@@ -237,6 +234,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 etContent.text = totalText
                 etContent.setSelection(startSelection)
             }
+
             else -> {}
         }
     }
@@ -362,36 +360,14 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         }
     }
 
-    override fun onSaveExternalStorage(basePath: File, name: String) {
-        val file = File(basePath, "/text_${name}.txt")
-        try {
-            // Make sure the directory exists.
-            if (basePath.exists() || basePath.mkdirs()) {
-                val out = PrintWriter(file)
-                out.println(name)
-                out.println()
-                out.println(Html.toHtml(etContent.text))
-                out.close()
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(
-                    this, arrayOf(file.toString()), null
-                ) { path, uri ->
-                    Log.i("ExternalStorage", "Scanned $path:")
-                    Log.i("ExternalStorage", "-> uri=$uri")
-                }
-                Toast.makeText(
-                    applicationContext,
-                    String.format(getString(R.string.toast_file_exported_to), file.absolutePath),
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                Log.e("file", "${file.exists()} ${file.mkdirs()}")
-            }
-        } catch (e: IOException) {
-            // Unable to create file, likely because external storage is
-            // not currently mounted.
-            Log.w("ExternalStorage", "Error writing $file", e)
-        }
+    override fun getMimeType() = "text/plain"
+
+    override fun getFileExtension() = ".txt"
+
+
+    override fun onSaveExternalStorage(outputStream: OutputStream) {
+        val out = PrintWriter(outputStream)
+        out.println(Html.toHtml(etContent.text))
+        out.close()
     }
 }

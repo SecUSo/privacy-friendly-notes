@@ -19,12 +19,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
-import android.media.MediaScannerConnection
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.simplify.ink.InkView
 import org.secuso.privacyfriendlynotes.R
@@ -36,6 +33,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 
 /**
  * Activity that allows to add, edit and delete sketch notes.
@@ -54,7 +52,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
             drawView.bitmap.config
         )
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_sketch)
 
@@ -116,7 +114,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
     override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            sketchLoaded ||  !drawView.bitmap.sameAs(emptyBitmap()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
+            sketchLoaded || !drawView.bitmap.sameAs(emptyBitmap()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
             R.string.toast_emptyNote
         )
     }
@@ -177,46 +175,25 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
             .show()
     }
 
-    override fun onSaveExternalStorage(basePath: File, name: String) {
-        val file = File(basePath, "/$name.jpeg")
-        try {
-            // Make sure the directory exists.
-            if (basePath.exists() || basePath.mkdirs()) {
-                val bm = overlay(
-                    BitmapDrawable(
-                        resources, mFilePath
-                    ).bitmap, drawView.bitmap
-                )
-                val canvas = Canvas(bm)
-                canvas.drawColor(Color.WHITE)
-                canvas.drawBitmap(
-                    overlay(
-                        BitmapDrawable(
-                            resources, mFilePath
-                        ).bitmap, drawView.bitmap
-                    ), 0f, 0f, null
-                )
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, FileOutputStream(file))
+    override fun getFileExtension() = ".jpeg"
+    override fun getMimeType() = "image/jpeg"
 
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(
-                    this, arrayOf(file.toString()), null
-                ) { path, uri ->
-                    Log.i("ExternalStorage", "Scanned $path:")
-                    Log.i("ExternalStorage", "-> uri=$uri")
-                }
-                Toast.makeText(
-                    applicationContext,
-                    String.format(getString(R.string.toast_file_exported_to), file.absolutePath),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        } catch (e: IOException) {
-            // Unable to create file, likely because external storage is
-            // not currently mounted.
-            Log.w("ExternalStorage", "Error writing $file", e)
-        }
+    override fun onSaveExternalStorage(outputStream: OutputStream) {
+        val bm = overlay(
+            BitmapDrawable(
+                resources, mFilePath
+            ).bitmap, drawView.bitmap
+        )
+        val canvas = Canvas(bm)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(
+            overlay(
+                BitmapDrawable(
+                    resources, mFilePath
+                ).bitmap, drawView.bitmap
+            ), 0f, 0f, null
+        )
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
     }
 
     companion object {
