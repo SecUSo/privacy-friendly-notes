@@ -2,6 +2,7 @@
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
     <string name="default_category">Default</string>
+    <string name="default_color">Default</string>
 
     <string name="title_manage_categories">Categories</string>
     <string name="title_textnote">Text Note</string>

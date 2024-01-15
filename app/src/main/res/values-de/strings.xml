@@ -12,6 +12,7 @@
     <string name="app_name_long">Privacy Friendly Notizen</string>
     <string name="action_update">Speichern</string>
     <string name="default_category">Standard</string>
+    <string name="default_color">Standard</string>
     <string name="dialog_delete_message">Wollen Sie %1s endgültig löschen?</string>
     <string name="dialog_delete_title">%1s löschen?</string>
     <string name="dialog_need_category_message">Sie müssen mindestens eine Kategorie erstellen. Möchten Sie dies jetzt tun?</string>

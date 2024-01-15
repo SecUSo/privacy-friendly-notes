@@ -16,6 +16,7 @@ package org.secuso.privacyfriendlynotes.ui.manageCategories
 import android.content.DialogInterface
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
@@ -23,6 +24,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -46,7 +48,6 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
     private val manageCategoriesViewModel: ManageCategoriesViewModel by lazy { ViewModelProvider(this)[ManageCategoriesViewModel::class.java] }
     private val etName: EditText by lazy { findViewById(R.id.etName) }
     private val recyclerList: RecyclerView by lazy { findViewById(R.id.recyclerview_category) }
-    private val btnResetColor: ImageButton by lazy { findViewById(R.id.category_menu_color_reset) }
     private val btnColorSelector: MaterialButton by lazy { findViewById(R.id.btn_color_selector) }
     private val btnExpandMenu: ImageButton by lazy { findViewById(R.id.category_expand_menu_button) }
     private val expandMenu: LinearLayout by lazy { findViewById(R.id.category_expand_menu) }
@@ -94,11 +95,6 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
             theme.resolveAttribute(R.attr.colorOnSurface, value, true)
             btnColorSelector.setBackgroundColor(value.data)
             btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
-            btnResetColor.setOnClickListener {
-                btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
-                manageCategoriesViewModel
-                catColor = null
-            }
             btnColorSelector.setOnClickListener { displayColorDialog() }
         } else {
             btnExpandMenu.visibility = View.GONE
@@ -124,7 +120,7 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
         if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {
             lifecycleScope.launch {
                 manageCategoriesViewModel.notes.collect {
-                        notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }
+                    notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }
                 }
             }
         }
@@ -138,21 +134,29 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
             .cancelable(true) //allows close by tapping outside of dialog
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
+            .neut(R.string.default_color)
             .extra(bundle)
             .show(this, TAG_COLORDIALOG)
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
-        if (dialogTag == TAG_COLORDIALOG && which == DialogInterface.BUTTON_POSITIVE) {
-            val color = extras.getInt(SimpleColorDialog.COLOR)
+        // 0 is dismiss
+        if (dialogTag == TAG_COLORDIALOG && which != DialogInterface.BUTTON_NEGATIVE && which != 0) {
+            val color = if (which == DialogInterface.BUTTON_POSITIVE) "#${Integer.toHexString(extras.getInt(SimpleColorDialog.COLOR))}" else null;
             val position = extras.getInt(CATEGORY_COLOR, -1)
 
             // Check if the user changes a category color
             if (position != -1) {
-                manageCategoriesViewModel.update(adapter.categories[position], "#${Integer.toHexString(color)}")
+                manageCategoriesViewModel.update(adapter.categories[position], color)
             } else {
-                btnColorSelector.setBackgroundColor(color)
-                catColor = "#${Integer.toHexString(color)}"
+                if (color == null) {
+                    btnColorSelector.setIconResource(R.drawable.transparent_checker)
+                    btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
+                } else {
+                    btnColorSelector.icon = null
+                    btnColorSelector.setBackgroundColor(color.toColorInt())
+                }
+                catColor = color
             }
             return true
         }

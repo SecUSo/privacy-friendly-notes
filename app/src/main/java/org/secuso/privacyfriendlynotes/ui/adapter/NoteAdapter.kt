@@ -74,15 +74,21 @@ class NoteAdapter(
 
         if (colorCategory) {
             mainActivityViewModel.categoryColor(currentNote.category) {
-                val color: Int = it?.let { Color.parseColor(it) } ?: run {
-                    val value = TypedValue()
-                    holder.itemView.context.theme.resolveAttribute(R.attr.colorOnSurface, value, true)
-                    value.data
-                }
+
                 if (DarkModeUtil.isDarkMode(holder.textViewTitle.context)) {
+                    val color: Int = it?.let { Color.parseColor(it) } ?: run {
+                        val value = TypedValue()
+                        holder.itemView.context.theme.resolveAttribute(R.attr.colorOnBackground, value, true)
+                        value.data
+                    }
                     holder.textViewTitle.setTextColor(color)
                     holder.textViewExtraText.setTextColor(color)
                 } else {
+                    val color: Int = it?.let { Color.parseColor(it) } ?: run {
+                        val value = TypedValue()
+                        holder.itemView.context.theme.resolveAttribute(R.attr.colorSurface, value, true)
+                        value.data
+                    }
                     holder.viewNoteItem.setBackgroundColor(color)
                 }
             }

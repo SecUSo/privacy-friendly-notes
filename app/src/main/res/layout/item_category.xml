@@ -73,16 +73,26 @@
                     android:backgroundTint="?attr/colorIconFill"
                     android:background="@drawable/ic_baseline_format_color_reset_icon_24dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/category_item_color_selector"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/btn_color_selector_transparent"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="0dp"
-                    android:padding="0dp"
-                    app:cornerRadius="10dp"
-                    android:theme="@style/AppTheme.CategoryButton"
-                    />
+                    android:layout_height="30dp"
+                    app:cardCornerRadius="5dp"
+                    >
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/category_item_color_selector"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_gravity="center_vertical"
+                        android:padding="0dp"
+                        app:icon="@drawable/transparent_checker"
+                        app:iconTint="@color/transparent"
+                        app:iconTintMode="add"
+                        app:iconPadding="0dp"
+                        android:theme="@style/AppTheme.CategoryButton"
+                        />
+                </androidx.cardview.widget.CardView>
 
             </LinearLayout>
 

@@ -2,6 +2,7 @@
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
     <string name="default_category">デフォルト</string>
+    <string name="default_color">デフォルト</string>
 
     <string name="title_manage_categories">カテゴリー</string>
     <string name="title_textnote">テキスト メモ</string>

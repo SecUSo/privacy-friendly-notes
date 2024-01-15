@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.preference.PreferenceManager
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -53,20 +54,37 @@ class CategoryAdapter(
     override fun onBindViewHolder(holder: CategoryHolder, position: Int) {
         val (_, name, color) = categories[position]
         holder.textViewCategoryName.text = name
-        val backgroundColor = if (color != null) Color.parseColor(color) else {
+
+        if (color == null) {
             val value = TypedValue()
             holder.itemView.context.theme.resolveAttribute(R.attr.colorOnSurface, value, true)
-            value.data
-        }
-        if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
-            if (isDarkMode(holder.textViewCategoryName.context)) {
-                holder.textViewCategoryName.setTextColor(backgroundColor)
-                holder.btnColorSelector.setBackgroundColor(backgroundColor)
+            val defaultColor = value.data
+
+            if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
+                holder.btnColorSelector.setIconResource(R.drawable.transparent_checker)
+                holder.btnColorSelector.setBackgroundColor(holder.btnColorSelector.resources.getColor(R.color.transparent))
+                if (isDarkMode(holder.textViewCategoryName.context)) {
+                    holder.textViewCategoryName.setTextColor(defaultColor)
+                } else {
+                    holder.itemView.setBackgroundColor(defaultColor)
+                }
             } else {
-                holder.itemView.setBackgroundColor(backgroundColor)
+                holder.btnExpandMenu.visibility = View.GONE
             }
         } else {
-            holder.btnExpandMenu.visibility = View.GONE
+            val backgroundColor = Color.parseColor(color)
+            if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
+                holder.btnColorSelector.icon = null
+                holder.btnColorSelector.setBackgroundColor(backgroundColor)
+                if (isDarkMode(holder.textViewCategoryName.context)) {
+                    holder.textViewCategoryName.setTextColor(backgroundColor)
+                } else {
+                    holder.itemView.setBackgroundColor(backgroundColor)
+                }
+            } else {
+                holder.btnExpandMenu.visibility = View.GONE
+            }
+
         }
     }
 
