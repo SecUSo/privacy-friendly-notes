@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -21,19 +22,20 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
 import com.simplify.ink.InkView
+import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
+import eltos.simpledialogfragment.color.SimpleColorDialog
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
-import petrov.kristiyan.colorpicker.ColorPicker
-import petrov.kristiyan.colorpicker.ColorPicker.OnFastChooseColorListener
+import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -43,7 +45,7 @@ import java.io.OutputStream
 /**
  * Activity that allows to add, edit and delete sketch notes.
  */
-class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH) {
+class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDialogResultListener {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
     private lateinit var undoButton: MenuItem
