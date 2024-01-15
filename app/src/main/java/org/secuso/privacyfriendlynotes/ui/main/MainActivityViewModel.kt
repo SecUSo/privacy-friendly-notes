@@ -79,6 +79,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         this.ordering.value = ordering
     }
 
+    fun isCustomOrdering(): Boolean {
+        return this.ordering.value == SortingOrder.Custom
+    }
+
     fun setCategory(id: Int) {
         this.category.value = id
     }

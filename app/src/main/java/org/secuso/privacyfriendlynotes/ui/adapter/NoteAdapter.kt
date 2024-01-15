@@ -123,6 +123,7 @@ class NoteAdapter(
         if (holder.textViewDescription.text.toString().isEmpty()) {
             holder.textViewDescription.visibility = View.GONE
         }
+        holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
     }
 
     override fun getItemCount(): Int {

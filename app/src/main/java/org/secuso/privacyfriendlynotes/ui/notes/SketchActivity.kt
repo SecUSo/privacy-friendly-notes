@@ -35,7 +35,6 @@ import eltos.simpledialogfragment.color.SimpleColorDialog
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
-import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream

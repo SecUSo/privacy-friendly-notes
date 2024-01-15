@@ -15,9 +15,6 @@ package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.ActionMode
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -29,7 +26,6 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.adapter.ChecklistAdapter
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
-import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import java.io.OutputStream
 import java.io.PrintWriter
 import java.util.Collections
