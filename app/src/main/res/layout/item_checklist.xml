@@ -4,29 +4,22 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <EditText
+        android:id="@+id/item_name"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:theme="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
-
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/item_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:inputType="text|textCapSentences"
-            android:padding="10dp"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:inputType="text|textCapSentences"
+        android:padding="10dp"/>
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:layout_width="24dp"
         android:layout_height="wrap_content"
         android:id="@+id/item_checkbox"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="15dp" />
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp" />
 
     <ImageView
         android:id="@+id/drag_handle"
