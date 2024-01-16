@@ -12,9 +12,15 @@
         android:layout_gravity="center_vertical" />
     <TextView
         android:id="@+id/sorting_option_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="20dp"
+        android:layout_weight="1"
         android:gravity="center_vertical"/>
+    <ImageView
+        android:id="@+id/sorting_option_reversed"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center" />
 </LinearLayout>

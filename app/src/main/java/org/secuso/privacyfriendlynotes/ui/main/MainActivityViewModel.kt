@@ -19,6 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.preference.PreferenceManager
 import android.text.Html
+import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.util.Consumer
 import androidx.lifecycle.*
@@ -54,13 +55,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private var ordering: MutableStateFlow<SortingOrder> = MutableStateFlow(
         SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.LastModified.name)!!)
     )
+    private var reversed: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var category: MutableStateFlow<Int> = MutableStateFlow(CAT_ALL)
 
     val trashedNotes: Flow<List<Note>> = repository.noteDao().allTrashedNotes
         .triggerOn(filter)
         .filterNotes()
     val activeNotes: Flow<List<Note>> = repository.noteDao().allActiveNotes
-        .triggerOn(filter, ordering, category)
+        .triggerOn(filter, ordering, category, reversed)
         .filterCategories()
         .filterNotes()
         .sortNotes()
@@ -73,10 +75,20 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun setOrder(ordering: SortingOrder) {
-        prefManager.edit()
-            .putString(PreferenceKeys.SP_NOTES_ORDERING, ordering.name)
-            .apply()
+        reversed.value = if (this.ordering.value != ordering) {
+            prefManager.edit()
+                .putString(PreferenceKeys.SP_NOTES_ORDERING, ordering.name)
+                .apply()
+            false
+        } else {
+            !reversed.value
+        }
+        Log.d("Reverse", reversed.toString())
         this.ordering.value = ordering
+    }
+
+    fun getOrder(): SortingOrder {
+        return this.ordering.value
     }
 
     fun isCustomOrdering(): Boolean {
@@ -89,6 +101,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getCategory(): Int {
         return this.category.value
+    }
+
+    fun isReversed(): Boolean {
+        return this.reversed.value
     }
 
     fun insert(note: Note) {
@@ -157,7 +173,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun Flow<List<Note>>.sortNotes(): Flow<List<Note>> {
-        return this.map { it.sortedWith(ordering.comparator()) }
+        return this.map { it.sortedWith(ordering.comparator()).apply { return@map if (reversed.value) this.reversed() else this } }
     }
 
     private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {

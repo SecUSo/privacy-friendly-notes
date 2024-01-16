@@ -17,6 +17,8 @@ class SortingOptionDialog(
     context: Context,
     sortingOptionTextResId: Int,
     sortingOptionIconResId: Int,
+    current: SortingOrder,
+    reversed: Boolean,
     onChosen: Consumer<SortingOrder>
 ) {
 
@@ -38,7 +40,7 @@ class SortingOptionDialog(
                 SortingOrder.values()[i]
             ) }
         icons.recycle()
-        recyclerView.adapter = SortingOptionAdapter(options) { option ->
+        recyclerView.adapter = SortingOptionAdapter(options, current, reversed) { option ->
             onChosen.accept(option)
             dialog.dismiss()
         }
@@ -56,7 +58,9 @@ class SortingOptionDialog(
 
     inner class SortingOptionAdapter(
         private val options: List<SortingOptionData>,
-        private val onChosen: Consumer<SortingOrder>
+        private val current: SortingOrder,
+        private val reversed: Boolean,
+        private val onChosen: Consumer<SortingOrder>,
     ): RecyclerView.Adapter<SortingOptionAdapter.SortingOptionHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SortingOptionHolder {
@@ -72,11 +76,15 @@ class SortingOptionDialog(
             holder.textView.text = options[position].text
             holder.imgView.setImageResource(options[position].icon)
             holder.itemView.setOnClickListener { _ -> onChosen.accept(options[position].option) }
+            if (options[position].option == current) {
+                holder.reverseOrder.setImageResource(if (reversed) R.drawable.baseline_arrow_downward_24 else R.drawable.baseline_arrow_upward_24)
+            }
         }
 
         inner class SortingOptionHolder(view: View): RecyclerView.ViewHolder(view) {
             val textView: TextView = view.findViewById(R.id.sorting_option_text)
             val imgView: ImageView = view.findViewById(R.id.sorting_option_icon)
+            val reverseOrder: ImageView = view.findViewById(R.id.sorting_option_reversed)
         }
 
     }

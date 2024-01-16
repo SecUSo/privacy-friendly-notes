@@ -224,7 +224,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val dialog = SortingOptionDialog(
                 this,
                 R.array.notes_sort_ordering_text,
-                R.array.notes_sort_ordering_icons
+                R.array.notes_sort_ordering_icons,
+                mainActivityViewModel.getOrder(),
+                mainActivityViewModel.isReversed(),
             ) { option: SortingOrder? ->
                 mainActivityViewModel.setOrder(option!!)
                 updateList(searchView.query.toString())
