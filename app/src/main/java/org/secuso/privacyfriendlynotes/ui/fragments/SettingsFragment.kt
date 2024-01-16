@@ -14,22 +14,21 @@
 package org.secuso.privacyfriendlynotes.ui.fragments
 
 import android.os.Bundle
-import android.preference.PreferenceFragment
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceFragmentCompat
 import org.secuso.privacyfriendlynotes.R
 
 /**
  * Fragment that provides the settings.
  * Created by Robin on 11.09.2016.
  */
-class SettingsFragment : PreferenceFragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        addPreferencesFromResource(R.xml.pref_settings)
-        findPreference("settings_day_night_theme")?.setOnPreferenceChangeListener { _, newValue ->
+class SettingsFragment : PreferenceFragmentCompat() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.pref_settings, rootKey)
+        findPreference<ListPreference>("settings_day_night_theme")?.setOnPreferenceChangeListener { _, newValue ->
             AppCompatDelegate.setDefaultNightMode(newValue.toString().toInt())
             true;
         }
-
     }
 }

@@ -44,6 +44,8 @@
                         app:iconTint="@color/transparent"
                         app:iconTintMode="add"
                         app:iconPadding="0dp"
+                        app:iconSize="40dp"
+                        app:cornerRadius="5dp"
                         android:theme="@style/AppTheme.CategoryButton" />
                 </androidx.cardview.widget.CardView>
 

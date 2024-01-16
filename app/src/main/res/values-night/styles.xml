@@ -1,23 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/white</item>
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorSurface">@color/colorSurfaceDark</item>
-        <item name="colorOnSurface">@color/white</item>
         <item name="colorSurfaceSecondary">@color/colorSurfaceSecondaryDark</item>
         <item name="colorBackground">@color/colorBackgroundDark</item>
-        <item name="colorOnBackground">@color/white</item>
         <item name="android:windowBackground">@color/colorBackgroundDark</item>
+
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/md_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_dark_background</item>
+        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/md_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
 
         <item name="colorNavbarHeaderBackground">@color/colorPrimaryDark</item>
         <item name="colorNavbarHeaderSurface">#476885</item>
         <item name="colorNavbarHeaderText">@color/white</item>
 
         <item name="colorIconFill">@color/white</item>
+        <item name="android:statusBarColor">@color/colorSecuso</item>
 
+        <item name="toolbarStyle">@style/AppTheme.ActionBar</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
     </style>
+
+    <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar.Surface">
+        <item name="android:background">@color/colorSecuso</item>
+    </style>
+
+    <style name="AppTheme.SearchView" parent="AppTheme">
+        <item name="colorControlNormal">@color/white</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
+    </style>
+
+    <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_switch</item>
+    </style>
+
 
     <style name="AppTheme.PopupOverlay.DialogAlert" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="colorPrimary">?attr/colorOnSurface</item>
