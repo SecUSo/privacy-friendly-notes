@@ -77,8 +77,13 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
                 AlertDialog.Builder(this@ManageCategoriesActivity)
                     .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
                     .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.name))
-                    .setNegativeButton(android.R.string.no, null)
-                    .setPositiveButton(R.string.dialog_ok) { dialog, which -> deleteCategory(currentCategory) }
+                    .setNegativeButton(android.R.string.no) { dialog, which ->
+                        adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                    }
+                    .setPositiveButton(R.string.dialog_ok) { dialog, which ->
+                        adapter.notifyItemRemoved(viewHolder.adapterPosition)
+                        deleteCategory(currentCategory)
+                    }
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
             }

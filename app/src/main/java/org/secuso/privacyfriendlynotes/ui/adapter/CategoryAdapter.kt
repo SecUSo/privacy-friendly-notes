@@ -14,7 +14,6 @@
 package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.preference.PreferenceManager
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -23,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import org.secuso.privacyfriendlynotes.R
@@ -55,36 +55,16 @@ class CategoryAdapter(
         val (_, name, color) = categories[position]
         holder.textViewCategoryName.text = name
 
-        if (color == null) {
-            val value = TypedValue()
-            holder.itemView.context.theme.resolveAttribute(R.attr.colorOnSurface, value, true)
-            val defaultColor = value.data
-
-            if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
+        if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
+            if (color == null) {
                 holder.btnColorSelector.setIconResource(R.drawable.transparent_checker)
                 holder.btnColorSelector.setBackgroundColor(holder.btnColorSelector.resources.getColor(R.color.transparent))
-                if (isDarkMode(holder.textViewCategoryName.context)) {
-                    holder.textViewCategoryName.setTextColor(defaultColor)
-                } else {
-                    holder.itemView.setBackgroundColor(defaultColor)
-                }
-            } else {
-                holder.btnExpandMenu.visibility = View.GONE
+            }  else {
+                holder.btnColorSelector.icon = null
+                holder.btnColorSelector.setBackgroundColor(Color.parseColor(color))
             }
         } else {
-            val backgroundColor = Color.parseColor(color)
-            if (PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_color_category", true)) {
-                holder.btnColorSelector.icon = null
-                holder.btnColorSelector.setBackgroundColor(backgroundColor)
-                if (isDarkMode(holder.textViewCategoryName.context)) {
-                    holder.textViewCategoryName.setTextColor(backgroundColor)
-                } else {
-                    holder.itemView.setBackgroundColor(backgroundColor)
-                }
-            } else {
-                holder.btnExpandMenu.visibility = View.GONE
-            }
-
+            holder.btnColorSelector.visibility = View.GONE
         }
     }
 
@@ -99,19 +79,11 @@ class CategoryAdapter(
 
     inner class CategoryHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewCategoryName: TextView = itemView.findViewById(R.id.item_name)
-        val btnExpandMenu: ImageButton by lazy { itemView.findViewById(R.id.category_expand_menu_button) }
-        private val expandMenu: LinearLayout by lazy { itemView.findViewById(R.id.category_expand_menu) }
-        private val btnResetColor: ImageButton by lazy { itemView.findViewById(R.id.category_item_color_reset) }
+        val card: CardView = itemView.findViewById(R.id.category_card)
         val btnColorSelector: MaterialButton by lazy { itemView.findViewById(R.id.category_item_color_selector) }
 
         init {
-            btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
             btnColorSelector.setOnClickListener { displayColorDialog?.let { it(categories[bindingAdapterPosition], this) } }
-            btnResetColor.setOnClickListener {
-                categories[bindingAdapterPosition].color = null
-                updateCategory?.let { it(categories[bindingAdapterPosition]) }
-                notifyItemChanged(bindingAdapterPosition)
-            }
         }
     }
 
