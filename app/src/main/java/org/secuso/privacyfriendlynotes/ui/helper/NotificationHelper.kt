@@ -4,10 +4,11 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import org.secuso.privacyfriendlynotes.R
-import org.secuso.privacyfriendlynotes.service.NotificationService
+import org.secuso.privacyfriendlynotes.receiver.NotificationReceiver
 
 object NotificationHelper {
     private const val TAG = "NotificationHelper"
@@ -21,12 +22,14 @@ object NotificationHelper {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) {
-            // For versions < S, we do not need to check for the permission
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
-        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
-            // For versions >= S, we need to check for the permission
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+        // For versions < S, we do not need to check for the permission
+        // For versions >= S, we need to check for the permission
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+            } else {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pi)
+            }
         } else {
             // We don't have the permission to schedule exact alarms
             return
@@ -43,12 +46,12 @@ object NotificationHelper {
     }
 
     private fun createNotificationPendingIntent(context: Context, noteId: Int, noteType: Int, notificationTitle: String): PendingIntent {
-        val i = Intent(context, NotificationService::class.java)
-        i.putExtra(NotificationService.NOTIFICATION_ID, noteId)
-        i.putExtra(NotificationService.NOTIFICATION_TYPE, noteType)
-        i.putExtra(NotificationService.NOTIFICATION_TITLE, notificationTitle)
+        val i = Intent(context, NotificationReceiver::class.java)
+        i.putExtra(NotificationReceiver.NOTIFICATION_ID, noteId)
+        i.putExtra(NotificationReceiver.NOTIFICATION_TYPE, noteType)
+        i.putExtra(NotificationReceiver.NOTIFICATION_TITLE, notificationTitle)
 
-        return PendingIntent.getService(context, noteId, i, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(context, noteId, i, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     @JvmStatic

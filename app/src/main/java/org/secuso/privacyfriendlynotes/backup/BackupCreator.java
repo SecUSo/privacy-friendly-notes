@@ -27,7 +27,7 @@ import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
 import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
-import org.secuso.privacyfriendlynotes.NotesApplication;
+import org.secuso.privacyfriendlynotes.PFNotesApplication;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -41,10 +41,6 @@ public class BackupCreator implements IBackupCreator {
 
     @Override
     public boolean writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
-        // lock application, so no changes can be made as long as this backup is created
-        // depending on the size of the application - this could take a bit
-        ((NotesApplication) context.getApplicationContext()).lock();
-
         Log.d("PFA BackupCreator", "createBackup() started");
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, UTF_8);
         JsonWriter writer = new JsonWriter(outputStreamWriter);
@@ -87,7 +83,6 @@ public class BackupCreator implements IBackupCreator {
 
         Log.d("PFA BackupCreator", "Backup created successfully");
 
-        ((NotesApplication) context.getApplicationContext()).release();
         return true;
     }
 }
