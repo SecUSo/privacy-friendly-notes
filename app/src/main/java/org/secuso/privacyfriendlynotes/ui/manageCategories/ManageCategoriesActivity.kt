@@ -31,8 +31,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.getbase.floatingactionbutton.FloatingActionButton
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.dialog.MaterialDialogs
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.launch
@@ -46,19 +48,15 @@ import org.secuso.privacyfriendlynotes.ui.adapter.CategoryAdapter
  * Data is provided by the ManageCategoriesViewModel
  * @see ManageCategoriesViewModel
  */
-class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDialogResultListener {
+class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
     private val manageCategoriesViewModel: ManageCategoriesViewModel by lazy { ViewModelProvider(this)[ManageCategoriesViewModel::class.java] }
-    private val etName: EditText by lazy { findViewById(R.id.etName) }
     private val recyclerList: RecyclerView by lazy { findViewById(R.id.recyclerview_category) }
-    private val btnColorSelector: MaterialButton by lazy { findViewById(R.id.btn_color_selector) }
-    private val btnExpandMenu: ImageButton by lazy { findViewById(R.id.category_expand_menu_button) }
-    private val expandMenu: LinearLayout by lazy { findViewById(R.id.category_expand_menu) }
-    private var catColor: String? = null
+    private val fab: FloatingActionButton by lazy { findViewById(R.id.fab_add) }
+    private var onColorResult: ((String?) -> Unit)? = null
     private lateinit var adapter: CategoryAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_categories)
-        findViewById<View>(R.id.btn_add).setOnClickListener(this)
 
         this.recyclerList.layoutManager = LinearLayoutManager(this)
         this.recyclerList.setHasFixedSize(true)
@@ -94,33 +92,51 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
                     .show()
             }
         }).attachToRecyclerView(recyclerList)
+        fab.setOnClickListener {
+            val view = layoutInflater.inflate(R.layout.dialog_create_category, null)
+            val name = view.findViewById<EditText>(R.id.etName)
+            val colorSelector = view.findViewById<MaterialButton>(R.id.btn_color_selector)
+            val colorMenu = view.findViewById<View>(R.id.color_menu)
+            var color: String? = null
+            this.onColorResult = {
+                if (it == null) {
+                    colorSelector.setIconResource(R.drawable.transparent_checker)
+                    colorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
+                } else {
+                    colorSelector.icon = null
+                    colorSelector.setBackgroundColor(it.toColorInt())
+                }
+                color = it
+            }
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)) {
+                val value = TypedValue()
+                theme.resolveAttribute(R.attr.colorOnSurface, value, true)
+                colorSelector.setBackgroundColor(value.data)
+                colorSelector.setOnClickListener { displayColorDialog() }
+            } else {
+                colorMenu.visibility = View.GONE
+            }
+
+            MaterialAlertDialogBuilder(ContextThemeWrapper(this@ManageCategoriesActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                .setView(view)
+                .setTitle(R.string.dialog_create_category_title)
+                .setPositiveButton(R.string.dialog_create_category_btn) { _, _ ->
+                    if (name.text.isNotEmpty()) {
+                        val category = Category(name.text.toString(), color)
+                        if (manageCategoriesViewModel.allCategories.value.count { it.name == category.name } == 0) {
+                            manageCategoriesViewModel.insert(category)
+                        }
+                    }
+                    onColorResult = null
+                }
+                .setOnDismissListener { onColorResult = null }
+                .show()
+        }
 
         lifecycleScope.launch {
             manageCategoriesViewModel.allCategories.collect {
                 adapter.setCategories(it)
             }
-        }
-
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)) {
-            val value = TypedValue()
-            theme.resolveAttribute(R.attr.colorOnSurface, value, true)
-            btnColorSelector.setBackgroundColor(value.data)
-            btnExpandMenu.setOnClickListener { expandMenu.visibility = if (expandMenu.visibility == View.GONE) { View.VISIBLE } else { View.GONE } }
-            btnColorSelector.setOnClickListener { displayColorDialog() }
-        } else {
-            btnExpandMenu.visibility = View.GONE
-        }
-    }
-
-    override fun onClick(v: View) {
-        if (v.id == R.id.btn_add) {
-            if (etName.text.isNotEmpty()) {
-                val category = Category(etName.text.toString(), catColor)
-                if (manageCategoriesViewModel.allCategories.value.count { it.name == category.name } == 0) {
-                    manageCategoriesViewModel.insert(category)
-                }
-            }
-            etName.setText("")
         }
     }
 
@@ -160,14 +176,7 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
             if (position != -1) {
                 manageCategoriesViewModel.update(adapter.categories[position], color)
             } else {
-                if (color == null) {
-                    btnColorSelector.setIconResource(R.drawable.transparent_checker)
-                    btnColorSelector.setBackgroundColor(resources.getColor(R.color.transparent))
-                } else {
-                    btnColorSelector.icon = null
-                    btnColorSelector.setBackgroundColor(color.toColorInt())
-                }
-                catColor = color
+                onColorResult?.let { it(color) }
             }
             return true
         }

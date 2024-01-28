@@ -27,7 +27,7 @@
                     android:layout_margin="10dp"/>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/btn_color_selector_transparent"
+                    android:id="@+id/btn_color_selector_wrapper"
                     android:layout_width="40dp"
                     android:layout_height="30dp"
                     android:layout_gravity="center"

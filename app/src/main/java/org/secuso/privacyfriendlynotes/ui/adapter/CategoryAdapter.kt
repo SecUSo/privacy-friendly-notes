@@ -64,7 +64,7 @@ class CategoryAdapter(
                 holder.btnColorSelector.setBackgroundColor(Color.parseColor(color))
             }
         } else {
-            holder.btnColorSelector.visibility = View.GONE
+            holder.colorSelectorWrapper.visibility = View.GONE
         }
     }
 
@@ -79,7 +79,7 @@ class CategoryAdapter(
 
     inner class CategoryHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewCategoryName: TextView = itemView.findViewById(R.id.item_name)
-        val card: CardView = itemView.findViewById(R.id.category_card)
+        val colorSelectorWrapper: CardView = itemView.findViewById(R.id.btn_color_selector_wrapper)
         val btnColorSelector: MaterialButton by lazy { itemView.findViewById(R.id.category_item_color_selector) }
 
         init {

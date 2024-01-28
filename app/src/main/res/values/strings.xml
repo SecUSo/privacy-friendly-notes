@@ -91,6 +91,8 @@
     <string name="dialog_help">View Help</string>
     <string name="dialog_welcome_text">With this app you can create and share notes in the form of text, checklists, memos and sketches.</string>
     <string name="dialog_ok" translatable="false">OKAY</string>
+    <string name="dialog_create_category_title">Create category</string>
+    <string name="dialog_create_category_btn">Create</string>
 
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Enable notifications</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Permission to send notifications and schedule alarms and reminders is needed for this feature.</string>
