@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -68,20 +69,29 @@ class RecycleActivity : AppCompatActivity() {
             }
         })
 
-        adapter.setOnItemClickListener { note: Note ->
-            MaterialAlertDialogBuilder(ContextThemeWrapper(this, R.style.AppTheme_PopupOverlay_DialogAlert))
-                .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
-                .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))
-                .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
-                    mainActivityViewModel.delete(note)
-                }
-                .setNegativeButton(R.string.dialog_option_restore) { _, _ ->
-                    note.in_trash = 0
-                    mainActivityViewModel.update(note)
-                }
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
-        }
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val note = adapter.notes[viewHolder.bindingAdapterPosition]
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@RecycleActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                    .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
+                    .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))
+                    .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
+                        mainActivityViewModel.delete(note)
+                        adapter.notifyItemRemoved(viewHolder.bindingAdapterPosition)
+                    }
+                    .setNegativeButton(R.string.dialog_option_restore) { _, _ ->
+                        note.in_trash = 0
+                        mainActivityViewModel.update(note)
+                        adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                    }
+                    .setOnDismissListener { adapter.notifyItemChanged(viewHolder.bindingAdapterPosition) }
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+            }
+        }).attachToRecyclerView(recyclerView)
+
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false)
     }
 
@@ -104,5 +114,9 @@ class RecycleActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showDeleteDialog(note: Note, position: Int) {
+
     }
 }
