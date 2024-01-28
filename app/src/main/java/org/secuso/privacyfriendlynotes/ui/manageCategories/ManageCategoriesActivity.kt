@@ -89,6 +89,7 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
                         adapter.notifyItemRemoved(viewHolder.adapterPosition)
                         deleteCategory(currentCategory)
                     }
+                    .setOnDismissListener { adapter.notifyItemChanged(viewHolder.bindingAdapterPosition) }
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
             }

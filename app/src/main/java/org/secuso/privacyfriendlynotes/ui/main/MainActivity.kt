@@ -148,6 +148,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .setNegativeButton(android.R.string.cancel) { _, _ ->
                             adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
                         }
+                        .setOnDismissListener { adapter.notifyItemChanged(viewHolder.bindingAdapterPosition) }
                         .show()
                 } else {
                     trashNote(note)
