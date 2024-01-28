@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.launch
@@ -74,13 +76,16 @@ class ManageCategoriesActivity : AppCompatActivity(), View.OnClickListener, OnDi
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val currentCategory = adapter.categories[viewHolder.bindingAdapterPosition]
-                AlertDialog.Builder(this@ManageCategoriesActivity)
+                val deleteNotes = PreferenceManager.getDefaultSharedPreferences(this@ManageCategoriesActivity).getBoolean("settings_del_notes", false)
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@ManageCategoriesActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
                     .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
-                    .setMessage(String.format(getString(R.string.dialog_delete_message), currentCategory.name))
-                    .setNegativeButton(android.R.string.no) { dialog, which ->
+                    .setMessage(String.format(getString(
+                        if (deleteNotes) R.string.dialog_delete_category_with_notes else R.string.dialog_delete_category_without_notes
+                    ), currentCategory.name))
+                    .setNegativeButton(android.R.string.cancel) { dialog, which ->
                         adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
                     }
-                    .setPositiveButton(R.string.dialog_ok) { dialog, which ->
+                    .setPositiveButton(R.string.dialog_option_delete) { dialog, which ->
                         adapter.notifyItemRemoved(viewHolder.adapterPosition)
                         deleteCategory(currentCategory)
                     }

@@ -15,6 +15,7 @@ package org.secuso.privacyfriendlynotes.ui
 
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
@@ -68,13 +69,13 @@ class RecycleActivity : AppCompatActivity() {
         })
 
         adapter.setOnItemClickListener { note: Note ->
-            AlertDialog.Builder(this@RecycleActivity)
+            MaterialAlertDialogBuilder(ContextThemeWrapper(this, R.style.AppTheme_PopupOverlay_DialogAlert))
                 .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
                 .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))
-                .setNegativeButton(R.string.dialog_option_delete) { _, _ ->
+                .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
                     mainActivityViewModel.delete(note)
                 }
-                .setPositiveButton(R.string.dialog_option_restore) { _, _ ->
+                .setNegativeButton(R.string.dialog_option_restore) { _, _ ->
                     note.in_trash = 0
                     mainActivityViewModel.update(note)
                 }
@@ -92,7 +93,7 @@ class RecycleActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete_all -> {
-                MaterialAlertDialogBuilder(this, R.style.AppTheme_PopupOverlay_DialogAlert)
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this, R.style.AppTheme_PopupOverlay_DialogAlert))
                     .setTitle(getString(R.string.dialog_delete_all_recycle_bin_title))
                     .setMessage(getString(R.string.dialog_delete_all_recycle_bin_message))
                     .setPositiveButton(R.string.dialog_option_delete) { _, _ ->

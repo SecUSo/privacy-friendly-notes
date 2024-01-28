@@ -145,12 +145,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             adapter.notifyItemRemoved(viewHolder.adapterPosition)
                             trashNote(note)
                         }
-                        .setNegativeButton(android.R.string.cancel, null)
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->
+                            adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                        }
                         .show()
                 } else {
                     trashNote(note)
                 }
-                mainActivityViewModel.update(note)
             }
         })
         ith.attachToRecyclerView(recyclerView)

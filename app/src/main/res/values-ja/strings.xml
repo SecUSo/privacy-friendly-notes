@@ -69,6 +69,8 @@
     <string name="dialog_delete_message">%1s を削除してもよろしいですか?</string>
     <string name="dialog_trash_title">ゴミ箱に移動しています</string>
     <string name="dialog_trash_message">メモはゴミ箱に移動されます。 そこから復元したり永久に削除することができます。 通知は復元できません。</string>
+    <string name="dialog_delete_category_with_notes">%1sを永久に削除しますか？カテゴリのメモはすべて<b>永久削除</b>されます</string>
+    <string name="dialog_delete_category_without_notes">%1sを完全に削除しますか？<b>いいえ</b>メモは削除されます。</string>
     <string name="dialog_save_title">選択したアイテムを削除しています。</string>
     <string name="dialog_save_message">メモを更新または保存する際にチェックしたアイテムは削除されます。</string>
     <string name="dialog_restore_title">%1s を復元または削除しますか?</string>
