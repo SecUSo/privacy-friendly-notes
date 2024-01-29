@@ -80,9 +80,7 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
                     .setMessage(String.format(getString(
                         if (deleteNotes) R.string.dialog_delete_category_with_notes else R.string.dialog_delete_category_without_notes
                     ), currentCategory.name))
-                    .setNegativeButton(android.R.string.cancel) { dialog, which ->
-                        adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
-                    }
+                    .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(R.string.dialog_option_delete) { dialog, which ->
                         adapter.notifyItemRemoved(viewHolder.adapterPosition)
                         deleteCategory(currentCategory)
