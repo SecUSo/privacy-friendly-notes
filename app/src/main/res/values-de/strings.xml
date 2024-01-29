@@ -29,6 +29,7 @@
     <string name="dialog_trash_title">In den Papierkorb verschieben</string>
     <string name="dialog_create_category_title">Erstelle Kategorie</string>
     <string name="dialog_create_category_btn">Erstelle</string>
+    <string name="category_fab_desc">Erstelle Kategorie</string>
     <string name="fab_audio">Audio</string>
     <string name="fab_checklist">Checklist</string>
     <string name="fab_sketch">Skizze</string>

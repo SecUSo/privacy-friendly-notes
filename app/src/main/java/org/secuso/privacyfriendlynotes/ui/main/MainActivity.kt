@@ -14,9 +14,9 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuInflater
@@ -38,8 +38,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.getbase.floatingactionbutton.FloatingActionsMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
@@ -73,7 +73,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     lateinit var adapter: NoteAdapter
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
-    private val fabMenu: FloatingActionsMenu by lazy { findViewById(R.id.fab_menu) }
+    private val fabMenuBtn: FloatingActionButton by lazy { findViewById(R.id.fab_menu) }
+    private val fabMenu: View by lazy { findViewById(R.id.fab_menu_wrapper) }
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -193,6 +194,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false)
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
+
+        var menuExpanded = false;
+        fabMenuBtn.setOnClickListener {
+            if (!menuExpanded) {
+                menuExpanded = true
+                fabMenu.visibility = View.VISIBLE
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
+            } else {
+                menuExpanded = false
+                fabMenu.visibility = View.GONE
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+            }
+        }
     }
 
     override fun onResume() {
@@ -287,7 +301,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.fab_sketch -> i = intent.apply(SketchActivity::class.java)
         }
         setCategoryResultAfter.launch(i)
-        fabMenu.collapseImmediately()
     }
 
     override fun onPause() {

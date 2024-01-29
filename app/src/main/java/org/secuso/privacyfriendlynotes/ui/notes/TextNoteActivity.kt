@@ -62,14 +62,18 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
 
-        val fabMenu = findViewById<FloatingActionButton>(R.id.fab_menu)
-        fabMenu.setOnClickListener {
-            if (fabMenu.isExpanded) {
-                fabMenu.isExpanded = false
-                fabMenu.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+        val fabMenuBtn = findViewById<FloatingActionButton>(R.id.fab_menu)
+        val fabMenu = findViewById<View>(R.id.fab_menu_wrapper)
+        var expanded = false
+        fabMenuBtn.setOnClickListener {
+            if (expanded) {
+                expanded = false
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+                fabMenu.visibility = View.GONE
             } else {
-                fabMenu.isExpanded = true
-                fabMenu.setImageResource(R.drawable.ic_baseline_close_24)
+                expanded = true
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
+                fabMenu.visibility = View.VISIBLE
             }
         }
         boldBtn.setOnClickListener(this)
@@ -78,15 +82,15 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
         isBold.observe(this) { b: Boolean ->
             hasChanged = true
-            boldBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            boldBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isItalic.observe(this) { b: Boolean ->
             hasChanged = true
-            italicsBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            italicsBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isUnderline.observe(this) { b: Boolean ->
             hasChanged = true
-            underlineBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            underlineBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         super.onCreate(savedInstanceState)
     }

@@ -82,6 +82,7 @@
     <string name="dialog_welcome_text">このアプリで、テキスト、チェックリスト、メモ、スケッチの形式でメモを作成および共有することができます。</string>
     <string name="dialog_create_category_title">カテゴリー作成</string>
     <string name="dialog_create_category_btn">作成</string>
+    <string name="category_fab_desc">カテゴリー作成</string>
 
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">通知を有効にする</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">この機能を使用するには、通知の送信、アラームとリマインダーのスケジュールの許可が必要です。</string>
