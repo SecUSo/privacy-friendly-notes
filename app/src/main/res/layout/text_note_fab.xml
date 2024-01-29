@@ -36,8 +36,9 @@
                 android:text="@string/action_bold"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:layout_marginBottom="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="?attr/colorPrimary"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_italics"
@@ -48,8 +49,9 @@
                 android:text="@string/action_italics"
                 android:textSize="24sp"
                 android:textStyle="italic"
+                android:layout_marginBottom="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="?attr/colorPrimary"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_underline"
@@ -59,8 +61,9 @@
                 android:src="@drawable/ic_baseline_format_underlined_24"
                 android:text="@string/action_underline"
                 android:textSize="24sp"
+                android:layout_marginBottom="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="?attr/colorPrimary"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -71,9 +74,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_marginTop="2dp"
         android:src="@drawable/ic_baseline_format_color_text_24"
         android:contentDescription="@string/text_note_fab_menu_desc"
         app:tint="@color/white"
-        app:backgroundTint="?attr/colorPrimary"
+        app:backgroundTint="@color/colorSecuso"
         app:borderWidth="0dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

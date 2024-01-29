@@ -29,8 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         fab:fab_addButtonPlusIconColor="@color/white"
-        fab:fab_addButtonColorNormal="@color/colorAccent"
-        fab:fab_addButtonColorPressed="@color/colorAccent"
+        fab:fab_addButtonColorNormal="@color/colorSecuso"
+        fab:fab_addButtonColorPressed="@color/colorSecuso"
         fab:fab_addButtonStrokeVisible="false"
         fab:fab_expandDirection="up"
         fab:fab_labelStyle="@style/menu_labels_style"
@@ -42,8 +42,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_photo_white_24dp"
             fab:fab_size="mini"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccent"
+            fab:fab_colorNormal="@color/colorSecuso"
+            fab:fab_colorPressed="@color/colorSecuso"
             fab:fab_title="@string/fab_sketch"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -52,8 +52,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_mic_white_24dp"
             fab:fab_size="mini"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccent"
+            fab:fab_colorNormal="@color/colorSecuso"
+            fab:fab_colorPressed="@color/colorSecuso"
             fab:fab_title="@string/fab_audio"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -62,8 +62,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_format_list_bulleted_white_24dp"
             fab:fab_size="mini"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccent"
+            fab:fab_colorNormal="@color/colorSecuso"
+            fab:fab_colorPressed="@color/colorSecuso"
             fab:fab_title="@string/fab_checklist"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -72,8 +72,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_short_text_white_24dp"
             fab:fab_size="mini"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccent"
+            fab:fab_colorNormal="@color/colorSecuso"
+            fab:fab_colorPressed="@color/colorSecuso"
             fab:fab_title="@string/fab_text"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
