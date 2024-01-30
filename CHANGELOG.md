@@ -1,5 +1,16 @@
 # Changelog
 
+<a name="v1.4.5"></a>
+## [Notes (Privacy Friendly) v1.4.5](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v1.4.5) - 11 Jan 2024
+
+## What's Changed
+* Fix export permissions for API >= 33 by [@udenr](https://github.com/udenr) in https://github.com/SecUSo/privacy-friendly-notes/pull/158
+
+**Full Changelog**: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.4...v1.4.5
+
+[Changes][v1.4.5]
+
+
 <a name="v1.4.4"></a>
 ## [Notes (Privacy Friendly) v1.4.4](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v1.4.4) - 31 Oct 2023
 
@@ -220,6 +231,7 @@ This app belongs to the Privacy Friendly Apps group developed by the research gr
 [Changes][v1.0]
 
 
+[v1.4.5]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.4...v1.4.5
 [v1.4.4]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.2...v1.4.4
 [v1.4.2]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.1...v1.4.2
 [v1.4.1]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.0...v1.4.1
