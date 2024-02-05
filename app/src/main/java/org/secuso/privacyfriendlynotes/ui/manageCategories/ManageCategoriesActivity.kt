@@ -155,6 +155,7 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
             .neut(R.string.default_color)
+            .neg(android.R.string.cancel)
             .extra(bundle)
             .show(this, TAG_COLORDIALOG)
     }
