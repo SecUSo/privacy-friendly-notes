@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
     private val fabMenuBtn: FloatingActionButton by lazy { findViewById(R.id.fab_menu) }
     private val fabMenu: View by lazy { findViewById(R.id.fab_menu_wrapper) }
+    private var fabMenuExpanded = false
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -85,6 +86,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (result.resultCode == RESULT_OK && data != null) {
             mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
+        setMenuExpanded(false)
+    }
+
+    fun setMenuExpanded(expanded: Boolean) {
+        if (expanded) {
+            fabMenu.visibility = View.VISIBLE
+            fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
+        } else {
+            fabMenu.visibility = View.GONE
+            fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+        }
+        fabMenuExpanded = expanded
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -194,17 +207,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
 
-        var menuExpanded = false;
+        setMenuExpanded(false)
         fabMenuBtn.setOnClickListener {
-            if (!menuExpanded) {
-                menuExpanded = true
-                fabMenu.visibility = View.VISIBLE
-                fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
-            } else {
-                menuExpanded = false
-                fabMenu.visibility = View.GONE
-                fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
-            }
+            setMenuExpanded(!fabMenuExpanded)
         }
     }
 
