@@ -27,6 +27,7 @@
         <attr name="colorSurface" format="color" />
         <attr name="colorOnSurface" format="color" />
         <attr name="colorSurfaceVariant" format="color" />
+        <attr name="colorSurfaceVariantLight" format="color" />
         <attr name="colorOnSurfaceVariant" format="color" />
         <attr name="colorOutline" format="color" />
         <attr name="colorOnSurfaceInverse" format="color" />

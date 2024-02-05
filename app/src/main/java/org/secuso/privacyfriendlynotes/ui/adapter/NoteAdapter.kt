@@ -107,6 +107,11 @@ class NoteAdapter(
 
             DbContract.NoteEntry.TYPE_SKETCH -> {
                 holder.imageViewcategory.visibility = View.VISIBLE
+                holder.imageViewcategory.setBackgroundColor(run {
+                    val value = TypedValue()
+                    holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
+                    value.data
+                })
                 val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
                 if (bitmap != null) {
                     holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))

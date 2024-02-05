@@ -191,7 +191,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             Unit
         }
-        PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false)
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
 
