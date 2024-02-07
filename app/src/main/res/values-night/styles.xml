@@ -41,9 +41,13 @@
         <item name="colorIconFill">@color/white</item>
         <item name="android:statusBarColor">@color/colorSecuso</item>
 
-        <item name="alertDialogTheme">@style/SimpleDialogTheme.Material3</item>
         <item name="toolbarStyle">@style/AppTheme.ActionBar</item>
+
+        <item name="alertDialogTheme">@style/AppTheme.PopupOverlay.DialogAlert</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:homeAsUpIndicator">@drawable/arrow_back</item>
         <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
+        <item name="actionOverflowButtonStyle">@style/AppTheme.ActionBar.OverflowMenu</item>
     </style>
 
     <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
@@ -51,8 +55,16 @@
     </style>
 
 
-    <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar.Surface">
+    <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/colorSecuso</item>
+        <item name="navigationIconTint">@color/white</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="subtitleTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.OverflowMenu" parent="Widget.Material3.Toolbar">
+        <item name="android:src">@drawable/baseline_more_vert_white</item>
+        <item name="android:paddingEnd">10dp</item>
     </style>
 
     <style name="AppTheme.SearchView" parent="AppTheme">
