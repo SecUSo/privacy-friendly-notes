@@ -3,6 +3,7 @@ package org.secuso.privacyfriendlynotes.ui.util
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.regex.Pattern
 
 class ChecklistUtil {
 
@@ -33,5 +34,20 @@ class ChecklistUtil {
             }
             return jsonArray
         }
+
+        fun textToItem(text: String): Pair<Boolean, String> {
+            Pattern.compile("-\\s*\\[(.*)]\\s*(.*)").matcher(text).apply {
+                if (matches()) {
+                    val checked = group(1);
+                    val name = group(2);
+                    return Pair(checked !== null && checked.isNotEmpty() && checked.isNotBlank(), name!!)
+                }
+            }
+            return Pair(false, text)
+        }
+
+//        fun contentString(checklist: List<Pair<Boolean, String>>): String {
+//            checklist.map { (checked, text) ->  }
+//        }
     }
 }

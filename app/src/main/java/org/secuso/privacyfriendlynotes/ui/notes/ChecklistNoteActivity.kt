@@ -15,6 +15,11 @@ package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
+import android.text.Spanned
+import android.text.SpannedString
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -85,6 +90,26 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         adaptFontSize(etNewItem)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_checklist, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_convert_to_note -> {
+                super.convertNote(Html.toHtml(SpannedString(getContentString())), DbContract.NoteEntry.TYPE_TEXT) {
+                    val i = Intent(application, TextNoteActivity::class.java)
+                    i.putExtra(BaseNoteActivity.EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
+            else -> {}
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onNewNote() {
 
     }
@@ -134,7 +159,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     private fun getContentString(): String {
-        return adapter.getItems().joinToString(separator = "\n") { (checked, name) -> "- $name [${if (checked) "✓" else "   "}]" }
+        return adapter.getItems().joinToString(System.lineSeparator()) { (checked, name) -> "- [${if (checked) "✓" else "   "}] $name" }
     }
 
     private fun addItem() {

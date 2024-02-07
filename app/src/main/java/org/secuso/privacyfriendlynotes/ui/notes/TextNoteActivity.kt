@@ -108,7 +108,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.action_convert_to_checklist -> {
-                val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map { line -> Pair(false, line) })
+                val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map(ChecklistUtil::textToItem))
                 super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
                     val i = Intent(application, ChecklistNoteActivity::class.java)
                     i.putExtra(BaseNoteActivity.EXTRA_ID, it)
