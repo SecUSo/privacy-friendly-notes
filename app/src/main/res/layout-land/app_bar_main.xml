@@ -25,74 +25,132 @@
     <include layout="@layout/content_main" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/fab_menu_wrapper"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_behavior="@string/fab_transformation_scrim_behavior">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_sketch"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="2dp"
-                android:contentDescription="@string/fab_sketch"
-                android:src="@drawable/ic_photo_white_24dp"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:backgroundTint="@color/colorSecuso"
-                app:fabSize="mini"
-                app:tint="@color/white" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_audio"
-                android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                android:orientation="horizontal">
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/fab_sketch" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_sketch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="2dp"
+                    android:contentDescription="@string/fab_sketch"
+                    android:src="@drawable/ic_photo_white_24dp"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/colorSecuso"
+                    app:fabSize="mini"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="2dp"
-                android:contentDescription="@string/fab_audio"
-                android:src="@drawable/ic_mic_white_24dp"
-                android:textSize="24sp"
-                android:textStyle="italic"
-                app:backgroundTint="@color/colorSecuso"
-                app:fabSize="mini"
-                app:tint="@color/white" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_checklist"
-                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/fab_audio" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_audio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="2dp"
+                    android:contentDescription="@string/fab_audio"
+                    android:src="@drawable/ic_mic_white_24dp"
+                    android:textSize="24sp"
+                    android:textStyle="italic"
+                    app:backgroundTint="@color/colorSecuso"
+                    app:fabSize="mini"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="2dp"
-                android:contentDescription="@string/fab_checklist"
-                android:src="@drawable/ic_format_list_bulleted_white_24dp"
-                android:textSize="24sp"
-                app:backgroundTint="@color/colorSecuso"
-                app:fabSize="mini"
-                app:tint="@color/white" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_text"
-                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/fab_checklist" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_checklist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="2dp"
+                    android:contentDescription="@string/fab_checklist"
+                    android:src="@drawable/ic_format_list_bulleted_white_24dp"
+                    android:textSize="24sp"
+                    app:backgroundTint="@color/colorSecuso"
+                    app:fabSize="mini"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="2dp"
-                android:contentDescription="@string/fab_text"
-                android:src="@drawable/ic_short_text_white_24dp"
-                android:textSize="24sp"
-                app:backgroundTint="@color/colorSecuso"
-                app:fabSize="mini"
-                app:tint="@color/white" />
-
+                android:orientation="horizontal">
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/fab_text" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="2dp"
+                    android:contentDescription="@string/fab_text"
+                    android:src="@drawable/ic_short_text_white_24dp"
+                    android:textSize="24sp"
+                    app:backgroundTint="@color/colorSecuso"
+                    app:fabSize="mini"
+                    app:tint="@color/white" />
+            </LinearLayout>
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -108,5 +166,6 @@
             app:tint="@color/white" />
 
     </LinearLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
