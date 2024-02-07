@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Material3.Light">
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -46,10 +46,11 @@
         <item name="android:statusBarColor">@color/colorSecuso</item>
         <item name="toolbarStyle">@style/AppTheme.ActionBar</item>
 
-        <item name="alertDialogTheme">@style/SimpleDialogTheme.Material3</item>
+        <item name="alertDialogTheme">@style/AppTheme.PopupOverlay.DialogAlert</item>
         <item name="colorControlNormal">@color/white</item>
         <item name="android:homeAsUpIndicator">@drawable/arrow_back</item>
         <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
+        <item name="actionOverflowButtonStyle">@style/AppTheme.ActionBar.OverflowMenu</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar">
@@ -57,6 +58,11 @@
         <item name="navigationIconTint">@color/white</item>
         <item name="titleTextColor">@color/white</item>
         <item name="subtitleTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.OverflowMenu" parent="Widget.Material3.Toolbar">
+        <item name="android:src">@drawable/baseline_more_vert_white</item>
+        <item name="android:paddingEnd">10dp</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -95,7 +101,9 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay.DialogAlert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog" />
+    <style name="AppTheme.PopupOverlay.DialogAlert" parent="@style/SimpleDialogTheme.Material3">
+        <item name="colorControlNormal">@color/colorSecuso</item>
+    </style>
 
     <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar" />
 
