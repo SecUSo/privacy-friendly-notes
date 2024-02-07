@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:inputType="text|textCapSentences"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:background="@null"/>
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:layout_width="24dp"

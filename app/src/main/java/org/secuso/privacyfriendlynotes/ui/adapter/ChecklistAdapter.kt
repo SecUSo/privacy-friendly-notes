@@ -16,7 +16,6 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 import android.graphics.Paint
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,12 +23,28 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
 import org.secuso.privacyfriendlynotes.R
+import java.util.Collections
 
 
 class ChecklistAdapter(
-    var items: MutableList<Pair<Boolean, String>>,
-    private val startDrag: (ItemHolder) -> Unit
+    private var items: MutableList<Pair<Boolean, String>>,
+    private val startDrag: (ItemHolder) -> Unit,
 ) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
+
+    fun getItems(): List<Pair<Boolean, String>> {
+        return items
+    }
+    fun swap(from: Int, to: Int) {
+        Collections.swap(items, from, to)
+    }
+
+    fun setAll(items: Collection<Pair<Boolean, String>>) {
+        if (this.items.isNotEmpty()) {
+            this.items.clear()
+        }
+        this.items.addAll(items)
+        notifyItemRangeChanged(0, this.items.size)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -47,7 +62,13 @@ class ChecklistAdapter(
         }
         holder.checkbox.setOnClickListener { _ ->
             items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, holder.textView.text.toString())
-            notifyItemChanged(holder.bindingAdapterPosition)
+            holder.textView.apply {
+                paintFlags = if (holder.checkbox.isChecked) {
+                    paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                } else {
+                    paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+            }
         }
         holder.textView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {

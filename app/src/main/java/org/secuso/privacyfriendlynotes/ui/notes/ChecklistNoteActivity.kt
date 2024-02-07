@@ -28,7 +28,6 @@ import org.secuso.privacyfriendlynotes.ui.adapter.ChecklistAdapter
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.OutputStream
 import java.io.PrintWriter
-import java.util.Collections
 
 /**
  * Activity that allows to add, edit and delete checklist notes.
@@ -63,16 +62,15 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 val to = target.bindingAdapterPosition
                 val from = viewHolder.bindingAdapterPosition
-                Collections.swap(adapter.items, from, to)
+                adapter.swap(from, to)
                 adapter.notifyItemMoved(to, from)
 
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                adapter.removeItem(viewHolder.adapterPosition)
+                adapter.removeItem(viewHolder.bindingAdapterPosition)
             }
-
         }
         val ith = ItemTouchHelper(itemTouchCallback)
         adapter = ChecklistAdapter(mutableListOf()) { holder -> ith.startDrag(holder) }
@@ -85,75 +83,6 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         }
         ith.attachToRecyclerView(checklist)
         adaptFontSize(etNewItem)
-
-//        lvItemList.setMultiChoiceModeListener(object : MultiChoiceModeListener {
-//            override fun onItemCheckedStateChanged(
-//                mode: ActionMode,
-//                position: Int,
-//                id: Long,
-//                checked: Boolean
-//            ) {
-//            }
-//
-//            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-//                // Inflate the menu for the CAB
-//                val inflater = mode.menuInflater
-//                inflater.inflate(R.menu.checklist_cab, menu)
-//                return true
-//            }
-//
-//            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-//                return false
-//            }
-//
-//            override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-//                // Respond to clicks on the actions in the CAB
-//                return when (item.itemId) {
-//                    R.id.action_delete -> {
-//                        deleteSelectedItems()
-//                        mode.finish() // Action picked, so close the CAB
-//                        true
-//                    }
-//                    R.id.action_edit -> {
-////                        lvItemList.checkedItemPositions.forEach { key, value -> if (value) temp.add(checklistAdapter.getItem(key)) }
-//                        val selected = (0 until lvItemList.checkedItemPositions.size)
-//                            .filter { lvItemList.checkedItemPositions.valueAt(it) }
-//                            .map { checklistAdapter.getItem(it)!! }
-//                        if (selected.size > 1) {
-//                            Toast.makeText(applicationContext, R.string.toast_checklist_oneItem, Toast.LENGTH_SHORT).show()
-//                            false
-//                        } else {
-//                            val taskEditText = EditText(this@ChecklistNoteActivity)
-//                            taskEditText.setText(selected.first().name)
-//                            val dialog = AlertDialog.Builder(this@ChecklistNoteActivity)
-//                                .setTitle(String.format(getString(R.string.dialog_checklist_edit), selected.first().name))
-//                                .setView(taskEditText)
-//                                .setPositiveButton(
-//                                    R.string.action_edit
-//                                ) { _, _ ->
-//                                    val text = taskEditText.text.toString()
-//                                    val pos = checklistAdapter.getPosition(selected.first())
-//                                    val newItem = CheckListItem(selected.first().isChecked, text)
-//                                    checklistAdapter.remove(selected.first())
-//                                    checklistAdapter.insert(newItem, pos)
-//                                }
-//                                .setNegativeButton(R.string.action_cancel, null)
-//                                .create()
-//                            dialog.show()
-//                            true
-//                        }
-//                    }
-//                    else -> false
-//                }
-//            }
-//
-//            override fun onDestroyActionMode(mode: ActionMode) {
-//                val a = lvItemList.adapter as ArrayAdapter<*>
-//                a.notifyDataSetChanged()
-//            }
-//        })
-//        checklistAdapter = CheckListAdapter(baseContext, R.layout.item_checklist, itemNamesList)
-//        lvItemList.adapter = checklistAdapter
     }
 
     override fun onNewNote() {
@@ -161,17 +90,13 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        if (adapter.items.isNotEmpty()) {
-            adapter.items.clear()
-        }
-        adapter.items.addAll(ChecklistUtil.parse(note.content))
-        adapter.notifyItemRangeInserted(0, adapter.itemCount - 1)
+        adapter.setAll(ChecklistUtil.parse(note.content))
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            (title.isNotEmpty() || adapter.items.isNotEmpty()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
+            (title.isNotEmpty() || adapter.getItems().isNotEmpty()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
             R.string.toast_emptyNote
         )
     }
@@ -191,7 +116,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        val jsonArray = ChecklistUtil.json(adapter.items)
+        val jsonArray = ChecklistUtil.json(adapter.getItems())
         if (name.isEmpty() && jsonArray.length() == 0) {
             return ActionResult(false, null)
         }
@@ -209,21 +134,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     private fun getContentString(): String {
-        return adapter.items.joinToString(separator = "\n") { (checked, name) -> "- $name [${if (checked) "✓" else "   "}]" }
+        return adapter.getItems().joinToString(separator = "\n") { (checked, name) -> "- $name [${if (checked) "✓" else "   "}]" }
     }
-
-//    private fun deleteSelectedItems() {
-//        val checkedItemPositions = lvItemList.checkedItemPositions
-//        val temp = ArrayList<CheckListItem?>()
-//        for (i in 0 until checkedItemPositions.size()) {
-//            if (checkedItemPositions.valueAt(i)) {
-//                temp.add(checklistAdapter.getItem(checkedItemPositions.keyAt(i)))
-//            }
-//        }
-//        if (temp.isNotEmpty()) {
-//            itemNamesList.removeAll(temp.toSet())
-//        }
-//    }
 
     private fun addItem() {
         adapter.addItem(etNewItem.text.toString())
