@@ -16,6 +16,7 @@ package org.secuso.privacyfriendlynotes.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuInflater
@@ -32,6 +33,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.arch.core.util.Function
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -72,7 +75,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     lateinit var adapter: NoteAdapter
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
-    private val fab: MainFABFragment? by lazy { supportFragmentManager.findFragmentById(R.id.fab_menu_wrapper) as MainFABFragment? }
+    private lateinit var fab: MainFABFragment
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -83,21 +86,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (result.resultCode == RESULT_OK && data != null) {
             mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
-        fab?.close()
+        fab.close()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        fab?.onCreateNote = {
-            Intent(application, when (it) {
-                DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
-                DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
-                DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
-                DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
-                else -> throw NotImplementedError("Note of type $it cannot be created")
-            }).let { intent -> setCategoryResultAfter.launch(intent) }
-            fab?.close()
+        supportFragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                if (className == MainFABFragment::class.java.name) {
+                    this@MainActivity.fab = MainFABFragment {
+                        Log.d("Received", "$it")
+                        Intent(application, when (it) {
+                            DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
+                            DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
+                            DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
+                            DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
+                            else -> throw NotImplementedError("Note of type $it cannot be created")
+                        }).let { intent -> setCategoryResultAfter.launch(intent) }
+                        fab.close()
+                    }
+                    return fab;
+                }
+                return super.instantiate(classLoader, className)
+            }
         }
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
@@ -193,7 +205,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 DbContract.NoteEntry.TYPE_SKETCH -> launchActivity.apply(SketchActivity::class.java)
                 DbContract.NoteEntry.TYPE_CHECKLIST -> launchActivity.apply(ChecklistNoteActivity::class.java)
             }
-            fab?.close()
+            fab.close()
         }
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
