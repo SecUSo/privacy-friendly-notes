@@ -6,26 +6,15 @@
     android:layout_height="match_parent"
     tools:context="org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity">
 
-    <FrameLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_category"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_category"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_category" />
-
-        <ListView
-            android:id="@+id/category_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"
-            tools:visibility="invisible">
-
-        </ListView>
-    </FrameLayout>
+        tools:listitem="@layout/item_category"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add"
