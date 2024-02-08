@@ -14,7 +14,6 @@
 package org.secuso.privacyfriendlynotes.ui.main
 
 import android.content.Intent
-import android.opengl.Visibility
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.ContextThemeWrapper
@@ -39,7 +38,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
@@ -52,6 +50,7 @@ import org.secuso.privacyfriendlynotes.ui.RecycleActivity
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity
 import org.secuso.privacyfriendlynotes.ui.TutorialActivity
 import org.secuso.privacyfriendlynotes.ui.adapter.NoteAdapter
+import org.secuso.privacyfriendlynotes.ui.fragments.MainFABFragment
 import org.secuso.privacyfriendlynotes.ui.helper.SortingOptionDialog
 import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity
@@ -73,9 +72,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     lateinit var adapter: NoteAdapter
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
-    private val fabMenuBtn: FloatingActionButton by lazy { findViewById(R.id.fab_menu) }
-    private val fabMenu: View by lazy { findViewById(R.id.fab_menu_wrapper) }
-    private var fabMenuExpanded = false
+    private val fab: MainFABFragment? by lazy { supportFragmentManager.findFragmentById(R.id.fab_menu_wrapper) as MainFABFragment? }
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -86,30 +83,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (result.resultCode == RESULT_OK && data != null) {
             mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
-        setMenuExpanded(false)
-    }
-
-    fun setMenuExpanded(expanded: Boolean) {
-        if (expanded) {
-            fabMenu.visibility = View.VISIBLE
-            fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
-        } else {
-            fabMenu.visibility = View.GONE
-            fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
-        }
-        fabMenuExpanded = expanded
+        fab?.close()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fab?.onCreateNote = {
+            Intent(application, when (it) {
+                DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
+                DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
+                DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
+                DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
+                else -> throw NotImplementedError("Note of type $it cannot be created")
+            }).let { intent -> setCategoryResultAfter.launch(intent) }
+            fab?.close()
+        }
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
-        //set the OnClickListeners
-        findViewById<View>(R.id.fab_text).setOnClickListener(this)
-        findViewById<View>(R.id.fab_checklist).setOnClickListener(this)
-        findViewById<View>(R.id.fab_audio).setOnClickListener(this)
-        findViewById<View>(R.id.fab_sketch).setOnClickListener(this)
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         val toggle = ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -202,15 +193,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 DbContract.NoteEntry.TYPE_SKETCH -> launchActivity.apply(SketchActivity::class.java)
                 DbContract.NoteEntry.TYPE_CHECKLIST -> launchActivity.apply(ChecklistNoteActivity::class.java)
             }
-            Unit
+            fab?.close()
         }
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
-
-        setMenuExpanded(false)
-        fabMenuBtn.setOnClickListener {
-            setMenuExpanded(!fabMenuExpanded)
-        }
     }
 
     override fun onResume() {
