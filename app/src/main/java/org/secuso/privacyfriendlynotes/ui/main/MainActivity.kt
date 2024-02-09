@@ -95,16 +95,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (className == MainFABFragment::class.java.name) {
                     this@MainActivity.fab = MainFABFragment {
                         Log.d("Received", "$it")
-                        Intent(application, when (it) {
-                            DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
-                            DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
-                            DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
-                            DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
-                            else -> throw NotImplementedError("Note of type $it cannot be created")
-                        }).let { intent -> setCategoryResultAfter.launch(intent) }
+                        Intent(
+                            application, when (it) {
+                                DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
+                                DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
+                                DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
+                                DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
+                                else -> throw NotImplementedError("Note of type $it cannot be created")
+                            }
+                        ).let { intent -> setCategoryResultAfter.launch(intent) }
                         fab.close()
                     }
-                    return fab;
+                    return fab
                 }
                 return super.instantiate(classLoader, className)
             }
@@ -129,11 +131,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         adapter = NoteAdapter(
             mainActivityViewModel,
             PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)
-                    && mainActivityViewModel.getCategory() == CAT_ALL)
+                    && mainActivityViewModel.getCategory() == CAT_ALL
+        )
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            mainActivityViewModel.activeNotes.collect { notes -> adapter.setNotes(notes)}
+            mainActivityViewModel.activeNotes.collect { notes -> adapter.setNotes(notes) }
         }
 
         val ith = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -171,7 +174,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
         ith.attachToRecyclerView(recyclerView)
-        adapter.startDrag = {holder -> ith.startDrag(holder)}
+        adapter.startDrag = { holder -> ith.startDrag(holder) }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
                 mainActivityViewModel.setFilter(newText)

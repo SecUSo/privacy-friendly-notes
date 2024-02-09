@@ -58,10 +58,10 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
         adapter = CategoryAdapter()
         adapter.displayColorDialog = { category, categoryHolder ->
             val bundle = Bundle()
-            bundle.putInt(CATEGORY_COLOR,  categoryHolder.bindingAdapterPosition)
+            bundle.putInt(CATEGORY_COLOR, categoryHolder.bindingAdapterPosition)
             displayColorDialog(bundle)
         }
-        adapter.updateCategory = { manageCategoriesViewModel.update(it)}
+        adapter.updateCategory = { manageCategoriesViewModel.update(it) }
         this.recyclerList.adapter = adapter
 
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -72,9 +72,13 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
                 val deleteNotes = PreferenceManager.getDefaultSharedPreferences(this@ManageCategoriesActivity).getBoolean("settings_del_notes", false)
                 MaterialAlertDialogBuilder(ContextThemeWrapper(this@ManageCategoriesActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
                     .setTitle(String.format(getString(R.string.dialog_delete_title), currentCategory.name))
-                    .setMessage(String.format(getString(
-                        if (deleteNotes) R.string.dialog_delete_category_with_notes else R.string.dialog_delete_category_without_notes
-                    ), currentCategory.name))
+                    .setMessage(
+                        String.format(
+                            getString(
+                                if (deleteNotes) R.string.dialog_delete_category_with_notes else R.string.dialog_delete_category_without_notes
+                            ), currentCategory.name
+                        )
+                    )
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(R.string.dialog_option_delete) { dialog, which ->
                         adapter.notifyItemRemoved(viewHolder.adapterPosition)
@@ -139,8 +143,8 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         if (sp.getBoolean(SettingsActivity.PREF_DEL_NOTES, false)) {
             lifecycleScope.launch {
-                manageCategoriesViewModel.notes.collect {
-                    notes -> notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }
+                manageCategoriesViewModel.notes.collect { notes ->
+                    notes.filter { it.category == cat._id }.forEach { manageCategoriesViewModel.delete(it) }
                 }
             }
         }
@@ -163,7 +167,7 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
         // 0 is dismiss
         if (dialogTag == TAG_COLORDIALOG && which != DialogInterface.BUTTON_NEGATIVE && which != 0) {
-            val color = if (which == DialogInterface.BUTTON_POSITIVE) "#${Integer.toHexString(extras.getInt(SimpleColorDialog.COLOR))}" else null;
+            val color = if (which == DialogInterface.BUTTON_POSITIVE) "#${Integer.toHexString(extras.getInt(SimpleColorDialog.COLOR))}" else null
             val position = extras.getInt(CATEGORY_COLOR, -1)
 
             // Check if the user changes a category color

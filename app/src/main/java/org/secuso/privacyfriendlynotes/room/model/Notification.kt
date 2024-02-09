@@ -22,7 +22,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "notifications")
 data class Notification(
-        @PrimaryKey(autoGenerate = false)
-        var _noteId: Int,
-        var time: Int) {
-}
+    @PrimaryKey(autoGenerate = false)
+    var _noteId: Int,
+    var time: Int
+)

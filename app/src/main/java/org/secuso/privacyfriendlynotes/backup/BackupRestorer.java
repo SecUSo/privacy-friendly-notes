@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.backup;
 
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -33,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 
 public class BackupRestorer implements IBackupRestorer {
 
@@ -121,7 +121,7 @@ public class BackupRestorer implements IBackupRestorer {
             String name = reader.nextName();
 
             switch (name) {
-                case    "settings_use_custom_font_size",
+                case "settings_use_custom_font_size",
                         "settings_del_notes",
                         "settings_show_preview",
                         "settings_dialog_on_trashing",

@@ -19,7 +19,6 @@ import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -44,7 +43,10 @@ class RecycleActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilterRecycle) }
     private val adapter: NoteAdapter by lazy { NoteAdapter(mainActivityViewModel, true) }
-    private val trashedNotes by lazy { mainActivityViewModel.trashedNotes.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).stateIn(lifecycleScope, SharingStarted.Lazily, listOf()) }
+    private val trashedNotes by lazy {
+        mainActivityViewModel.trashedNotes.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).stateIn(lifecycleScope, SharingStarted.Lazily, listOf())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycle)
@@ -54,7 +56,7 @@ class RecycleActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
-                trashedNotes.collect { adapter.setNotes(it) }
+            trashedNotes.collect { adapter.setNotes(it) }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -107,7 +109,7 @@ class RecycleActivity : AppCompatActivity() {
                     .setTitle(getString(R.string.dialog_delete_all_recycle_bin_title))
                     .setMessage(getString(R.string.dialog_delete_all_recycle_bin_message))
                     .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
-                        lifecycleScope.launch { trashedNotes.value.forEach { mainActivityViewModel.delete(it)} }
+                        lifecycleScope.launch { trashedNotes.value.forEach { mainActivityViewModel.delete(it) } }
                     }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()

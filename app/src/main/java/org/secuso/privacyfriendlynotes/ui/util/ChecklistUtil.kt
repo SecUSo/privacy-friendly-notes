@@ -55,8 +55,8 @@ class ChecklistUtil {
         fun textToItem(text: String): Pair<Boolean, String> {
             Pattern.compile("-\\s*\\[(.*)]\\s*(.*)").matcher(text).apply {
                 if (matches()) {
-                    val checked = group(1);
-                    val name = group(2);
+                    val checked = group(1)
+                    val name = group(2)
                     return Pair(checked !== null && checked.isNotEmpty() && checked.isNotBlank(), name!!)
                 }
             }

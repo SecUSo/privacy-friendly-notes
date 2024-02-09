@@ -15,10 +15,10 @@ package org.secuso.privacyfriendlynotes.ui.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.transition.TransitionManager
 import android.view.View
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialContainerTransform
@@ -33,7 +33,7 @@ import org.secuso.privacyfriendlynotes.room.DbContract
  */
 class MainFABFragment(
     private val onCreateNote: (Int) -> Unit
-): Fragment(R.layout.main_content_fab_menu) {
+) : Fragment(R.layout.main_content_fab_menu) {
     private val fabContainer: LinearLayout by lazy { requireView().findViewById(R.id.fab_container) }
     private val fab: FloatingActionButton by lazy { requireView().findViewById(R.id.fab) }
     private val closeFab: MaterialButton by lazy { requireView().findViewById(R.id.fabClose) }

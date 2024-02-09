@@ -14,8 +14,12 @@
 package org.secuso.privacyfriendlynotes.room.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.REPLACE
+import androidx.room.Query
+import androidx.room.Update
 import org.secuso.privacyfriendlynotes.room.model.Notification
 
 /**
@@ -40,5 +44,5 @@ interface NotificationDao {
     val allNotificationsLiveData: LiveData<List<Notification>>
 
     @Query("SELECT * FROM notifications")
-    fun getAllNotifications() : List<Notification>
+    fun getAllNotifications(): List<Notification>
 }

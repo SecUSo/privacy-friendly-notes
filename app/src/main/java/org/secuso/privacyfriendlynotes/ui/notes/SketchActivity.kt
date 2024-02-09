@@ -22,8 +22,6 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
-import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -31,8 +29,6 @@ import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.drawable.toDrawable
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
@@ -121,7 +117,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_sketch_undo -> {
                 drawView.clear()
                 if (undoStates.isNotEmpty()) {
@@ -129,12 +125,14 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                     undoRedoState(undoStates.removeLast())
                 }
             }
+
             R.id.action_sketch_redo -> {
                 if (redoStates.isNotEmpty()) {
                     undoStates.add(state!!)
                     undoRedoState(redoStates.removeLast())
                 }
             }
+
             else -> {}
         }
         return super.onOptionsItemSelected(item)
@@ -220,11 +218,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
             .cancelable(true) //allows close by tapping outside of dialog
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
-            .show(this, SketchActivity.TAG)
+            .show(this, TAG)
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
-        if (dialogTag == SketchActivity.TAG && which == DialogInterface.BUTTON_POSITIVE) {
+        if (dialogTag == TAG && which == DialogInterface.BUTTON_POSITIVE) {
             @ColorInt val color = extras.getInt(SimpleColorDialog.COLOR)
             drawView.setColor(color)
             btnColorSelector.setBackgroundColor(color)

@@ -36,8 +36,6 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
-import java.io.File
-import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
@@ -106,16 +104,17 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_convert_to_checklist -> {
                 val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map(ChecklistUtil::textToItem))
                 super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
                     val i = Intent(application, ChecklistNoteActivity::class.java)
-                    i.putExtra(BaseNoteActivity.EXTRA_ID, it)
+                    i.putExtra(EXTRA_ID, it)
                     startActivity(i)
                     finish()
                 }
             }
+
             else -> {}
         }
         return super.onOptionsItemSelected(item)
@@ -125,9 +124,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         if (intent != null) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
-                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines();
+                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
                 super.setTitle(text[0])
-                etContent.setText(Html.fromHtml(text.subList(1,text.size).joinToString(System.lineSeparator())))
+                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString(System.lineSeparator())))
             }
             val text = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (text != null) {

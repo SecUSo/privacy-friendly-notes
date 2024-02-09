@@ -30,7 +30,6 @@ import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
-import java.lang.IllegalStateException
 
 /**
  * This receiver is responsible to create and show notifications to the user.
@@ -59,13 +58,15 @@ class NotificationReceiver : BroadcastReceiver() {
         )
         if (notification != -1 && type != -1) {
             Log.d(javaClass.simpleName, "Creating intent for $context with type $type and intent $intent and id $notification and name $name")
-            val pendingIntent = Intent(context, when(type) {
-                DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
-                DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
-                DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
-                DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
-                else -> throw IllegalStateException("Note with type $type does not exist!")
-            }).apply {
+            val pendingIntent = Intent(
+                context, when (type) {
+                    DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
+                    DbContract.NoteEntry.TYPE_AUDIO -> AudioNoteActivity::class.java
+                    DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
+                    DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
+                    else -> throw IllegalStateException("Note with type $type does not exist!")
+                }
+            ).apply {
                 putExtra(BaseNoteActivity.EXTRA_ID, notification)
             }.let {
                 PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)

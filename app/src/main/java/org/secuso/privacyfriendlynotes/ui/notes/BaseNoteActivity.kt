@@ -206,7 +206,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             adaptFontSize(etName)
         }
 
-        etName.setOnTouchListener {_,_ ->
+        etName.setOnTouchListener { _, _ ->
             hasChanged = true
             false
         }
@@ -508,7 +508,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let {uri ->
+            result.data?.data?.let { uri ->
                 val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
                 fileOutputStream?.let {
                     onSaveExternalStorage(it)

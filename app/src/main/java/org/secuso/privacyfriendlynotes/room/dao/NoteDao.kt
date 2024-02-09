@@ -13,7 +13,11 @@
  */
 package org.secuso.privacyfriendlynotes.room.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.secuso.privacyfriendlynotes.room.model.Note
 
@@ -42,7 +46,7 @@ interface NoteDao {
     val allTrashedNotes: Flow<List<Note>>
 
     @Query("SELECT * FROM notes")
-    fun getNotesDebug() : List<Note>
+    fun getNotesDebug(): List<Note>
 
     @Query("SELECT * FROM notes WHERE _id = :id")
     fun getNoteByID(id: Long): Note?

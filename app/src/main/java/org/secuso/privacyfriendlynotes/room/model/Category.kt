@@ -22,21 +22,22 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "categories")
 data class Category(
-        @PrimaryKey(autoGenerate = true)
-        val _id: Int,
-        val name: String,
-        var color: String?
+    @PrimaryKey(autoGenerate = true)
+    val _id: Int,
+    val name: String,
+    var color: String?
 ) {
 
-        constructor(name: String): this(
-                name = name,
-                _id = 0,
-                color = null
-        )
-        constructor(name: String, color: String?) : this(
-                name = name,
-                _id = 0,
-                color = color
-        )
+    constructor(name: String) : this(
+        name = name,
+        _id = 0,
+        color = null
+    )
+
+    constructor(name: String, color: String?) : this(
+        name = name,
+        _id = 0,
+        color = color
+    )
 
 }

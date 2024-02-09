@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
+import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 
 /**
@@ -31,7 +31,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note
  * @see ManageCategoriesActivity
  */
 
-class ManageCategoriesViewModel (application: Application) : AndroidViewModel(application) {
+class ManageCategoriesViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allCategories: StateFlow<List<Category>> = repository.categoryDao().allCategories.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
     val notes: Flow<List<Note>> = repository.noteDao().allActiveNotes

@@ -16,16 +16,15 @@ package org.secuso.privacyfriendlynotes.ui.notes
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
-import android.text.Spanned
 import android.text.SpannedString
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.EditText
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -96,15 +95,16 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_convert_to_note -> {
                 super.convertNote(Html.toHtml(SpannedString(getContentString())), DbContract.NoteEntry.TYPE_TEXT) {
                     val i = Intent(application, TextNoteActivity::class.java)
-                    i.putExtra(BaseNoteActivity.EXTRA_ID, it)
+                    i.putExtra(EXTRA_ID, it)
                     startActivity(i)
                     finish()
                 }
             }
+
             else -> {}
         }
         return super.onOptionsItemSelected(item)

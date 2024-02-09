@@ -159,13 +159,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 if (note.name.contains(filter.value)) {
                     return@filter true
                 }
-                when(note.type) {
+                when (note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
                         return@filter Html.fromHtml(note.content).toString().contains(filter.value)
                     }
+
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
                         return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value)
                     }
+
                     else -> return@filter false
                 }
             }
@@ -182,8 +184,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun<T> Flow<T>.triggerOn(vararg flows: Flow<*>): Flow<T> {
-        return flows.fold(this) { acc, flow -> acc.combine(flow) { a, _ -> a} }
+    private fun <T> Flow<T>.triggerOn(vararg flows: Flow<*>): Flow<T> {
+        return flows.fold(this) { acc, flow -> acc.combine(flow) { a, _ -> a } }
     }
 
     fun insert(category: Category) {
@@ -208,7 +210,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
             val path = "${filesDir.path}/sketches${note.content}"
             return if (File(path).exists()) {
-                BitmapDrawable( resources, filesDir.path + "/sketches" + note.content).toBitmap(size, size, Bitmap.Config.ARGB_8888)
+                BitmapDrawable(resources, filesDir.path + "/sketches" + note.content).toBitmap(size, size, Bitmap.Config.ARGB_8888)
             } else {
                 null
             }
@@ -221,7 +223,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         if (note.type != DbContract.NoteEntry.TYPE_CHECKLIST) {
             throw IllegalArgumentException("Only checklist notes allowed")
         }
-        return ChecklistUtil.parse(note.content).map {(checked, name) ->
+        return ChecklistUtil.parse(note.content).map { (checked, name) ->
             return@map Pair(checked, String.format("[%s] $name", if (checked) "x" else "  "))
         }
     }

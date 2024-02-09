@@ -15,36 +15,33 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.graphics.Color
 import android.preference.PreferenceManager
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.model.Category
-import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil.Companion.isDarkMode
 
 /**
  * Adapter that provides a binding for categories
  * @see org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity
  */
-class CategoryAdapter(
-) : RecyclerView.Adapter<CategoryAdapter.CategoryHolder>() {
+class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.CategoryHolder>() {
 
     var displayColorDialog: ((Category, CategoryHolder) -> Unit)? = null
     var updateCategory: ((Category) -> Unit)? = null
 
     var categories: List<Category> = ArrayList()
         private set
+
     fun setCategories(categories: List<Category>) {
         this.categories = categories
         notifyDataSetChanged()
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_category, parent, false)
@@ -59,7 +56,7 @@ class CategoryAdapter(
             if (color == null) {
                 holder.btnColorSelector.setIconResource(R.drawable.transparent_checker)
                 holder.btnColorSelector.setBackgroundColor(holder.btnColorSelector.resources.getColor(R.color.transparent))
-            }  else {
+            } else {
                 holder.btnColorSelector.icon = null
                 holder.btnColorSelector.setBackgroundColor(Color.parseColor(color))
             }

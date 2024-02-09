@@ -37,6 +37,7 @@ class ChecklistAdapter(
     fun getItems(): List<Pair<Boolean, String>> {
         return items
     }
+
     fun swap(from: Int, to: Int) {
         Collections.swap(items, from, to)
     }
@@ -102,12 +103,12 @@ class ChecklistAdapter(
     }
 
     fun addItem(item: String) {
-        this.items.add(Pair(false,item))
+        this.items.add(Pair(false, item))
         notifyItemInserted(items.size - 1)
     }
 
     fun removeItem(position: Int) {
-        this.items.removeAt(position);
+        this.items.removeAt(position)
         notifyItemRemoved(position)
     }
 

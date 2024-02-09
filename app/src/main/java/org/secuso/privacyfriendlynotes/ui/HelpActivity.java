@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.secuso.privacyfriendlynotes.R;
