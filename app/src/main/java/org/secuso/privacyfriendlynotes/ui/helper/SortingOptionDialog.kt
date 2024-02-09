@@ -1,6 +1,8 @@
 package org.secuso.privacyfriendlynotes.ui.helper
 
 import android.content.Context
+import android.graphics.PorterDuff
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +33,7 @@ class SortingOptionDialog(
         dialog.setContentView(R.layout.dialog_sorting_options)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        val icons = context.resources.obtainTypedArray(sortingOptionIconResId);
+        val icons = context.resources.obtainTypedArray(sortingOptionIconResId)
         val options = context.resources.getStringArray(sortingOptionTextResId)
             .zip((0 until icons.length()).map { icons.getResourceId(it, 0) })
             .mapIndexed { i, (text, icon) -> SortingOptionData(
@@ -73,8 +75,14 @@ class SortingOptionDialog(
         }
 
         override fun onBindViewHolder(holder: SortingOptionHolder, position: Int) {
+            val tint = run {
+                val data = TypedValue()
+                holder.itemView.context.theme.resolveAttribute(R.attr.colorOnSurface, data, true)
+                return@run data.data
+            }
             holder.textView.text = options[position].text
             holder.imgView.setImageResource(options[position].icon)
+            holder.imgView.setColorFilter(tint, PorterDuff.Mode.SRC_IN)
             holder.itemView.setOnClickListener { _ -> onChosen.accept(options[position].option) }
             if (options[position].option == current) {
                 holder.reverseOrder.setImageResource(if (reversed) R.drawable.baseline_arrow_downward_24 else R.drawable.baseline_arrow_upward_24)
