@@ -16,6 +16,10 @@ package org.secuso.privacyfriendlynotes.ui.util
 import android.content.Context
 import android.content.res.Configuration
 
+/**
+ * Provides common utilities to interact with the system dark mode.
+ * @author Patrick Schneider
+ */
 class DarkModeUtil {
     companion object {
         fun isDarkMode(context: Context): Boolean {

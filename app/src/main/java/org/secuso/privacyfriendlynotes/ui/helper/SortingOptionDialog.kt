@@ -28,6 +28,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 
+/**
+ * Handles the dialog to change the sorting options.
+ *
+ * @author Patrick Schneider
+ */
 class SortingOptionDialog(
     context: Context,
     sortingOptionTextResId: Int,
@@ -65,12 +70,20 @@ class SortingOptionDialog(
         dialog.show()
     }
 
+    /**
+     * The data needed to display a sorting option.
+     * @author Patrick Schneider
+     */
     data class SortingOptionData(
         val text: String,
         val icon: Int,
         val option: SortingOrder
     )
 
+    /**
+     * Provides binding to display a sorting option.
+     * @author Patrick Schneider
+     */
     inner class SortingOptionAdapter(
         private val options: List<SortingOptionData>,
         private val current: SortingOrder,
@@ -102,6 +115,10 @@ class SortingOptionDialog(
             }
         }
 
+        /**
+         * The view holder associated to an sorting option.
+         * @author Patrick Schneider
+         */
         inner class SortingOptionHolder(view: View): RecyclerView.ViewHolder(view) {
             val textView: TextView = view.findViewById(R.id.sorting_option_text)
             val imgView: ImageView = view.findViewById(R.id.sorting_option_icon)

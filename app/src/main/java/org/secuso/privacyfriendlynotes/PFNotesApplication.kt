@@ -20,6 +20,13 @@ import org.secuso.privacyfriendlybackup.api.pfa.BackupManager.backupCreator
 import org.secuso.privacyfriendlybackup.api.pfa.BackupManager.backupRestorer
 import org.secuso.privacyfriendlynotes.backup.BackupCreator
 import org.secuso.privacyfriendlynotes.backup.BackupRestorer
+
+/**
+ * The main application.
+ * Configures backup.
+ *
+ * @author Patrick Schneider
+ */
 class PFNotesApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()

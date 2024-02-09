@@ -18,6 +18,10 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
 
+/**
+ * Provides common utilities to interact with a checklist.
+ * @author Patrick Schneider
+ */
 class ChecklistUtil {
 
     companion object {
@@ -58,9 +62,5 @@ class ChecklistUtil {
             }
             return Pair(false, text)
         }
-
-//        fun contentString(checklist: List<Pair<Boolean, String>>): String {
-//            checklist.map { (checked, text) ->  }
-//        }
     }
 }

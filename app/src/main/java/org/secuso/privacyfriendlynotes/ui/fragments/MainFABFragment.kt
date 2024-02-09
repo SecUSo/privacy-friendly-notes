@@ -25,6 +25,12 @@ import com.google.android.material.transition.MaterialContainerTransform
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 
+/**
+ * This fragment represents the FAB of the main notes overview.
+ * It transforms on-click to a sheet containing elements to create each note type.
+ *
+ * @author Patrick Schneider
+ */
 class MainFABFragment(
     private val onCreateNote: (Int) -> Unit
 ): Fragment(R.layout.main_content_fab_menu) {

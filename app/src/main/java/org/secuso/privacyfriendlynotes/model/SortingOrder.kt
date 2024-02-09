@@ -12,6 +12,11 @@
  along with Privacy Friendly Notes. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.secuso.privacyfriendlynotes.model
+
+/**
+ * This enum represents all supported sorting orders to sort notes by.
+ * @author Patrick Schneider
+ */
 enum class SortingOrder {
     AlphabeticalAscending,
     TypeAscending,

@@ -25,7 +25,10 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import org.secuso.privacyfriendlynotes.R
 import java.util.Collections
 
-
+/**
+ * Provides bindings to show a Checklist-Item in a RecyclerView.
+ * @author Patrick Schneider
+ */
 class ChecklistAdapter(
     private var items: MutableList<Pair<Boolean, String>>,
     private val startDrag: (ItemHolder) -> Unit,
@@ -108,6 +111,10 @@ class ChecklistAdapter(
         notifyItemRemoved(position)
     }
 
+    /**
+     * The view holder presenting a checklist item.
+     * @author Patrick Schneider
+     */
     inner class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.item_name)
         val checkbox: MaterialCheckBox = itemView.findViewById(R.id.item_checkbox)

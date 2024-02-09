@@ -57,7 +57,12 @@ import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActiv
 import java.io.OutputStream
 import java.util.*
 
-
+/**
+ * A abstract note.
+ * Provides title and category handling.
+ * Handles loading, saving and updating of notes as well as sharing.
+ * @author Patrick Schneider
+ */
 abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnClickListener, OnDateSetListener, OnTimeSetListener, PopupMenu.OnMenuItemClickListener {
     companion object {
         const val EXTRA_ID = "org.secuso.privacyfriendlynotes.ID"
