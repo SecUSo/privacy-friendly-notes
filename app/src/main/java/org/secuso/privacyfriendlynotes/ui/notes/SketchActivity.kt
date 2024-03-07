@@ -180,7 +180,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            sketchLoaded || !drawView.bitmap.sameAs(emptyBitmap()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
+            sketchLoaded || !drawView.bitmap.sameAs(emptyBitmap()),
             R.string.toast_emptyNote
         )
     }

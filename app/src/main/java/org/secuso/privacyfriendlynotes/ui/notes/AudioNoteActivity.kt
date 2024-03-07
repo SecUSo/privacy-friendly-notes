@@ -131,9 +131,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            seekBar.isEnabled && -5 != intent.getIntExtra(
-                EXTRA_CATEGORY, -5
-            ),
+            seekBar.isEnabled,
             R.string.toast_emptyNote
         )
     }

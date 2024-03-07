@@ -121,7 +121,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
         val intent = intent
         return Pair(
-            (title.isNotEmpty() || adapter.getItems().isNotEmpty()) && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
+            (title.isNotEmpty() || adapter.getItems().isNotEmpty()),
             R.string.toast_emptyNote
         )
     }
