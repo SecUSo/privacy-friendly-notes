@@ -24,4 +24,5 @@ public class PreferenceKeys {
     public static final String SP_VALUES_NAMECOUNTER = "sp_values_namecounter";
 
     public static final String SP_NOTES_ORDERING = "notes_ordering";
+    public static final String SP_NOTES_REVERSED = "notes_reversed_ordering";
 }

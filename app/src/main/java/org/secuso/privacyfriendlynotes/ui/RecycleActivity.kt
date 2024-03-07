@@ -14,7 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui
 
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem

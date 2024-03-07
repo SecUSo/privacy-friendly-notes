@@ -55,7 +55,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private var ordering: MutableStateFlow<SortingOrder> = MutableStateFlow(
         SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.LastModified.name)!!)
     )
-    private var reversed: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var reversed: MutableStateFlow<Boolean> = MutableStateFlow(
+        prefManager.getBoolean(PreferenceKeys.SP_NOTES_REVERSED, false)
+    )
     private var category: MutableStateFlow<Int> = MutableStateFlow(CAT_ALL)
 
     val trashedNotes: Flow<List<Note>> = repository.noteDao().allTrashedNotes
@@ -83,7 +85,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         } else {
             !reversed.value
         }
-        Log.d("Reverse", reversed.toString())
+        prefManager.edit()
+            .putBoolean(PreferenceKeys.SP_NOTES_REVERSED, reversed.value)
+            .apply()
         this.ordering.value = ordering
     }
 
@@ -210,7 +214,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
             val path = "${filesDir.path}/sketches${note.content}"
             return if (File(path).exists()) {
-                BitmapDrawable(resources, filesDir.path + "/sketches" + note.content).toBitmap(size, size, Bitmap.Config.ARGB_8888)
+                val bitmap = BitmapDrawable(resources, path)
+                BitmapDrawable(resources, path).toBitmap(size, size, Bitmap.Config.ARGB_8888)
             } else {
                 null
             }
