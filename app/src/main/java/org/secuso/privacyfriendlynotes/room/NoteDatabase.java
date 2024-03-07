@@ -82,6 +82,14 @@ public abstract class NoteDatabase extends RoomDatabase {
                             "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
                             "END;"
             );
+            // This trigger ensures that a custom_order cannot be updated to an invalid value <= 0 and defers to the old value or the id to ensure valid custom_orders.
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateCustomOrder] AFTER UPDATE OF custom_order ON notes FOR EACH ROW " +
+                            "WHEN NEW.custom_order <= 0 " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = (CASE WHEN OLD.custom_order <= 0 THEN OLD._id ELSE OLD.custom_order END) WHERE _id=NEW._id; " +
+                            "END;"
+            );
         }
     };
     /**
