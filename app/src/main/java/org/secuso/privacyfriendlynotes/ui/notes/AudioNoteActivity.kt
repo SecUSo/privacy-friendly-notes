@@ -59,6 +59,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private var recording = false
     private var playing = false
     private var isEmpty = true
+    private var noteLoaded = false
     private var startTime = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,6 +95,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
+        noteLoaded = true
         mFileName = note.content
         mFilePath = filesDir.path + "/audio_notes" + mFileName
         btnPlayPause.visibility = View.VISIBLE
@@ -129,11 +131,11 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
-        val intent = intent
-        return Pair(
-            seekBar.isEnabled,
-            R.string.toast_emptyNote
-        )
+        return if (noteLoaded) {
+            Pair(false, R.string.note_not_saved)
+        } else {
+            Pair(seekBar.isEnabled, R.string.toast_emptyNote)
+        }
     }
 
     override fun onClick(v: View) {

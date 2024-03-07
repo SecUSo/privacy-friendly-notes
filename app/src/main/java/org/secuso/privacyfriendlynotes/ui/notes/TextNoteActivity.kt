@@ -79,23 +79,20 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         underlineBtn.setOnClickListener(this)
 
         isBold.observe(this) { b: Boolean ->
-            hasChanged = true
             boldBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isItalic.observe(this) { b: Boolean ->
-            hasChanged = true
             italicsBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isUnderline.observe(this) { b: Boolean ->
-            hasChanged = true
             underlineBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         super.onCreate(savedInstanceState)
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        oldText = note.content
         etContent.setText(Html.fromHtml(note.content))
+        oldText = etContent.text.toString()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -148,7 +145,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
-        hasChanged = hasChanged or (oldText != etContent.text.toString())
+        hasChanged = hasChanged or (oldText?.trim() != etContent.text.toString().trim())
         return if (!hasChanged) {
             Pair(false, R.string.note_not_saved)
         } else {
@@ -162,9 +159,16 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         val underlined: UnderlineSpan
         val totalText: SpannableStringBuilder
         when (v.id) {
-            R.id.btn_bold -> applyStyle(Typeface.BOLD, isBold)
-            R.id.btn_italics -> applyStyle(Typeface.ITALIC, isItalic)
+            R.id.btn_bold -> {
+                hasChanged = true
+                applyStyle(Typeface.BOLD, isBold)
+            }
+            R.id.btn_italics -> {
+                hasChanged = true
+                applyStyle(Typeface.ITALIC, isItalic)
+            }
             R.id.btn_underline -> {
+                hasChanged = true
                 underlined = UnderlineSpan()
                 var alreadyUnderlined = false
                 totalText = etContent.text as SpannableStringBuilder

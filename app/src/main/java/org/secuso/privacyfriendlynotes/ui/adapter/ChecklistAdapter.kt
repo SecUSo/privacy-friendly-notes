@@ -34,17 +34,23 @@ class ChecklistAdapter(
     private val startDrag: (ItemHolder) -> Unit,
 ) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
 
+    var hasChanged = false
+        private set
+
     fun getItems(): List<Pair<Boolean, String>> {
         return items
     }
 
     fun swap(from: Int, to: Int) {
         Collections.swap(items, from, to)
+        hasChanged = true
     }
 
     fun setAll(items: Collection<Pair<Boolean, String>>) {
         if (this.items.isNotEmpty()) {
             this.items.clear()
+        } else {
+            hasChanged = false
         }
         this.items.addAll(items)
         notifyItemRangeChanged(0, this.items.size)
@@ -73,6 +79,7 @@ class ChecklistAdapter(
                     paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
                 }
             }
+            hasChanged = true
         }
         holder.textView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -85,6 +92,7 @@ class ChecklistAdapter(
 
             override fun afterTextChanged(text: Editable?) {
                 items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, (text ?: "").toString())
+                hasChanged = true
             }
 
         })
@@ -105,6 +113,7 @@ class ChecklistAdapter(
     fun addItem(item: String) {
         this.items.add(Pair(false, item))
         notifyItemInserted(items.size - 1)
+        hasChanged = true
     }
 
     fun removeItem(position: Int) {

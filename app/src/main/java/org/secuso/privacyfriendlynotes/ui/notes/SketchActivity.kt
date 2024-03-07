@@ -178,11 +178,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
-        val intent = intent
-        return Pair(
-            sketchLoaded || !drawView.bitmap.sameAs(emptyBitmap()),
-            R.string.toast_emptyNote
-        )
+        return Pair(undoStates.isNotEmpty(), if (sketchLoaded) R.string.note_not_saved else R.string.toast_emptyNote)
     }
 
     override fun onClick(v: View) {
