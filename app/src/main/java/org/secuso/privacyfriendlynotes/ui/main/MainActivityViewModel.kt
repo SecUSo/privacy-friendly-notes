@@ -150,8 +150,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private fun StateFlow<SortingOrder>.comparator(): (Note, Note) -> Int {
         return when (this.value) {
             SortingOrder.AlphabeticalAscending -> { a, b -> a.name.compareTo(b.name) }
-            SortingOrder.LastModified -> { a, b -> a.last_modified.compareTo(b.last_modified) }
-            SortingOrder.Creation -> { a, b -> a._id.compareTo(b._id) }
+            SortingOrder.LastModified -> { b, a -> a.last_modified.compareTo(b.last_modified) }
+            SortingOrder.Creation -> { b, a -> a._id.compareTo(b._id) }
             SortingOrder.Custom -> { a, b -> a.custom_order.compareTo(b.custom_order) }
             SortingOrder.TypeAscending -> { a, b -> a.type.compareTo(b.type) }
         }
