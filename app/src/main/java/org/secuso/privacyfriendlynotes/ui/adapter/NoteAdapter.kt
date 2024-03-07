@@ -112,9 +112,13 @@ class NoteAdapter(
                     holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
                     value.data
                 })
-                val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
-                if (bitmap != null) {
-                    holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))
+                if (pref.getBoolean("settings_show_preview", true)) {
+                    val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
+                    if (bitmap != null) {
+                        holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))
+                    } else {
+                        holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
+                    }
                 } else {
                     holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
                 }
