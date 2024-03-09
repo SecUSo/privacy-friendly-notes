@@ -78,7 +78,7 @@
     <string name="dialog_delete_category_with_notes">Are you sure you want to delete %1s? All notes in the category <b>will be deleted!</b></string>
     <string name="dialog_delete_category_without_notes">Are you sure you want to delete %1s? <b>No</b> notes will be deleted.</string>
     <string name="dialog_delete_all_recycle_bin_title">Delete all Notes in recycle bin</string>
-    <string name="dialog_delete_all_recycle_bin_message">Are you sure you want to delete all Notes currently visible in the recycle bin?</string>
+    <string name="dialog_delete_all_recycle_bin_message">Are you sure you want to delete all currently filtered Notes in the recycle bin?</string>
     <string name="dialog_trash_title">Moving to recycle bin</string>
     <string name="dialog_trash_message">Notes will be moved to the recycle bin. You can recover or permanently delete them there. Notifications cannot be restored.</string>
     <string name="dialog_save_title">Deleting selected items.</string>
