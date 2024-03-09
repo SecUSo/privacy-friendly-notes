@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /*
          * Handels when a note is clicked.
          */
-        adapter.setOnItemClickListener { (_id, name, content, type, category, in_trash): Note ->
+        adapter.setOnItemClickListener { (_id, name, content, type, category, in_trash): Note, _ ->
             val launchActivity =
                 Function<Class<out BaseNoteActivity?>, Void?> { activity: Class<out BaseNoteActivity?>? ->
                     val i = Intent(application, activity)

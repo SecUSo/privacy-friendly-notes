@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -71,28 +72,31 @@ class RecycleActivity : AppCompatActivity() {
             }
         })
 
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
+        val showDeleteDialog: (Note, ViewHolder) -> Unit = { note, viewHolder ->
+            MaterialAlertDialogBuilder(ContextThemeWrapper(this@RecycleActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
+                .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))
+                .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
+                    mainActivityViewModel.delete(note)
+                    adapter.notifyItemRemoved(viewHolder.bindingAdapterPosition)
+                }
+                .setNegativeButton(R.string.dialog_option_restore) { _, _ ->
+                    note.in_trash = 0
+                    mainActivityViewModel.update(note)
+                    adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                }
+                .setOnDismissListener { adapter.notifyItemChanged(viewHolder.bindingAdapterPosition) }
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
+        }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val note = adapter.notes[viewHolder.bindingAdapterPosition]
-                MaterialAlertDialogBuilder(ContextThemeWrapper(this@RecycleActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
-                    .setTitle(String.format(getString(R.string.dialog_restore_title), note.name))
-                    .setMessage(String.format(getString(R.string.dialog_restore_message), note.name))
-                    .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
-                        mainActivityViewModel.delete(note)
-                        adapter.notifyItemRemoved(viewHolder.bindingAdapterPosition)
-                    }
-                    .setNegativeButton(R.string.dialog_option_restore) { _, _ ->
-                        note.in_trash = 0
-                        mainActivityViewModel.update(note)
-                        adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
-                    }
-                    .setOnDismissListener { adapter.notifyItemChanged(viewHolder.bindingAdapterPosition) }
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show()
-            }
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder) = false
+
+            override fun onSwiped(viewHolder: ViewHolder, direction: Int) = showDeleteDialog(adapter.getNoteAt(viewHolder.bindingAdapterPosition), viewHolder)
         }).attachToRecyclerView(recyclerView)
+
+        adapter.setOnItemClickListener(showDeleteDialog)
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false)
     }

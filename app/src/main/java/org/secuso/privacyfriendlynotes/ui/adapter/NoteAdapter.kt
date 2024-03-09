@@ -43,7 +43,7 @@ class NoteAdapter(
     var notes: MutableList<Note> = ArrayList()
         private set
 
-    private var listener: ((Note) -> Unit)? = null
+    private var listener: ((Note, NoteHolder) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.note_item, parent, false)
@@ -169,14 +169,14 @@ class NoteAdapter(
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {
-                        listener!!(notes[this])
+                        listener!!(notes[this], this@NoteHolder)
                     }
                 }
             }
         }
     }
 
-    fun setOnItemClickListener(listener: (Note) -> Unit) {
+    fun setOnItemClickListener(listener: (Note, NoteHolder) -> Unit) {
         this.listener = listener
     }
 
