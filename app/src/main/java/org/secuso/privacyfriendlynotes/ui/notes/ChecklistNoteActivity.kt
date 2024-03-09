@@ -17,6 +17,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import android.text.SpannedString
+import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +26,7 @@ import android.widget.EditText
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -97,12 +99,20 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_convert_to_note -> {
-                super.convertNote(Html.toHtml(SpannedString(getContentString())), DbContract.NoteEntry.TYPE_TEXT) {
-                    val i = Intent(application, TextNoteActivity::class.java)
-                    i.putExtra(EXTRA_ID, it)
-                    startActivity(i)
-                    finish()
-                }
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@ChecklistNoteActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                    .setTitle(R.string.dialog_convert_to_text_title)
+                    .setMessage(R.string.dialog_convert_to_text_desc)
+                    .setPositiveButton(R.string.dialog_convert_action) { _, _ ->
+                        super.convertNote(Html.toHtml(SpannedString(getContentString())), DbContract.NoteEntry.TYPE_TEXT) {
+                            val i = Intent(application, TextNoteActivity::class.java)
+                            i.putExtra(EXTRA_ID, it)
+                            startActivity(i)
+                            finish()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
             }
 
             else -> {}

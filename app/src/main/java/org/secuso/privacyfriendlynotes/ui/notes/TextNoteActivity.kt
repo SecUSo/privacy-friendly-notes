@@ -26,11 +26,13 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -103,13 +105,21 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_convert_to_checklist -> {
-                val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map(ChecklistUtil::textToItem))
-                super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
-                    val i = Intent(application, ChecklistNoteActivity::class.java)
-                    i.putExtra(EXTRA_ID, it)
-                    startActivity(i)
-                    finish()
-                }
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@TextNoteActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                    .setTitle(R.string.dialog_convert_to_checklist_title)
+                    .setMessage(R.string.dialog_convert_to_checklist_desc)
+                    .setPositiveButton(R.string.dialog_convert_action) { _, _ ->
+                        val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map(ChecklistUtil::textToItem))
+                        super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                            val i = Intent(application, ChecklistNoteActivity::class.java)
+                            i.putExtra(EXTRA_ID, it)
+                            startActivity(i)
+                            finish()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
             }
 
             else -> {}

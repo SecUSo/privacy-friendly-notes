@@ -47,6 +47,8 @@
     <string name="action_underline"><u>キ</u></string>
 
 
+    <string name="action_convert_to_checklist">チェックリストに変換</string>
+    <string name="action_convert_to_text">テキストメモに変換</string>
     <string name="hint_name">名前</string>
     <string name="hint_note">メモ</string>
     <string name="hint_new_item">新しいアイテム</string>
@@ -153,5 +155,10 @@
     <string name="action_category">カテゴリ</string>
     <string name="text_note_fab_menu_desc">フォーマッティング</string>
     <string name="note_not_saved">メモが保存されていません</string>
+    <string name="dialog_convert_to_checklist_title">チェックリストに変換</string>
+    <string name="dialog_convert_to_checklist_desc">これにより、このメモがチェックリストに変換されます。チェックされていない項目は\"- [ ]\"で、チェックされている項目は\"- [x]\"で始まります。続けますか？</string>
+    <string name="dialog_convert_action">コンバート</string>
+    <string name="dialog_convert_to_text_title">テキストメモに変換</string>
+    <string name="dialog_convert_to_text_desc">このメモはテキストメモに変換されます。続けますか？</string>
 
 </resources>

@@ -76,8 +76,8 @@
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
     <string name="action_category">Kategorie</string>
-    <string name="action_convert_to_checklist">Als Checkliste</string>
-    <string name="action_convert_to_text">Als Textnotiz</string>
+    <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
+    <string name="action_convert_to_text">In Textnotiz umwandeln</string>
 
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
@@ -160,4 +160,9 @@
     </string-array>
     <string name="select_day_night_theme">Aussehen</string>
     <string name="category_color">Mit Farbe</string>
+    <string name="dialog_convert_to_checklist_title">In Checkliste umwandeln</string>
+    <string name="dialog_convert_to_checklist_desc">Dadurch wird diese Notiz in eine Checkliste umgewandelt. Jede Zeile muss mit \"- [ ]\" für einen nicht abgehakten Punkt oder mit \"- [x]\" für einen abgehakten Punkt beginnen. Möchten Sie forfahren?</string>
+    <string name="dialog_convert_action">Umwandeln</string>
+    <string name="dialog_convert_to_text_title">In Textnotiz umwandeln</string>
+    <string name="dialog_convert_to_text_desc">Dadurch wird diese Notiz in eine Textnotiz umgewandelt. Möchten Sie fortfahren?</string>
 </resources>

@@ -52,7 +52,7 @@
     <string name="action_sketch_undo">Undo</string>
     <string name="action_sketch_redo">Redo</string>
     <string name="action_convert_to_checklist">Convert to checklist</string>
-    <string name="action_convert_to_text">Convert to note</string>
+    <string name="action_convert_to_text">Convert to text note</string>
 
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
@@ -186,5 +186,10 @@
         <item>Last Modified</item>
         <item>Custom Order</item>
     </string-array>
+    <string name="dialog_convert_to_checklist_title">Convert to checklist</string>
+    <string name="dialog_convert_to_checklist_desc">This will convert this note to a checklist. Every line is expected to start with \"- [ ]\" for an unchecked item or with \"- [x]\" for a checked item. Do you want to continue?</string>
+    <string name="dialog_convert_action">Convert</string>
+    <string name="dialog_convert_to_text_title">Convert to text note</string>
+    <string name="dialog_convert_to_text_desc">This will convert this note into a text note. Do you want to continue?</string>
 
 </resources>
