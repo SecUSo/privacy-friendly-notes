@@ -20,9 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
 import org.secuso.privacyfriendlynotes.R
+import org.secuso.privacyfriendlynotes.ui.SettingsActivity
 import java.util.Collections
 
 /**
@@ -103,6 +105,7 @@ class ChecklistAdapter(
             } else {
                 paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
+            textSize = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")!!.toFloat()
         }
     }
 
