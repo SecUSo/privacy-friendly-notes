@@ -91,6 +91,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var year = 0
 
     protected var shouldSave = true
+    protected var savedActively = false
     private var hasChanged = false
     private var currentCat = 0
     private var id = -1
@@ -111,7 +112,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun shareNote(name: String): ActionResult<Intent, Int>
     protected abstract fun onNoteLoadedFromDB(note: Note)
     protected abstract fun onNewNote()
-    protected abstract fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int>
+    protected abstract fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -341,6 +342,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
             R.id.action_save -> {
                 shouldSave = true
+                savedActively = true
                 finish()
             }
 
@@ -375,13 +377,15 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     }
 
     override fun onPause() {
-        super.onPause()
         //The Activity is not visible anymore. Save the work!
         if (shouldSave) {
-            saveNote()
+            saveNote(showNotSaved = savedActively)
+            savedActively = false
         }
+        super.onPause()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         shouldSave = true
         super.onBackPressed()
@@ -408,11 +412,15 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveNote(force: Boolean = false): Boolean {
+    private fun saveNote(force: Boolean = false, showNotSaved: Boolean = false): Boolean {
         if (!force) {
             val (changed, mes) = hasNoteChanged(etName.text.toString(), if (currentCat >= 0) currentCat else savedCat)
             if (!changed && !hasChanged) {
-                Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+                if (mes != null) {
+                    Toast.makeText(applicationContext, mes, Toast.LENGTH_SHORT).show()
+                } else if (showNotSaved) {
+                    Toast.makeText(applicationContext, R.string.note_not_saved, Toast.LENGTH_SHORT).show()
+                }
                 return false
             }
         }

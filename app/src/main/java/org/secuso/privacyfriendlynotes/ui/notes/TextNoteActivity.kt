@@ -154,10 +154,10 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
         hasChanged = hasChanged or (oldText?.trim() != etContent.text.toString().trim())
         return if (!hasChanged) {
-            Pair(false, R.string.note_not_saved)
+            Pair(false, null)
         } else {
             Pair(title.isNotEmpty() || Html.toHtml(etContent.text).isNotEmpty(), R.string.toast_emptyNote)
         }

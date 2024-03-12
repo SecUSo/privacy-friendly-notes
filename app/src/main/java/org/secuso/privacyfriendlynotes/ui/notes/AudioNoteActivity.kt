@@ -130,9 +130,9 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
         return if (noteLoaded) {
-            Pair(false, R.string.note_not_saved)
+            Pair(false, null)
         } else {
             Pair(seekBar.isEnabled, R.string.toast_emptyNote)
         }

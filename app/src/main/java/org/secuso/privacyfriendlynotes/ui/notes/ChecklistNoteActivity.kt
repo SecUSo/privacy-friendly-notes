@@ -128,8 +128,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
         adapter.setAll(ChecklistUtil.parse(note.content))
     }
 
-    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int> {
-        return Pair(adapter.hasChanged, if (adapter.getItems().isEmpty() && title.isEmpty()) { R.string.toast_emptyNote } else { R.string.note_not_saved})
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
+        return Pair(adapter.hasChanged, if (adapter.getItems().isEmpty() && title.isEmpty()) { R.string.toast_emptyNote } else { null })
     }
 
     override fun shareNote(name: String): ActionResult<Intent, Int> {
