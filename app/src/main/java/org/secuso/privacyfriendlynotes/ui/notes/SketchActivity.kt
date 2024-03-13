@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -29,9 +30,11 @@ import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -51,6 +54,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private lateinit var redoButton: MenuItem
     private var mFileName = "finde_die_datei.mp4"
     private var mFilePath: String? = null
+    private var mTempFilePath: String? = null
     private var sketchLoaded = false
     private val undoStates = mutableListOf<Bitmap>()
     private var redoStates = mutableListOf<Bitmap>()
@@ -79,6 +83,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                     state = emptyBitmap()
                 }
                 undoStates.add(state!!)
+                saveBitmap(mTempFilePath!!)
                 redoStates.clear()
                 if (undoStates.size > 32) {
                     undoStates.removeFirst()
@@ -96,6 +101,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     override fun onNoteLoadedFromDB(note: Note) {
         mFileName = note.content
         mFilePath = filesDir.path + "/sketches" + mFileName
+        mTempFilePath = cacheDir.path + "/sketches" + mFileName
+        File(cacheDir.path + "/sketches").mkdirs()
         drawView.background = BitmapDrawable(resources, mFilePath)
         sketchLoaded = true
     }
@@ -104,6 +111,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         mFileName = "/sketch_" + System.currentTimeMillis() + ".PNG"
         mFilePath = filesDir.path + "/sketches"
         File(mFilePath!!).mkdirs() //ensure that the file exists
+        File(cacheDir.path + "/sketches").mkdirs()
+        mTempFilePath = cacheDir.path + "/sketches" + mFileName
         mFilePath = filesDir.path + "/sketches" + mFileName
     }
 
@@ -123,6 +132,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (undoStates.isNotEmpty()) {
                     redoStates.add(state!!)
                     undoRedoState(undoStates.removeLast())
+                    saveBitmap(mTempFilePath!!)
                 }
             }
 
@@ -130,6 +140,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (redoStates.isNotEmpty()) {
                     undoStates.add(state!!)
                     undoRedoState(redoStates.removeLast())
+                    saveBitmap(mTempFilePath!!)
                 }
             }
 
@@ -189,22 +200,34 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        val oldSketch = mFilePath?.let { BitmapDrawable(resources, it).bitmap } ?: emptyBitmap()
-        val bitmap = overlay(oldSketch, drawView.bitmap)
-        try {
-            val fo = FileOutputStream(File(mFilePath!!))
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, fo)
-            fo.flush()
-            fo.close()
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        File(mTempFilePath!!).apply {
+            this.copyTo(File(mFilePath!!), overwrite = true)
+            this.delete()
         }
-        if (name.isEmpty() && bitmap.sameAs(emptyBitmap())) {
+
+        if (name.isEmpty() && drawView.bitmap.sameAs(emptyBitmap())) {
             return ActionResult(false, null)
         }
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category))
+    }
+
+    private fun saveBitmap(path: String) {
+        lifecycleScope.launch {
+            val oldSketch = mFilePath?.let { BitmapDrawable(resources, it).bitmap } ?: emptyBitmap()
+            val bitmap = overlay(oldSketch, drawView.bitmap)
+            try {
+                val fo = FileOutputStream(File(path))
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)
+                fo.flush()
+                fo.close()
+            } catch (e: FileNotFoundException) {
+                Log.d("Bitmap Error", e.stackTraceToString())
+                e.printStackTrace()
+            } catch (e: IOException) {
+                Log.d("Bitmap Error", e.stackTraceToString())
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun displayColorDialog() {

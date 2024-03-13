@@ -214,8 +214,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
             val path = "${filesDir.path}/sketches${note.content}"
             return if (File(path).exists()) {
-                val bitmap = BitmapDrawable(resources, path)
-                BitmapDrawable(resources, path).toBitmap(size, size, Bitmap.Config.ARGB_8888)
+                try {
+                    BitmapDrawable(resources, path).toBitmap(size, size, Bitmap.Config.ARGB_8888)
+                } catch (e: Exception) {
+                    Log.e("Sketch preview", e.stackTraceToString())
+                    null
+                }
             } else {
                 null
             }
