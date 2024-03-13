@@ -17,6 +17,7 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
@@ -34,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -59,6 +61,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private val undoStates = mutableListOf<Bitmap>()
     private var redoStates = mutableListOf<Bitmap>()
     private var state: Bitmap? = null
+    private var oldSketch: Bitmap? = null
 
     private fun emptyBitmap(): Bitmap {
         return Bitmap.createBitmap(
@@ -78,21 +81,24 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         drawView.setMinStrokeWidth(1.5f)
         drawView.setMaxStrokeWidth(6f)
         drawView.setOnTouchListener { view, motionEvent ->
-            if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
-                if (state == null) {
-                    state = emptyBitmap()
+            view.onTouchEvent(motionEvent).let {
+                if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
+                    if (state == null) {
+                        state = emptyBitmap()
+                    }
+                    undoStates.add(state!!)
+                    saveBitmap(mTempFilePath!!)
+                    redoStates.clear()
+                    if (undoStates.size > 32) {
+                        undoStates.removeFirst()
+                    }
+                    state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                    undoButton.isEnabled = true
+                    redoButton.isEnabled = false
                 }
-                undoStates.add(state!!)
-                saveBitmap(mTempFilePath!!)
-                redoStates.clear()
-                if (undoStates.size > 32) {
-                    undoStates.removeFirst()
-                }
-                state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
-                undoButton.isEnabled = true
-                redoButton.isEnabled = false
+
+                return@setOnTouchListener it
             }
-            return@setOnTouchListener view.onTouchEvent(motionEvent)
         }
         super.onCreate(savedInstanceState)
     }
@@ -103,7 +109,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         mFilePath = filesDir.path + "/sketches" + mFileName
         mTempFilePath = cacheDir.path + "/sketches" + mFileName
         File(cacheDir.path + "/sketches").mkdirs()
-        drawView.background = BitmapDrawable(resources, mFilePath)
+        oldSketch = BitmapFactory.decodeFile(mFilePath) ?: emptyBitmap()
+        drawView.background = BitmapDrawable(resources, oldSketch)
         sketchLoaded = true
     }
 
@@ -114,6 +121,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         File(cacheDir.path + "/sketches").mkdirs()
         mTempFilePath = cacheDir.path + "/sketches" + mFileName
         mFilePath = filesDir.path + "/sketches" + mFileName
+        oldSketch = emptyBitmap()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -212,9 +220,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     private fun saveBitmap(path: String) {
-        lifecycleScope.launch {
-            val oldSketch = mFilePath?.let { BitmapDrawable(resources, it).bitmap } ?: emptyBitmap()
-            val bitmap = overlay(oldSketch, drawView.bitmap)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val bitmap = overlay(oldSketch!!, drawView.bitmap)
             try {
                 val fo = FileOutputStream(File(path))
                 bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)
