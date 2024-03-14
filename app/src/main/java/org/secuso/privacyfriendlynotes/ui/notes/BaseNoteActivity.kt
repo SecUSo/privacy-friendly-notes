@@ -24,6 +24,7 @@ import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -31,8 +32,10 @@ import android.provider.Settings
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -243,6 +246,24 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             invalidateOptionsMenu()
         }
         onLoadActivity()
+    }
+
+    // taken from https://dev.to/ahmmedrejowan/hide-the-soft-keyboard-and-remove-focus-from-edittext-in-android-ehp on 14/03/2024
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText && (v == etName || v == catSelection)) {
+                Rect().apply {
+                    v.getGlobalVisibleRect(this)
+                    if (!this.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                        v.clearFocus()
+                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     protected fun adaptFontSize(element: TextView) {

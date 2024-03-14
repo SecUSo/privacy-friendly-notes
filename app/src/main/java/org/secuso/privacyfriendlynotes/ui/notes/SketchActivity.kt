@@ -29,6 +29,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.ScrollView
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -51,6 +52,7 @@ import java.io.OutputStream
  */
 class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDialogResultListener {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
+    private val drawWrapper: ScrollView by lazy { findViewById(R.id.sketch_wrapper) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
     private lateinit var undoButton: MenuItem
     private lateinit var redoButton: MenuItem
@@ -62,6 +64,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private var redoStates = mutableListOf<Bitmap>()
     private var state: Bitmap? = null
     private var oldSketch: Bitmap? = null
+    private var initialSize: Pair<Int, Int>? = null
 
     private fun emptyBitmap(): Bitmap {
         return Bitmap.createBitmap(
@@ -74,6 +77,25 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_sketch)
+
+        // Disables scrolling -> fixed scrollview and drawview does not get resized
+        drawWrapper.setOnTouchListener { v, event -> true }
+
+        drawView.viewTreeObserver.addOnGlobalLayoutListener {
+            if (initialSize == null) {
+                Log.d("Initial size", "${drawWrapper.width},${drawWrapper.height}")
+                initialSize = Pair(drawWrapper.width, drawWrapper.height)
+            }
+            if (initialSize!!.first != drawView.width || initialSize!!.second != drawView.height) {
+                Log.d("Set size", "${drawWrapper.width},${drawWrapper.height}")
+                drawView.layoutParams.width = initialSize!!.first
+                drawView.layoutParams.height = initialSize!!.second
+                drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(drawView.bitmap, initialSize!!.first, initialSize!!.second, false))
+                if (state != null) {
+                    drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
+                }
+            }
+        }
 
         btnColorSelector.setOnClickListener(this)
         btnColorSelector.setBackgroundColor(Color.BLACK)
@@ -121,7 +143,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         File(cacheDir.path + "/sketches").mkdirs()
         mTempFilePath = cacheDir.path + "/sketches" + mFileName
         mFilePath = filesDir.path + "/sketches" + mFileName
-        oldSketch = emptyBitmap()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -209,8 +230,10 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         File(mTempFilePath!!).apply {
-            this.copyTo(File(mFilePath!!), overwrite = true)
-            this.delete()
+            if (this.exists()) {
+                this.copyTo(File(mFilePath!!), overwrite = true)
+                this.delete()
+            }
         }
 
         if (name.isEmpty() && drawView.bitmap.sameAs(emptyBitmap())) {
@@ -221,7 +244,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
     private fun saveBitmap(path: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val bitmap = overlay(oldSketch!!, drawView.bitmap)
+            val bitmap = overlay(oldSketch ?: emptyBitmap(), drawView.bitmap)
             try {
                 val fo = FileOutputStream(File(path))
                 bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)

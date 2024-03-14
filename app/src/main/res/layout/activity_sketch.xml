@@ -36,16 +36,19 @@
             />
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:id="@+id/sketch_wrapper"
+        android:scrollbarSize="0dp"
         android:background="?attr/colorSurfaceVariantLight">
+        <!-- The minHeight is necessary to ensure the bitmap has a size > 0 -->
         <com.simplify.ink.InkView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp"
             android:id="@+id/draw_view"
             android:padding="3dp"/>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
