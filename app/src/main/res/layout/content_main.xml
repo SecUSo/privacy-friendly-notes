@@ -19,6 +19,8 @@
             android:layout_height="wrap_content"
             android:actionViewClass="androidx.appcompat.widget.SearchView"
             android:theme="@style/AppTheme.SearchView"
+            app:iconifiedByDefault="false"
+            app:queryBackground="@color/transparent"
             android:imeOptions="flagNoExtractUi" />
 
         <androidx.recyclerview.widget.RecyclerView

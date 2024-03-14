@@ -142,7 +142,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun categoryColor(category: Int, consumer: Consumer<String?>) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Main) {
             consumer.accept(repository.categoryDao().getCategoryColor(category))
         }
     }

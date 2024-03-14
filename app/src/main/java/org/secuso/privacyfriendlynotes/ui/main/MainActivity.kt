@@ -13,15 +13,21 @@
  */
 package org.secuso.privacyfriendlynotes.ui.main
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
+import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,6 +68,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
 import java.util.Collections
+
 
 /**
  * The MainActivity includes the functionality of the primary screen.
@@ -185,7 +192,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return true
             }
         })
-
+        searchView.setOnClickListener { searchView.onActionViewExpanded() }
+        searchView.setOnQueryTextFocusChangeListener { _, focus ->
+            TypedValue().apply {
+                Log.d("Focus", focus.toString())
+                this@MainActivity.theme.resolveAttribute(if (focus) R.attr.colorSurfaceVariant else R.attr.colorBackground, this, true)
+                searchView.setBackgroundColor(this.data)
+            }
+        }
 
         /*
          * Handels when a note is clicked.
@@ -212,6 +226,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
+    }
+
+    // taken from https://dev.to/ahmmedrejowan/hide-the-soft-keyboard-and-remove-focus-from-edittext-in-android-ehp on 14/03/2024
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                Rect().apply {
+                    v.getGlobalVisibleRect(this)
+                    if (!this.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                        v.clearFocus()
+                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     override fun onResume() {
