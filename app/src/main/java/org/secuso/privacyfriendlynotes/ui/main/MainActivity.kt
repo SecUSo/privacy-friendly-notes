@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var adapter: NoteAdapter
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
     private lateinit var fab: MainFABFragment
+    private var skipNextNoteFlow = false
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -143,7 +144,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            mainActivityViewModel.activeNotes.collect { notes -> adapter.setNotes(notes) }
+            mainActivityViewModel.activeNotes.collect { notes ->
+                if (!skipNextNoteFlow) {
+                    adapter.setNotes(notes)
+                }
+                skipNextNoteFlow = false
+            }
         }
 
         val ith = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -156,6 +162,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 adapter.notes[from].custom_order = adapter.notes[to].custom_order
                 adapter.notes[to].custom_order = temp
                 Collections.swap(adapter.notes, from, to)
+                skipNextNoteFlow = true
+                mainActivityViewModel.updateAll(listOf(adapter.notes[from], adapter.notes[to]))
 
                 adapter.notifyItemMoved(to, from)
 
@@ -342,7 +350,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onPause() {
         // Save all changed orders if activity is paused
-        mainActivityViewModel.updateAll(adapter.notes)
+//        mainActivityViewModel.updateAll(adapter.notes)
         super.onPause()
     }
 

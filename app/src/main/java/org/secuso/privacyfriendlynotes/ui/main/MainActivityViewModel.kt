@@ -112,13 +112,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun insert(note: Note) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.noteDao().insert(note)
         }
     }
 
     fun update(note: Note) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.noteDao().update(note)
         }
     }

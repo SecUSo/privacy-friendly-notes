@@ -31,7 +31,6 @@ data class Note(
     var type: Int,
     var category: Int,
     var in_trash: Int = 0,
-    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     var last_modified: String,
     var custom_order: Int
 ) {
