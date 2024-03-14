@@ -68,8 +68,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 }
             ).apply {
                 putExtra(BaseNoteActivity.EXTRA_ID, notification)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }.let {
-                PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                PendingIntent.getActivity(context, notification, it, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             }
             val mNotifyMgr = ContextCompat.getSystemService(context, NotificationManager::class.java) as NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
