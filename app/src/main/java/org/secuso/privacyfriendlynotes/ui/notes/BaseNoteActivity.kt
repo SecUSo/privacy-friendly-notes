@@ -42,6 +42,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -143,6 +144,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
             hasChanged = true
         }
+        etName.doOnTextChanged { _,_,_,_ -> hasChanged = true }
 
         lifecycleScope.launch {
             createEditNoteViewModel.categories.collect { categories ->
