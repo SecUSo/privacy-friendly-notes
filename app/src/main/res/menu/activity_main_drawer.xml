@@ -18,7 +18,7 @@
 
         <item
             android:id="@+id/nav_all"
-            android:icon="@drawable/ic_format_list_bulleted_black_24dp"
+            android:icon="@drawable/ic_format_list_bulleted_icon_24dp"
             android:title="@string/nav_all"/>
     </group>
 

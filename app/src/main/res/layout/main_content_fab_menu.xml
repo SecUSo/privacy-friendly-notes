@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fab_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    android:layout_margin="@dimen/fab_margin"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/fab_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/fab_border"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fab_sketch"
+            android:id="@+id/fab_sketch"
+            android:padding="@dimen/fab_menu_item_padding"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            app:drawableEndCompat="@drawable/ic_photo_icon_24dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fab_audio"
+            android:id="@+id/fab_audio"
+            android:padding="@dimen/fab_menu_item_padding"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            app:drawableEndCompat="@drawable/ic_mic_icon_24dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fab_checklist"
+            android:id="@+id/fab_checklist"
+            android:padding="@dimen/fab_menu_item_padding"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            app:drawableEndCompat="@drawable/ic_format_list_bulleted_icon_24dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fab_text"
+            android:id="@+id/fab_text"
+            android:padding="@dimen/fab_menu_item_padding"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            app:drawableEndCompat="@drawable/ic_short_text_icon_24dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fabClose"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:padding="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="16dp"
+            app:backgroundTint="@color/colorSecuso"
+            app:icon="@drawable/ic_baseline_close_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="@color/white" />
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:contentDescription="@string/text_note_fab_menu_desc"
+        android:src="@drawable/ic_add_white_24dp"
+        android:transitionName="shared_element_container"
+        android:visibility="visible"
+        app:backgroundTint="@color/colorSecuso"
+        app:borderWidth="0dp"
+        app:fabSize="normal"
+        app:tint="@color/white"
+        app:elevation="0dp"/>
+
+</LinearLayout>

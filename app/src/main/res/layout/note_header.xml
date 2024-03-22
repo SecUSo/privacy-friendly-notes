@@ -13,12 +13,12 @@
         android:layout_gravity="center"
         android:layout_marginEnd="10dp"
         android:hint="@string/hint_name"
-        style="@style/AppTheme.Note.Header.Title">
+        android:theme="@style/AppTheme.NoteHeader.Title">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textCapSentences"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -28,13 +28,15 @@
         android:layout_height="match_parent"
         android:hint="@string/action_category"
         android:layout_weight="0.3"
-        style="@style/AppTheme.Note.Header.Category">
+        android:theme="@style/AppTheme.NoteHeader.Category">
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/spinner_category"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="none"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:textColor="?attr/editTextColor"
+            android:scrollbars="vertical" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

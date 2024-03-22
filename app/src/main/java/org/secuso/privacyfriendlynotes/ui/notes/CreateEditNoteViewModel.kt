@@ -15,13 +15,18 @@ package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
-import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Notification
 
 /**
@@ -29,28 +34,30 @@ import org.secuso.privacyfriendlynotes.room.model.Notification
  * @see AudioNoteActivity, ChecklistNoteActivity, SketchActivity, TextNoteActivity
  */
 
-class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application){
+class CreateEditNoteViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     val allNotifications: LiveData<List<Notification>> = repository.notificationDao().allNotificationsLiveData
-    val allCategoriesLive: LiveData<List<Category>> = repository.categoryDao().allCategoriesLive
+    val categories: Flow<List<Category>> = repository.categoryDao().allCategories
     private val _categoryName: MediatorLiveData<String?> = MediatorLiveData<String?>()
     private var _categoryNameLast: LiveData<String?>? = null
     private val database: NoteDatabase = NoteDatabase.getInstance(application)
 
 
-    fun insert(notification: Notification){
-        viewModelScope.launch(Dispatchers.Default){
+    fun insert(notification: Notification) {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.notificationDao().insert(notification)
         }
     }
-    fun update(notification: Notification){
-        viewModelScope.launch(Dispatchers.Default){
+
+    fun update(notification: Notification) {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.notificationDao().update(notification)
         }
     }
-    fun delete(notification: Notification){
-        viewModelScope.launch(Dispatchers.Default){
+
+    fun delete(notification: Notification) {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.notificationDao().delete(notification)
         }
     }
@@ -76,16 +83,16 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
 
     fun getCategoryNameFromId(categoryId: Int): LiveData<String?> {
 
-        viewModelScope.launch(Dispatchers.Default){
-            withContext(Dispatchers.Main){
-                if(_categoryNameLast != null){
+        viewModelScope.launch(Dispatchers.Default) {
+            withContext(Dispatchers.Main) {
+                if (_categoryNameLast != null) {
                     _categoryName.removeSource(_categoryNameLast!!)
                 }
             }
             _categoryNameLast = repository.categoryDao().categoryNameFromId(categoryId as Integer)
 
-            withContext(Dispatchers.Main){
-                _categoryName.addSource(_categoryNameLast!!){
+            withContext(Dispatchers.Main) {
+                _categoryName.addSource(_categoryNameLast!!) {
                     _categoryName.postValue(it)
                 }
             }
@@ -101,11 +108,16 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         val id = viewModelScope.run {
             database.noteDao().insert(note).toInt()
         }
-        Log.e("id", "$id")
         return id
     }
 
     fun update(note: Note) {
+        viewModelScope.launch(Dispatchers.Default) {
+            database.noteDao().update(note)
+        }
+    }
+
+    fun updateThen(note: Note) {
         viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().update(note)
         }
@@ -126,7 +138,7 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         return note
     }
 
-    companion object{
+    companion object {
         private const val TAG = "CreateEditNoteViewModel"
     }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_sketch_undo"
+        android:orderInCategory="10"
+        android:title="@string/action_sketch_undo"
+        android:icon="@drawable/ic_baseline_undo_icon_24dp"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_sketch_redo"
+        android:orderInCategory="10"
+        android:title="@string/action_sketch_redo"
+        android:icon="@drawable/ic_baseline_redo_icon_24"
+        app:showAsAction="always"/>
+</menu>

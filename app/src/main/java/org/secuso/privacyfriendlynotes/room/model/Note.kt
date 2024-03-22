@@ -13,8 +13,10 @@
  */
 package org.secuso.privacyfriendlynotes.room.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Calendar
 
 /**
  * Provides note class with variables and constructor.
@@ -22,20 +24,36 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "notes")
 data class Note(
-        @PrimaryKey(autoGenerate = true)
-        var _id: Int = 0,
-        var name: String,
-        var content: String,
-        var type: Int,
-        var category: Int,
-        var in_trash: Int = 0) {
+    @PrimaryKey(autoGenerate = true)
+    var _id: Int = 0,
+    var name: String,
+    var content: String,
+    var type: Int,
+    var category: Int,
+    var in_trash: Int = 0,
+    var last_modified: String,
+    var custom_order: Int
+) {
 
-        constructor(name: String, content: String, type: Int, category: Int) : this(
-                name = name,
-                content = content,
-                type = type,
-                category = category,
-                in_trash = 0,
-                _id = 0
-        )
+    constructor(name: String, content: String, type: Int, category: Int) : this(
+        name = name,
+        content = content,
+        type = type,
+        category = category,
+        in_trash = 0,
+        _id = 0,
+        last_modified = Calendar.getInstance().time.toString(),
+        custom_order = 0
+    )
+
+    constructor(name: String, content: String, type: Int, category: Int, custom_order: Int) : this(
+        name = name,
+        content = content,
+        type = type,
+        category = category,
+        in_trash = 0,
+        _id = 0,
+        last_modified = Calendar.getInstance().time.toString(),
+        custom_order = custom_order
+    )
 }

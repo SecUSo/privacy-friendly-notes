@@ -20,7 +20,8 @@ import android.provider.BaseColumns;
  * Created by Robin on 11.06.2016.
  */
 public class DbContract {
-    public DbContract(){}
+    public DbContract() {
+    }
 
     public static abstract class NoteEntry implements BaseColumns {
         public static final String TABLE_NAME = "notes";
