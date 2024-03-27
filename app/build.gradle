@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'androidx.room'
 
 def pfaFile = rootProject.file('pfa.properties')
 
@@ -23,14 +24,8 @@ android {
         minSdkVersion 21
         compileSdk 34
         targetSdkVersion 34
-        versionCode 18
-        versionName "1.4.5"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
+        versionCode 19
+        versionName "2.0.0"
     }
 
     applicationVariants.configureEach { variant ->
@@ -63,6 +58,10 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
+
     namespace 'org.secuso.privacyfriendlynotes'
 }
 
@@ -90,8 +89,6 @@ dependencies {
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    def room_version = "2.5.2"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"

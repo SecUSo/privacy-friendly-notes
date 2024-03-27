@@ -78,7 +78,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/about_author_names" />
+            android:text="@string/about_author_names"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/textFieldContributors"
