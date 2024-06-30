@@ -118,6 +118,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected abstract fun onNewNote()
     protected abstract fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?>
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -144,7 +145,12 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
             hasChanged = true
         }
+
         etName.doOnTextChanged { _,_,_,_ -> hasChanged = true }
+        etName.setOnTouchListener { _, _ ->
+            hasChanged = true
+            false
+        }
 
         lifecycleScope.launch {
             createEditNoteViewModel.categories.collect { categories ->
@@ -195,7 +201,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         return super.onPrepareOptionsMenu(menu)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun loadActivity(initial: Boolean) {
         //Look for a note ID in the intent. If we got one, then we will edit that note. Otherwise we create a new one.
         if (id == -1) {
@@ -210,11 +215,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             fontSize = sp.getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")!!.toFloat()
             adaptFontSize(catSelection)
             adaptFontSize(etName)
-        }
-
-        etName.setOnTouchListener { _, _ ->
-            hasChanged = true
-            false
         }
 
         // Fill category spinner
@@ -239,6 +239,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     hasAlarm = notification!!._noteId >= 0
 
                     onNoteLoadedFromDB(note)
+                    hasChanged = false
                 }
             }
         } else {

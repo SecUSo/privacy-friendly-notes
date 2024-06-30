@@ -413,7 +413,6 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        Log.d("Test", "${name}, ${etContent.text}")
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {
