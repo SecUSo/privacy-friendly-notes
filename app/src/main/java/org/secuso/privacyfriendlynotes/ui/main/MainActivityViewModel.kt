@@ -53,7 +53,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     private var filter: MutableStateFlow<String> = MutableStateFlow("")
     private var ordering: MutableStateFlow<SortingOrder> = MutableStateFlow(
-        SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.LastModified.name)!!)
+        SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.AlphabeticalAscending.name)!!)
     )
     private var reversed: MutableStateFlow<Boolean> = MutableStateFlow(
         prefManager.getBoolean(PreferenceKeys.SP_NOTES_REVERSED, false)
