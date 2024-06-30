@@ -120,6 +120,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        <!-- Remove if not needed anymore -->
+        <service android:name=".service.NotificationService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
