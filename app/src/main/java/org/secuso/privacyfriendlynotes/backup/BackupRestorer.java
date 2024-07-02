@@ -126,7 +126,8 @@ public class BackupRestorer implements IBackupRestorer {
                         "settings_show_preview",
                         "settings_dialog_on_trashing",
                         "settings_color_category",
-                        "notes_reversed_ordering"-> editor.putBoolean(name, reader.nextBoolean());
+                        "notes_reversed_ordering",
+                        "settings_sketch_undo_redo" -> editor.putBoolean(name, reader.nextBoolean());
                 case "settings_font_size", "settings_day_night_theme", "notes_ordering" -> editor.putString(name, reader.nextString());
                 default -> throw new RuntimeException("Unknown preference " + name);
             }

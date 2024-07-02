@@ -160,5 +160,7 @@
     <string name="dialog_convert_action">コンバート</string>
     <string name="dialog_convert_to_text_title">テキストメモに変換</string>
     <string name="dialog_convert_to_text_desc">このメモはテキストメモに変換されます。続けますか？</string>
+    <string name="settings_sketch_undo_redo_desc">スケッチの元に戻す/やり直し機能を有効にします。このオプションは、古いデバイスでパフォーマンスの問題を引き起こす可能性があります。</string>
+    <string name="settings_sketch_undo_redo_title">スケッチの元に戻す/やり直し</string>
 
 </resources>

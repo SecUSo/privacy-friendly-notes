@@ -191,5 +191,7 @@
     <string name="dialog_convert_action">Convert</string>
     <string name="dialog_convert_to_text_title">Convert to text note</string>
     <string name="dialog_convert_to_text_desc">This will convert this note into a text note. Do you want to continue?</string>
+    <string name="settings_sketch_undo_redo_desc">Enable the undo/redo functionality in sketches. This option may lead to performance issues on older devices.</string>
+    <string name="settings_sketch_undo_redo_title">Undo/Redo in sketches</string>
 
 </resources>

@@ -16,6 +16,12 @@
             android:title="@string/settings_note_trashing_dialog_title"
             android:summary="@string/settings_note_trashing_dialog_desc"
             app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_sketch_undo_redo"
+            android:defaultValue="true"
+            android:title="@string/settings_sketch_undo_redo_title"
+            android:summary="@string/settings_sketch_undo_redo_desc"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory android:title="@string/settings_appearance_heading"
         app:iconSpaceReserved="false">

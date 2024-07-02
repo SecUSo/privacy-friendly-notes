@@ -33,6 +33,7 @@ import android.widget.ScrollView
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
@@ -81,46 +82,52 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         // Disables scrolling -> fixed scrollview and drawview does not get resized
         drawWrapper.setOnTouchListener { v, event -> true }
 
-        drawView.viewTreeObserver.addOnGlobalLayoutListener {
-            if (initialSize == null) {
-                Log.d("Initial size", "${drawWrapper.width},${drawWrapper.height}")
-                initialSize = Pair(drawWrapper.width, drawWrapper.height)
-            }
-            if (initialSize!!.first != drawView.width || initialSize!!.second != drawView.height) {
-                Log.d("Set size", "${drawWrapper.width},${drawWrapper.height}")
-                drawView.layoutParams.width = initialSize!!.first
-                drawView.layoutParams.height = initialSize!!.second
-                drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(drawView.bitmap, initialSize!!.first, initialSize!!.second, false))
-                if (state != null) {
-                    drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
+            drawView.viewTreeObserver.addOnGlobalLayoutListener {
+                if (initialSize == null) {
+                    Log.d("Initial size", "${drawWrapper.width},${drawWrapper.height}")
+                    initialSize = Pair(drawWrapper.width, drawWrapper.height)
+                }
+                if (initialSize!!.first != drawView.width || initialSize!!.second != drawView.height) {
+                    Log.d("Set size", "${drawWrapper.width},${drawWrapper.height}")
+                    drawView.layoutParams.width = initialSize!!.first
+                    drawView.layoutParams.height = initialSize!!.second
+                    drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(drawView.bitmap, initialSize!!.first, initialSize!!.second, false))
+                    if (state != null) {
+                        drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
+                    }
                 }
             }
-        }
 
         btnColorSelector.setOnClickListener(this)
         btnColorSelector.setBackgroundColor(Color.BLACK)
         drawView.setColor(Color.BLACK)
         drawView.setMinStrokeWidth(1.5f)
         drawView.setMaxStrokeWidth(6f)
-        drawView.setOnTouchListener { view, motionEvent ->
-            view.onTouchEvent(motionEvent).let {
-                if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
-                    if (state == null) {
-                        state = emptyBitmap()
-                    }
-                    undoStates.add(state!!)
-                    saveBitmap(mTempFilePath!!)
-                    redoStates.clear()
-                    if (undoStates.size > 32) {
-                        undoStates.removeFirst()
-                    }
-                    state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
-                    undoButton.isEnabled = true
-                    redoButton.isEnabled = false
-                }
 
-                return@setOnTouchListener it
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("preference_sketch_undo_redo", false)) {
+            drawView.setOnTouchListener { view, motionEvent ->
+                view.onTouchEvent(motionEvent).let {
+                    if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
+                        if (state == null) {
+                            state = emptyBitmap()
+                        }
+                        undoStates.add(state!!)
+                        saveBitmap(mTempFilePath!!)
+                        redoStates.clear()
+                        if (undoStates.size > 32) {
+                            undoStates.removeFirst()
+                        }
+                        state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                        undoButton.isEnabled = true
+                        redoButton.isEnabled = false
+                    }
+
+                    return@setOnTouchListener it
+                }
             }
+        } else {
+            undoButton.setVisible(false)
+            redoButton.setVisible(false)
         }
         super.onCreate(savedInstanceState)
     }
