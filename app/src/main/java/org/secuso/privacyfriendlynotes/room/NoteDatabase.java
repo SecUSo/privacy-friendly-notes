@@ -71,7 +71,8 @@ public abstract class NoteDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE notes;");
             database.execSQL("ALTER TABLE notes_new RENAME TO notes");
             database.execSQL(
-                    "CREATE TRIGGER [UpdateLastModified] AFTER UPDATE ON notes FOR EACH ROW WHEN NEW.last_modified = OLD.last_modified AND NEW.custom_order = OLD.custom_order " +
+                    "CREATE TRIGGER [UpdateLastModified] AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.last_modified = OLD.last_modified AND NEW.custom_order = OLD.custom_order AND NEW.in_trash = OLD.in_trash " +
                             "BEGIN " +
                             "UPDATE notes SET last_modified = DateTime('now') WHERE _id=NEW._id; " +
                             "END;"
