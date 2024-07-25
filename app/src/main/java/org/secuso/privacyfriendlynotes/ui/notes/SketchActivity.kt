@@ -110,7 +110,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
         if (undoRedoEnabled) {
             drawView.setOnTouchListener { view, motionEvent ->
-                Log.d("test", "${view.javaClass.name}, ${view.id}, $motionEvent")
                 view.onTouchEvent(motionEvent).let {
                     if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
                         if (state == null) {
