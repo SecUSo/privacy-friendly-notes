@@ -14,10 +14,10 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
@@ -29,7 +29,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
-import android.widget.ScrollView
+import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -39,6 +39,8 @@ import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -53,7 +55,7 @@ import java.io.OutputStream
  */
 class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDialogResultListener {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
-    private val drawWrapper: ScrollView by lazy { findViewById(R.id.sketch_wrapper) }
+    private val drawWrapper: LinearLayout by lazy { findViewById(R.id.sketch_wrapper) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
     private lateinit var undoButton: MenuItem
     private lateinit var redoButton: MenuItem
@@ -64,8 +66,10 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private val undoStates = mutableListOf<Bitmap>()
     private var redoStates = mutableListOf<Bitmap>()
     private var state: Bitmap? = null
-    private var oldSketch: Bitmap? = null
+    private var oldSketch: BitmapDrawable? = null
     private var initialSize: Pair<Int, Int>? = null
+
+    private val undoRedoEnabled by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_sketch_undo_redo", true) }
 
     private fun emptyBitmap(): Bitmap {
         return Bitmap.createBitmap(
@@ -79,24 +83,24 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_sketch)
 
-        // Disables scrolling -> fixed scrollview and drawview does not get resized
-        drawWrapper.setOnTouchListener { v, event -> true }
-
-            drawView.viewTreeObserver.addOnGlobalLayoutListener {
-                if (initialSize == null) {
-                    Log.d("Initial size", "${drawWrapper.width},${drawWrapper.height}")
-                    initialSize = Pair(drawWrapper.width, drawWrapper.height)
-                }
-                if (initialSize!!.first != drawView.width || initialSize!!.second != drawView.height) {
-                    Log.d("Set size", "${drawWrapper.width},${drawWrapper.height}")
-                    drawView.layoutParams.width = initialSize!!.first
-                    drawView.layoutParams.height = initialSize!!.second
+        drawView.viewTreeObserver.addOnGlobalLayoutListener {
+            if (initialSize == null) {
+                Log.d("Initial size", "${drawWrapper.width},${drawWrapper.height}")
+                initialSize = Pair(drawWrapper.width, drawWrapper.height)
+            }
+            if (initialSize!!.first != drawView.layoutParams.width || initialSize!!.second != drawView.layoutParams.height) {
+                Log.d("Set size", "to ${drawWrapper.width},${drawWrapper.height}, from ${drawView.width},${drawView.height}")
+                drawView.layoutParams = LinearLayout.LayoutParams(initialSize!!.first, initialSize!!.second)
+                if (oldSketch != null) {
+                    drawView.background = oldSketch
+                } else {
                     drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(drawView.bitmap, initialSize!!.first, initialSize!!.second, false))
-                    if (state != null) {
-                        drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
-                    }
+                }
+                if (state != null) {
+                    drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
                 }
             }
+        }
 
         btnColorSelector.setOnClickListener(this)
         btnColorSelector.setBackgroundColor(Color.BLACK)
@@ -104,15 +108,18 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         drawView.setMinStrokeWidth(1.5f)
         drawView.setMaxStrokeWidth(6f)
 
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("preference_sketch_undo_redo", false)) {
+        if (undoRedoEnabled) {
             drawView.setOnTouchListener { view, motionEvent ->
+                Log.d("test", "${view.javaClass.name}, ${view.id}, $motionEvent")
                 view.onTouchEvent(motionEvent).let {
                     if (motionEvent.actionMasked == MotionEvent.ACTION_UP) {
                         if (state == null) {
                             state = emptyBitmap()
                         }
                         undoStates.add(state!!)
-                        saveBitmap(mTempFilePath!!)
+                        lifecycleScope.launch (Dispatchers.IO) {
+                            saveBitmap(mTempFilePath!!)
+                        }
                         redoStates.clear()
                         if (undoStates.size > 32) {
                             undoStates.removeFirst()
@@ -125,9 +132,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                     return@setOnTouchListener it
                 }
             }
-        } else {
-            undoButton.setVisible(false)
-            redoButton.setVisible(false)
         }
         super.onCreate(savedInstanceState)
     }
@@ -138,8 +142,13 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         mFilePath = filesDir.path + "/sketches" + mFileName
         mTempFilePath = cacheDir.path + "/sketches" + mFileName
         File(cacheDir.path + "/sketches").mkdirs()
-        oldSketch = BitmapFactory.decodeFile(mFilePath) ?: emptyBitmap()
-        drawView.background = BitmapDrawable(resources, oldSketch)
+        oldSketch = try {
+            loadSketchBitmap(this, note.content)
+        } catch (e: FileNotFoundException) {
+            Log.d(TAG, "Cannot load sketch: ${e.printStackTrace()}")
+            BitmapDrawable(resources, emptyBitmap())
+        }
+        drawView.background = oldSketch
         sketchLoaded = true
     }
 
@@ -158,6 +167,10 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         redoButton = menu.findItem(R.id.action_sketch_redo)
         undoButton.isEnabled = false
         redoButton.isEnabled = false
+        if (!undoRedoEnabled) {
+            undoButton.setVisible(false)
+            redoButton.setVisible(false)
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -168,7 +181,9 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (undoStates.isNotEmpty()) {
                     redoStates.add(state!!)
                     undoRedoState(undoStates.removeLast())
-                    saveBitmap(mTempFilePath!!)
+                    lifecycleScope.launch (Dispatchers.IO) {
+                        saveBitmap(mTempFilePath!!)
+                    }
                 }
             }
 
@@ -176,7 +191,9 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (redoStates.isNotEmpty()) {
                     undoStates.add(state!!)
                     undoRedoState(redoStates.removeLast())
-                    saveBitmap(mTempFilePath!!)
+                    lifecycleScope.launch (Dispatchers.IO) {
+                        saveBitmap(mTempFilePath!!)
+                    }
                 }
             }
 
@@ -197,14 +214,14 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         val sketchFile = File(tempPath)
 
         val map = BitmapDrawable(resources, mFilePath).bitmap ?: emptyBitmap()
-        val bm = overlay(map, drawView.bitmap)
+        val bm = map.overlay(drawView.bitmap)
         val canvas = Canvas(bm)
         canvas.drawColor(Color.WHITE)
         canvas.drawBitmap(
-            overlay(
-                map,
-                drawView.bitmap
-            ), 0f, 0f, null
+            map.overlay(drawView.bitmap),
+            0f,
+            0f,
+            null
         )
         try {
             bm.compress(Bitmap.CompressFormat.JPEG, 100, FileOutputStream(sketchFile))
@@ -225,7 +242,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
-        return Pair(undoStates.isNotEmpty(), if (sketchLoaded) null else R.string.toast_emptyNote)
+        return Pair(
+            if (undoRedoEnabled) { undoStates.isNotEmpty() } else { drawView.bitmap != emptyBitmap() }, if (sketchLoaded) null else R.string.toast_emptyNote)
     }
 
     override fun onClick(v: View) {
@@ -236,10 +254,16 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        File(mTempFilePath!!).apply {
-            if (this.exists()) {
-                this.copyTo(File(mFilePath!!), overwrite = true)
-                this.delete()
+        if (undoRedoEnabled) {
+            File(mTempFilePath!!).apply {
+                if (this.exists()) {
+                    this.copyTo(File(mFilePath!!), overwrite = true)
+                    this.delete()
+                }
+            }
+        } else {
+            runBlocking {
+                saveBitmap(mFilePath!!)
             }
         }
 
@@ -249,21 +273,23 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category))
     }
 
-    private fun saveBitmap(path: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val bitmap = overlay(oldSketch ?: emptyBitmap(), drawView.bitmap)
-            try {
-                val fo = FileOutputStream(File(path))
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)
+    private suspend fun saveBitmap(path: String) {
+        val bitmap = oldSketch?.overlay(drawView.bitmap) ?: emptyBitmap().overlay(drawView.bitmap)
+        try {
+            val fo = withContext(Dispatchers.IO) {
+                FileOutputStream(File(path))
+            }
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)
+            withContext(Dispatchers.IO) {
                 fo.flush()
                 fo.close()
-            } catch (e: FileNotFoundException) {
-                Log.d("Bitmap Error", e.stackTraceToString())
-                e.printStackTrace()
-            } catch (e: IOException) {
-                Log.d("Bitmap Error", e.stackTraceToString())
-                e.printStackTrace()
             }
+        } catch (e: FileNotFoundException) {
+            Log.d("Bitmap Error", e.stackTraceToString())
+            e.printStackTrace()
+        } catch (e: IOException) {
+            Log.d("Bitmap Error", e.stackTraceToString())
+            e.printStackTrace()
         }
     }
 
@@ -291,19 +317,14 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     override fun getMimeType() = "image/jpeg"
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
-        val bm = overlay(
-            BitmapDrawable(
-                resources, mFilePath
-            ).bitmap, drawView.bitmap
-        )
+        val bm = BitmapDrawable(resources, mFilePath).bitmap.overlay(drawView.bitmap)
         val canvas = Canvas(bm)
         canvas.drawColor(Color.WHITE)
         canvas.drawBitmap(
-            overlay(
-                BitmapDrawable(
-                    resources, mFilePath
-                ).bitmap, drawView.bitmap
-            ), 0f, 0f, null
+            BitmapDrawable(resources, mFilePath).bitmap.overlay(drawView.bitmap),
+            0f,
+            0f,
+            null
         )
         bm.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
     }
@@ -312,12 +333,24 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         private const val TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
 
         //taken from http://stackoverflow.com/a/10616868
-        fun overlay(bmp1: Bitmap, bmp2: Bitmap): Bitmap {
-            val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height, bmp1.config)
+        fun Bitmap.overlay(bitmap: Bitmap): Bitmap {
+            val bmOverlay = Bitmap.createBitmap(width, height, config)
             val canvas = Canvas(bmOverlay)
-            canvas.drawBitmap(bmp1, Matrix(), null)
-            canvas.drawBitmap(bmp2, 0f, 0f, null)
+            canvas.drawBitmap(this, Matrix(), null)
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
             return bmOverlay
+        }
+
+        fun BitmapDrawable.overlay(bitmap: Bitmap): Bitmap = this.bitmap.overlay(bitmap)
+
+        fun loadSketchBitmap(context: Context, file: String): BitmapDrawable {
+            File("${context.filesDir.path}/sketches${file}").apply {
+                if (exists()) {
+                    return BitmapDrawable(context.resources, path)
+                } else {
+                    throw FileNotFoundException("Cannot open sketch: $path")
+                }
+            }
         }
     }
 }

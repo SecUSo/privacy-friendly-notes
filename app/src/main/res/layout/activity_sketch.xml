@@ -36,7 +36,7 @@
             />
     </LinearLayout>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/sketch_wrapper"
@@ -49,6 +49,6 @@
             android:minHeight="100dp"
             android:id="@+id/draw_view"
             android:padding="3dp"/>
-    </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>

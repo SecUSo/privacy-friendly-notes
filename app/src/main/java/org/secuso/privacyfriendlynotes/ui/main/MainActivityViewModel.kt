@@ -38,6 +38,7 @@ import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
+import java.io.FileNotFoundException
 
 /**
  * The MainActivityViewModel provides the data for the MainActivity.
@@ -210,18 +211,23 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    private fun loadSketchBitmap(file: String): BitmapDrawable? {
+        File("${filesDir.path}/sketches${file}").apply {
+            if (exists()) {
+                return BitmapDrawable(resources, path)
+            } else {
+                throw FileNotFoundException("Cannot open sketch: $path")
+            }
+        }
+    }
+
     fun sketchPreview(note: Note, size: Int): Bitmap? {
         if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
-            val path = "${filesDir.path}/sketches${note.content}"
-            return if (File(path).exists()) {
-                try {
-                    BitmapDrawable(resources, path).toBitmap(size, size, Bitmap.Config.ARGB_8888)
-                } catch (e: Exception) {
-                    Log.e("Sketch preview", e.stackTraceToString())
-                    null
-                }
-            } else {
-                null
+            try {
+                return loadSketchBitmap(note.content)?.toBitmap(size, size, Bitmap.Config.ARGB_8888)
+            } catch (error: FileNotFoundException) {
+                Log.e("Sketch preview", error.stackTraceToString())
+                return null
             }
         } else {
             throw IllegalArgumentException("Only sketch notes allowed")
