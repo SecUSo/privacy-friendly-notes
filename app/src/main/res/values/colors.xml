@@ -113,5 +113,4 @@
         <item name="white1" type="color">@color/white</item>
         <item name="black1" type="color">@color/black</item>
     </array>
-
 </resources>
