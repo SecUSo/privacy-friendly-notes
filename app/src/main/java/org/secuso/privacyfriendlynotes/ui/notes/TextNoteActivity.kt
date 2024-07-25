@@ -133,7 +133,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             if (uri != null) {
                 val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
                 super.setTitle(text[0])
-                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString(System.lineSeparator())))
+                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
             }
             val text = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (text != null) {
