@@ -13,7 +13,7 @@
     <string name="action_update">Speichern</string>
     <string name="default_category">Standard</string>
     <string name="default_color">Standard</string>
-    <string name="dialog_delete_message">Wollen Sie %1s endgültig löschen?</string>
+    <string name="dialog_delete_message">Wollen Sie %1s löschen?</string>
     <string name="dialog_delete_category_with_notes">Wollen Sie %1s endgültig löschen? Alle Notizen der Kategorie werden <b>entgültig gelöscht</b>!</string>
     <string name="dialog_delete_category_without_notes">Wollen Sie %1s endgültig löschen? <b>Keine</b> Notizen werden gelöscht.</string>
     <string name="dialog_delete_title">%1s löschen?</string>
