@@ -40,6 +40,8 @@ import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -68,6 +70,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private var state: Bitmap? = null
     private var oldSketch: BitmapDrawable? = null
     private var initialSize: Pair<Int, Int>? = null
+    private val saveNoteMutex = Mutex()
 
     private val undoRedoEnabled by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_sketch_undo_redo", true) }
 
@@ -259,10 +262,14 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         if (undoRedoEnabled) {
-            File(mTempFilePath!!).apply {
-                if (this.exists()) {
-                    this.copyTo(File(mFilePath!!), overwrite = true)
-                    this.delete()
+            runBlocking {
+                saveNoteMutex.withLock {
+                    File(mTempFilePath!!).apply {
+                        if (this.exists()) {
+                            this.copyTo(File(mFilePath!!), overwrite = true)
+                            this.delete()
+                        }
+                    }
                 }
             }
         } else {
@@ -277,7 +284,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category))
     }
 
-    private suspend fun saveBitmap(path: String) {
+    private suspend fun saveBitmap(path: String) = saveNoteMutex.withLock {
         val bitmap = oldSketch?.overlay(drawView.bitmap) ?: emptyBitmap().overlay(drawView.bitmap)
         try {
             val fo = withContext(Dispatchers.IO) {
