@@ -116,7 +116,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                             state = emptyBitmap()
                         }
                         undoStates.add(state!!)
-                        lifecycleScope.launch (Dispatchers.IO) {
+                        lifecycleScope.launch(Dispatchers.IO) {
                             saveBitmap(mTempFilePath!!)
                         }
                         redoStates.clear()
@@ -180,7 +180,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (undoStates.isNotEmpty()) {
                     redoStates.add(state!!)
                     undoRedoState(undoStates.removeLast())
-                    lifecycleScope.launch (Dispatchers.IO) {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         saveBitmap(mTempFilePath!!)
                     }
                 }
@@ -190,7 +190,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (redoStates.isNotEmpty()) {
                     undoStates.add(state!!)
                     undoRedoState(redoStates.removeLast())
-                    lifecycleScope.launch (Dispatchers.IO) {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         saveBitmap(mTempFilePath!!)
                     }
                 }
@@ -242,7 +242,12 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
         return Pair(
-            if (undoRedoEnabled) { undoStates.isNotEmpty() } else { drawView.bitmap != emptyBitmap() }, if (sketchLoaded) null else R.string.toast_emptyNote)
+            if (undoRedoEnabled) {
+                undoStates.isNotEmpty()
+            } else {
+                drawView.bitmap != emptyBitmap()
+            }, if (sketchLoaded) null else R.string.toast_emptyNote
+        )
     }
 
     override fun onClick(v: View) {
@@ -299,11 +304,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
             .cancelable(true) //allows close by tapping outside of dialog
             .colors(this, R.array.mdcolor_500)
             .choiceMode(SimpleColorDialog.SINGLE_CHOICE_DIRECT) //auto-close on selection
-            .show(this, TAG)
+            .show(this, COLOR_DIALOG_TAG)
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {
-        if (dialogTag == TAG && which == DialogInterface.BUTTON_POSITIVE) {
+        if (dialogTag == COLOR_DIALOG_TAG && which == DialogInterface.BUTTON_POSITIVE) {
             @ColorInt val color = extras.getInt(SimpleColorDialog.COLOR)
             drawView.setColor(color)
             btnColorSelector.setBackgroundColor(color)
@@ -329,7 +334,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     companion object {
-        private const val TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
+        private const val TAG = "SketchActivity"
+        private const val COLOR_DIALOG_TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
 
         //taken from http://stackoverflow.com/a/10616868
         fun Bitmap.overlay(bitmap: Bitmap): Bitmap {
