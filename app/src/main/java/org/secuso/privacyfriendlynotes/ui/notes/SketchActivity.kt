@@ -32,16 +32,12 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -63,14 +59,12 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private lateinit var redoButton: MenuItem
     private var mFileName = "finde_die_datei.mp4"
     private var mFilePath: String? = null
-    private var mTempFilePath: String? = null
     private var sketchLoaded = false
     private val undoStates = mutableListOf<Bitmap>()
     private var redoStates = mutableListOf<Bitmap>()
     private var state: Bitmap? = null
     private var oldSketch: BitmapDrawable? = null
     private var initialSize: Pair<Int, Int>? = null
-    private val saveNoteMutex = Mutex()
 
     private val undoRedoEnabled by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_sketch_undo_redo", true) }
 
@@ -119,9 +113,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                             state = emptyBitmap()
                         }
                         undoStates.add(state!!)
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            saveBitmap(mTempFilePath!!)
-                        }
                         redoStates.clear()
                         if (undoStates.size > 32) {
                             undoStates.removeFirst()
@@ -142,7 +133,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     override fun onNoteLoadedFromDB(note: Note) {
         mFileName = note.content
         mFilePath = filesDir.path + "/sketches" + mFileName
-        mTempFilePath = cacheDir.path + "/sketches" + mFileName
         File(cacheDir.path + "/sketches").mkdirs()
         oldSketch = try {
             loadSketchBitmap(this, note.content)
@@ -159,7 +149,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         mFilePath = filesDir.path + "/sketches"
         File(mFilePath!!).mkdirs() //ensure that the file exists
         File(cacheDir.path + "/sketches").mkdirs()
-        mTempFilePath = cacheDir.path + "/sketches" + mFileName
         mFilePath = filesDir.path + "/sketches" + mFileName
     }
 
@@ -183,9 +172,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (undoStates.isNotEmpty()) {
                     redoStates.add(state!!)
                     undoRedoState(undoStates.removeLast())
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        saveBitmap(mTempFilePath!!)
-                    }
                 }
             }
 
@@ -193,9 +179,6 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (redoStates.isNotEmpty()) {
                     undoStates.add(state!!)
                     undoRedoState(redoStates.removeLast())
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        saveBitmap(mTempFilePath!!)
-                    }
                 }
             }
 
@@ -261,21 +244,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        if (undoRedoEnabled) {
-            runBlocking {
-                saveNoteMutex.withLock {
-                    File(mTempFilePath!!).apply {
-                        if (this.exists()) {
-                            this.copyTo(File(mFilePath!!), overwrite = true)
-                            this.delete()
-                        }
-                    }
-                }
-            }
-        } else {
-            runBlocking {
-                saveBitmap(mFilePath!!)
-            }
+        runBlocking {
+            saveBitmap(mFilePath!!)
         }
 
         if (name.isEmpty() && drawView.bitmap.sameAs(emptyBitmap())) {
@@ -284,7 +254,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_SKETCH, category))
     }
 
-    private suspend fun saveBitmap(path: String) = saveNoteMutex.withLock {
+    private suspend fun saveBitmap(path: String) {
         val bitmap = oldSketch?.overlay(drawView.bitmap) ?: emptyBitmap().overlay(drawView.bitmap)
         try {
             val fo = withContext(Dispatchers.IO) {
