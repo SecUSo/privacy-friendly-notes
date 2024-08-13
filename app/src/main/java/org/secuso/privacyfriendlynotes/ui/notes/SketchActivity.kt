@@ -256,14 +256,17 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
 
     private suspend fun saveBitmap(path: String) {
         val bitmap = oldSketch?.overlay(drawView.bitmap) ?: emptyBitmap().overlay(drawView.bitmap)
+        // This function might get interrupted if it takes too long.
+        // To prevent damaged files we first write the image to a new location and then move it over to the old location
         try {
-            val fo = withContext(Dispatchers.IO) {
-                FileOutputStream(File(path))
-            }
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fo)
+            val oldFile = File(path)
+            val newFile = File("$path.new")
             withContext(Dispatchers.IO) {
-                fo.flush()
-                fo.close()
+                FileOutputStream(newFile).use {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, it)
+                }
+                // Move new file to old location
+                newFile.renameTo(oldFile)
             }
         } catch (e: FileNotFoundException) {
             Log.d("Bitmap Error", e.stackTraceToString())
