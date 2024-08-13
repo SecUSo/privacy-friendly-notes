@@ -69,11 +69,15 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private val undoRedoEnabled by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_sketch_undo_redo", true) }
 
     private fun emptyBitmap(): Bitmap {
-        return Bitmap.createBitmap(
+        val bitmap = Bitmap.createBitmap(
             drawView.bitmap.width,
             drawView.bitmap.height,
             drawView.bitmap.config
         )
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        return bitmap
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -91,7 +95,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (oldSketch != null) {
                     drawView.background = oldSketch
                 } else {
-                    drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(drawView.bitmap, initialSize!!.first, initialSize!!.second, false))
+                    drawView.background = BitmapDrawable(resources, Bitmap.createScaledBitmap(emptyBitmap(), initialSize!!.first, initialSize!!.second, false))
                 }
                 if (state != null) {
                     drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
@@ -145,7 +149,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     override fun onNewNote() {
-        mFileName = "/sketch_" + System.currentTimeMillis() + ".PNG"
+        mFileName = "/sketch_" + System.currentTimeMillis() + ".JPG"
         mFilePath = filesDir.path + "/sketches"
         File(mFilePath!!).mkdirs() //ensure that the file exists
         File(cacheDir.path + "/sketches").mkdirs()
@@ -263,7 +267,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
             val newFile = File("$path.new")
             withContext(Dispatchers.IO) {
                 FileOutputStream(newFile).use {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, it)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
                 }
                 // Move new file to old location
                 newFile.renameTo(oldFile)
