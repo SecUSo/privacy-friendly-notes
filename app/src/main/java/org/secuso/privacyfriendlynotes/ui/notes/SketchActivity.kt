@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
