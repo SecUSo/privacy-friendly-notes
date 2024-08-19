@@ -322,7 +322,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
             val bmOverlay = Bitmap.createBitmap(width, height, config)
             val canvas = Canvas(bmOverlay)
             canvas.drawBitmap(this, Matrix(), null)
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            if (width != bitmap.width || height != bitmap.height) {
+                canvas.drawBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height), Rect(0, 0, width, height), null)
+            } else {
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+            }
             return bmOverlay
         }
 
