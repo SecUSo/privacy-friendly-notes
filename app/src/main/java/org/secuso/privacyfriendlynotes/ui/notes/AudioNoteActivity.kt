@@ -246,7 +246,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     private fun recordingFinished() {
-        shouldSave = true
+        shouldSaveOnPause = true
         btnRecord.visibility = View.INVISIBLE
         btnPlayPause.visibility = View.VISIBLE
         seekBar.isEnabled = true

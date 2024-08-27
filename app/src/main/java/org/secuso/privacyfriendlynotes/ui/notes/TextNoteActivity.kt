@@ -155,7 +155,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
-        hasChanged = hasChanged or (oldText?.trim() != etContent.text.toString().trim())
+        hasChanged = hasChanged || (oldText?.trim() != etContent.text.toString().trim())
         return if (!hasChanged) {
             Pair(false, null)
         } else {

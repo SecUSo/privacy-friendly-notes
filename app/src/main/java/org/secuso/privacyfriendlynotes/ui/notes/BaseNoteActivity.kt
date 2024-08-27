@@ -94,8 +94,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var monthOfYear = 0
     private var year = 0
 
-    protected var shouldSave = true
-    protected var savedActively = false
+    protected var shouldSaveOnPause = true
     private var hasChanged = false
     private var currentCat = 0
     private var id = -1
@@ -146,7 +145,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             hasChanged = true
         }
 
-        etName.doOnTextChanged { _,_,_,_ -> hasChanged = true }
+        etName.doOnTextChanged { _, _, _, _ -> hasChanged = true }
         etName.setOnTouchListener { _, _ ->
             hasChanged = true
             false
@@ -360,14 +359,13 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
             R.id.action_cancel -> {
                 Toast.makeText(baseContext, R.string.toast_canceled, Toast.LENGTH_SHORT).show()
-                shouldSave = false
+                shouldSaveOnPause = false
                 finish()
             }
 
             R.id.action_save -> {
-                shouldSave = true
-                savedActively = true
-                finish()
+                saveNote(showNotSaved = true)
+                loadActivity(false)
             }
 
             else -> {}
@@ -402,16 +400,15 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     override fun onPause() {
         //The Activity is not visible anymore. Save the work!
-        if (shouldSave) {
-            saveNote(showNotSaved = savedActively)
-            savedActively = false
+        if (shouldSaveOnPause) {
+            saveNote()
         }
         super.onPause()
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        shouldSave = true
+        shouldSaveOnPause = true
         super.onBackPressed()
     }
 
@@ -503,42 +500,46 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     private fun displayTrashDialog() {
         val sp = getSharedPreferences(PreferenceKeys.SP_DATA, MODE_PRIVATE)
-        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) { note ->
-            if (note == null) {
-                shouldSave = false
-                finish()
-                return@observe
-            }
-            if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)) {
-                //we never displayed the message before, so show it now
-                AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.dialog_trash_title))
-                    .setMessage(getString(R.string.dialog_trash_message))
-                    .setPositiveButton(R.string.dialog_ok) { _, _ ->
-                        shouldSave = false
-                        sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
-                        note.in_trash = 1
-                        createEditNoteViewModel.update(note)
-                        finish()
-                    }
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show()
-                sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
-            } else {
-                shouldSave = false
-                note.in_trash = intent.getIntExtra(EXTRA_ISTRASH, 0)
-                if (note.in_trash == 1) {
-                    createEditNoteViewModel.delete(note)
+        if (sp.getBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, true)) {
+            //we never displayed the message before, so show it now
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dialog_trash_title))
+                .setMessage(getString(R.string.dialog_trash_message))
+                .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                    sp.edit().putBoolean(PreferenceKeys.SP_DATA_DISPLAY_TRASH_MESSAGE, false).apply()
+                    saveAndDeleteNote()
+                }
+                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
+        } else {
+            saveAndDeleteNote()
+        }
+    }
+
+    /**
+     * Move the given note to the trash or deletes it if it's already in the trash
+     */
+    private fun saveAndDeleteNote() {
+        saveNote()
+        shouldSaveOnPause = false
+        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) { updatedNote ->
+            updatedNote?.also {
+                updatedNote.in_trash = intent.getIntExtra(EXTRA_ISTRASH, 0)
+                if (updatedNote.in_trash == 1) {
+                    createEditNoteViewModel.delete(updatedNote)
                 } else {
-                    note.in_trash = 1
-                    createEditNoteViewModel.update(note)
+                    updatedNote.in_trash = 1
+                    createEditNoteViewModel.update(updatedNote)
                 }
                 finish()
             }
         }
     }
 
-    val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
@@ -618,7 +619,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     fun convertNote(content: String, type: Int, afterUpdate: (Int) -> Unit) {
         saveNote(force = true)
-        shouldSave = false
+        shouldSaveOnPause = false
         createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) {
             if (it != null) {
                 it.content = content
