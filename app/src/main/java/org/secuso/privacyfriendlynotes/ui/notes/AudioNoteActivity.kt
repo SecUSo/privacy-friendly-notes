@@ -59,6 +59,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     private var recording = false
     private var playing = false
     private var isEmpty = true
+    private var noteLoaded = false
     private var startTime = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,6 +95,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
+        noteLoaded = true
         mFileName = note.content
         mFilePath = filesDir.path + "/audio_notes" + mFileName
         btnPlayPause.visibility = View.VISIBLE
@@ -128,14 +130,12 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
-        val intent = intent
-        return Pair(
-            seekBar.isEnabled && -5 != intent.getIntExtra(
-                EXTRA_CATEGORY, -5
-            ),
-            R.string.toast_emptyNote
-        )
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
+        return if (noteLoaded) {
+            Pair(false, null)
+        } else {
+            Pair(seekBar.isEnabled, R.string.toast_emptyNote)
+        }
     }
 
     override fun onClick(v: View) {
@@ -246,7 +246,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     private fun recordingFinished() {
-        shouldSave = true
+        shouldSaveOnPause = true
         btnRecord.visibility = View.INVISIBLE
         btnPlayPause.visibility = View.VISIBLE
         seekBar.isEnabled = true
@@ -254,17 +254,13 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
 
     private fun togglePlayPauseButton() {
         if (playing) {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_black_24dp)
+            btnPlayPause.setBackgroundResource(R.drawable.ic_pause_icon_24dp)
         } else {
-            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp)
+            btnPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_icon_24dp)
         }
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         if (isEmpty) {
             return ActionResult(false, null, null)
         }

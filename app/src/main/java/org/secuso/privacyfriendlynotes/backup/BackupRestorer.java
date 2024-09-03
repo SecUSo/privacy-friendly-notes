@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.backup;
 
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -33,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
 
 public class BackupRestorer implements IBackupRestorer {
 
@@ -121,16 +121,15 @@ public class BackupRestorer implements IBackupRestorer {
             String name = reader.nextName();
 
             switch (name) {
-                case "settings_use_custom_font_size":
-                case "settings_del_notes":
-                case "settings_show_preview":
-                    editor.putBoolean(name, reader.nextBoolean());
-                    break;
-                case "settings_font_size":
-                    editor.putString(name, reader.nextString());
-                    break;
-                default:
-                    throw new RuntimeException("Unknown preference " + name);
+                case "settings_use_custom_font_size",
+                        "settings_del_notes",
+                        "settings_show_preview",
+                        "settings_dialog_on_trashing",
+                        "settings_color_category",
+                        "notes_reversed_ordering",
+                        "settings_sketch_undo_redo" -> editor.putBoolean(name, reader.nextBoolean());
+                case "settings_font_size", "settings_day_night_theme", "notes_ordering" -> editor.putString(name, reader.nextString());
+                default -> throw new RuntimeException("Unknown preference " + name);
             }
         }
 

@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:background="@color/white">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:id="@+id/main_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
+        android:background="?attr/colorSurface"
         android:fitsSystemWindows="true"
         android:orientation="vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -20,6 +20,7 @@
         tools:context=".ui.AboutActivity">
 
         <LinearLayout
+            android:background="?attr/colorSurface"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.36">
@@ -53,13 +54,26 @@
                     android:layout_marginTop="20dp"
                     android:text="@string/app_name_long" />
 
-                <TextView
-                    android:id="@+id/textFieldVersion"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/about_version_number" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/textFieldVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/about_version_number" />
+
+                    <TextView
+                        android:id="@+id/textFieldVersionName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/textFieldAuthor"

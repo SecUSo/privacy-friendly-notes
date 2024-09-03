@@ -22,4 +22,7 @@ public class PreferenceKeys {
     public static final String SP_DATA_DISPLAY_TRASH_MESSAGE = "sp_data_display_trash_message";
     public static final String SP_VALUES = "values";
     public static final String SP_VALUES_NAMECOUNTER = "sp_values_namecounter";
+
+    public static final String SP_NOTES_ORDERING = "notes_ordering";
+    public static final String SP_NOTES_REVERSED = "notes_reversed_ordering";
 }

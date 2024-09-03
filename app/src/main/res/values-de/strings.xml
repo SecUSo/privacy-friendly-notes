@@ -12,7 +12,10 @@
     <string name="app_name_long">Privacy Friendly Notizen</string>
     <string name="action_update">Speichern</string>
     <string name="default_category">Standard</string>
-    <string name="dialog_delete_message">Wollen Sie %1s endgültig löschen?</string>
+    <string name="default_color">Standard</string>
+    <string name="dialog_delete_message">Wollen Sie %1s löschen?</string>
+    <string name="dialog_delete_category_with_notes">Wollen Sie %1s endgültig löschen? Alle Notizen der Kategorie werden <b>entgültig gelöscht</b>!</string>
+    <string name="dialog_delete_category_without_notes">Wollen Sie %1s endgültig löschen? <b>Keine</b> Notizen werden gelöscht.</string>
     <string name="dialog_delete_title">%1s löschen?</string>
     <string name="dialog_need_category_message">Sie müssen mindestens eine Kategorie erstellen. Möchten Sie dies jetzt tun?</string>
     <string name="dialog_need_category_title">Keine Kategorien</string>
@@ -24,10 +27,15 @@
     <string name="dialog_save_title">Löschen abgehakter Punkte</string>
     <string name="dialog_trash_message">Notizen werden in den Papierkorb verschoben. Dort können sie endgültig gelöscht oder wiederhergestellt werden.</string>
     <string name="dialog_trash_title">In den Papierkorb verschieben</string>
+    <string name="dialog_create_category_title">Erstelle Kategorie</string>
+    <string name="dialog_create_category_btn">Erstelle</string>
+    <string name="category_fab_desc">Erstelle Kategorie</string>
     <string name="fab_audio">Audio</string>
     <string name="fab_checklist">Checklist</string>
     <string name="fab_sketch">Skizze</string>
     <string name="fab_text">Text</string>
+    <string name="action_sketch_undo">Rückgängig</string>
+    <string name="action_sketch_redo">Wiederherstellen</string>
     <string name="hint_name">Name</string>
     <string name="hint_new_item">Neuer Punkt</string>
     <string name="hint_note">Notiz</string>
@@ -68,6 +76,9 @@
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
     <string name="action_category">Kategorie</string>
+    <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
+    <string name="action_convert_to_text">In Textnotiz umwandeln</string>
+
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -78,6 +89,8 @@
     <string name="note_standardname">Notiz %d</string>
     <string name="action_help">Hilfe</string>
     <string name="help_intro">Wilkommen auf der Hilfe Seite. Mit dieser App können Sie Notizen erstellen und verwalten ohne ihre Privatsphäre zu beeinträchtigen.</string>
+    <string name="settings_color_category_title">Färbe Notizen nach Kategorie</string>
+    <string name="settings_color_category_summary">Nutze eine ausgewählte Farbe pro Kategorie um Notizen nach ihrer Kategorie einzufärben.</string>
     <string name="help_overview_heading">Übersicht</string>
     <string name="title_help">Hilfe</string>
     <string name="help_privacy_heading">Privatsphäre</string>
@@ -91,7 +104,7 @@
     <string name="dialog_help">Hilfe anzeigen</string>
     <string name="dialog_welcome_text">Mit dieser App ist es möglich Notizen in Form von Text, Checklisten, Memos oder Skizzen zu erstellen und zu teilen.</string>
     <string name="dialog_welcome">Willkommen</string>
-    <string name="dialog_checklist_edit">Sie verändern den Punkt: </string>
+    <string name="dialog_checklist_edit">Sie verändern den Punkt: %s</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_general_heading">Allgemein</string>
@@ -99,6 +112,8 @@
     <string name="settings_del_notes_sum">Lösche die Notizen einer Kategorie, wenn diese gelöscht wird.</string>
     <string name="settings_font_size_title">Schriftgröße</string>
     <string name="settings_font_size_sum">Hier klicken um die Schriftgröße auszuwählen.</string>
+    <string name="settings_note_trashing_dialog_title">Bestätige Löschung einer Notiz</string>
+    <string name="settings_note_trashing_dialog_desc">Frage nach Bestätigung bevor eine Notiz in den Papierkorb geschoben wird.</string>
     <string name="settings_use_custom_font_size_title">Eigene Schriftgröße</string>
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
@@ -131,4 +146,25 @@
     <string name="note_not_saved">Notiz nicht gespeichert</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Benachrichtigungen aktivieren</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Für diese Funktion ist die Berechtigung zum Senden von Benachrichtigungen und zur Planung von Alarmen und Erinnerungen erforderlich.</string>
+    <string name="dialog_delete_all_recycle_bin_title">Alle Notizen im Papierkorb löschen</string>
+    <string name="dialog_delete_all_recycle_bin_message">Wollen Sie alle momentan sichtbaren Notizen im Papierkorb entgültig löschen?</string>
+
+    <!-- Text for sorting options of notes in main activity   -->
+    <!-- Order has to match the ordering of model/SortingOrder   -->
+    <string-array name="notes_sort_ordering_text">
+        <item>Alphabetisch</item>
+        <item>Notizart</item>
+        <item>Erstellungszeit</item>
+        <item>Zuletzt verändert</item>
+        <item>Benutzerdefinierte Sortierung</item>
+    </string-array>
+    <string name="select_day_night_theme">Aussehen</string>
+    <string name="category_color">Mit Farbe</string>
+    <string name="dialog_convert_to_checklist_title">In Checkliste umwandeln</string>
+    <string name="dialog_convert_to_checklist_desc">Dadurch wird diese Notiz in eine Checkliste umgewandelt. Jede Zeile muss mit \"- [ ]\" für einen nicht abgehakten Punkt oder mit \"- [x]\" für einen abgehakten Punkt beginnen. Möchten Sie forfahren?</string>
+    <string name="dialog_convert_action">Umwandeln</string>
+    <string name="dialog_convert_to_text_title">In Textnotiz umwandeln</string>
+    <string name="dialog_convert_to_text_desc">Dadurch wird diese Notiz in eine Textnotiz umgewandelt. Möchten Sie fortfahren?</string>
+    <string name="settings_sketch_undo_redo_desc">Aktiviere die Rückgängig/Wiederherstellen Funktionalität in Skizzen. Diese Funktion kann auf älteren Geräten zu Leistungsproblemen führen.</string>
+    <string name="settings_sketch_undo_redo_title">Rückgängig/Wiederherstellen in Skizzen</string>
 </resources>

@@ -1,18 +1,85 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:actionModeBackground">@color/colorPrimaryDark</item>
+        <item name="colorSurfaceSecondary">@color/colorSurface</item>
+        <item name="colorBackground">@color/colorBackground</item>
+        <item name="android:actionModeBackground">@color/colorBackgroundDark</item>
+
+        <item name="colorPrimary">@color/seed</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorSurfaceVariantLight">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
+
+        <item name="colorNavbarHeaderBackground">@color/colorAccent</item>
+        <item name="colorNavbarHeaderSurface">@color/colorSurface</item>
+        <item name="colorNavbarHeaderText">@color/colorAccent</item>
+
+        <item name="colorIconFill">@color/black</item>
+        <item name="android:statusBarColor">@color/colorSecuso</item>
+        <item name="toolbarStyle">@style/AppTheme.ActionBar</item>
+
+        <item name="alertDialogTheme">@style/AppTheme.PopupOverlay.DialogAlert</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:homeAsUpIndicator">@drawable/arrow_back</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
+        <item name="actionOverflowButtonStyle">@style/AppTheme.ActionBar.OverflowMenu</item>
+    </style>
+
+    <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/colorSecuso</item>
+        <item name="navigationIconTint">@color/white</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="subtitleTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.OverflowMenu" parent="Widget.Material3.Toolbar">
+        <item name="android:src">@drawable/baseline_more_vert_white</item>
+        <item name="android:paddingEnd">10dp</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.SearchView" parent="AppTheme">
+        <item name="colorControlNormal">@color/black</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
+    </style>
+
+    <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_switch</item>
     </style>
 
     <style name="SplashTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen">
@@ -24,14 +91,31 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.Note.Header.Category" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" />
-    <style name="AppTheme.Note.Header.Title" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
-    <style name="AppTheme.Note.ColorSelector" parent="Widget.MaterialComponents.Button.OutlinedButton" />
+    <style name="AppTheme.NoteHeader.Category" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu" />
+    <style name="AppTheme.NoteHeader.Title" parent="Widget.MaterialComponents.TextInputLayout.FilledBox" />
+    <style name="AppTheme.NoteHeader.ColorSelector" parent="Widget.MaterialComponents.Button.OutlinedButton" />
 
     <!-- FAB library -->
     <style name="menu_labels_style">
         <item name="android:background">@drawable/fab_label_background</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay.DialogAlert" parent="@style/SimpleDialogTheme.Material3">
+        <item name="colorControlNormal">@color/colorSecuso</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay.Calendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar" />
+
+    <style name="AppTheme.ChecklistItem">
+        <item name="android:textColor">?attr/colorOnBackground</item>
+    </style>
+
+    <style name="AppTheme.Material3Switch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="trackTint">?attr/colorBackground</item>
+    </style>
+    <style name="AppTheme.CategoryButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/black</item>
     </style>
 
 </resources>

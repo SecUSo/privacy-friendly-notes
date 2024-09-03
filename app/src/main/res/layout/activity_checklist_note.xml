@@ -23,7 +23,9 @@
             android:id="@+id/etNewItem"
             android:singleLine="true"
             android:layout_weight="1"
-            android:hint="@string/hint_new_item" />
+            android:hint="@string/hint_new_item"
+            android:textColor="?attr/colorOnBackground"
+            android:inputType="textCapSentences" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,9 +34,9 @@
             android:text="@string/action_add"/>
     </LinearLayout>
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/itemList"></ListView>
+        android:layout_height="match_parent"
+        android:id="@+id/itemList" />
 
 </LinearLayout>

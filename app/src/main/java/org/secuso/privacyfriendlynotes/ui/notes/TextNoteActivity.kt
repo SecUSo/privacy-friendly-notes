@@ -17,6 +17,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.Spannable
@@ -24,16 +25,22 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
+import android.view.ContextThemeWrapper
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
+import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
-
 
 /**
  * Activity that allows to add, edit and delete text notes.
@@ -49,17 +56,24 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val isItalic = MutableLiveData(false)
     private val isUnderline = MutableLiveData(false)
 
+    private var hasChanged = false
+    private var oldText: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
 
-        val fabMenu = findViewById<FloatingActionButton>(R.id.fab_menu)
-        fabMenu.setOnClickListener {
-            if (fabMenu.isExpanded) {
-                fabMenu.isExpanded = false
-                fabMenu.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+        val fabMenuBtn = findViewById<FloatingActionButton>(R.id.fab_menu)
+        val fabMenu = findViewById<View>(R.id.fab_menu_wrapper)
+        var expanded = false
+        fabMenuBtn.setOnClickListener {
+            if (expanded) {
+                expanded = false
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_format_color_text_24)
+                fabMenu.visibility = View.GONE
             } else {
-                fabMenu.isExpanded = true
-                fabMenu.setImageResource(R.drawable.ic_baseline_close_24)
+                expanded = true
+                fabMenuBtn.setImageResource(R.drawable.ic_baseline_close_24)
+                fabMenu.visibility = View.VISIBLE
             }
         }
         boldBtn.setOnClickListener(this)
@@ -67,23 +81,65 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         underlineBtn.setOnClickListener(this)
 
         isBold.observe(this) { b: Boolean ->
-            boldBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            boldBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isItalic.observe(this) { b: Boolean ->
-            italicsBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            italicsBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         isUnderline.observe(this) { b: Boolean ->
-            underlineBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (b) "#000000" else "#0274b2"))
+            underlineBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
         super.onCreate(savedInstanceState)
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
         etContent.setText(Html.fromHtml(note.content))
+        oldText = etContent.text.toString()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_text, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_convert_to_checklist -> {
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@TextNoteActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                    .setTitle(R.string.dialog_convert_to_checklist_title)
+                    .setMessage(R.string.dialog_convert_to_checklist_desc)
+                    .setPositiveButton(R.string.dialog_convert_action) { _, _ ->
+                        val json = ChecklistUtil.json(etContent.text.lines().filter { it.isNotBlank() }.map(ChecklistUtil::textToItem))
+                        super.convertNote(json.toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                            val i = Intent(application, ChecklistNoteActivity::class.java)
+                            i.putExtra(EXTRA_ID, it)
+                            startActivity(i)
+                            finish()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+            }
+
+            else -> {}
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onNewNote() {
-
+        if (intent != null) {
+            val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
+            if (uri != null) {
+                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
+                super.setTitle(text[0])
+                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
+            }
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            if (text != null) {
+                etContent.setText(Html.fromHtml(text))
+            }
+        }
     }
 
     override fun onLoadActivity() {
@@ -98,12 +154,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         return ActionResult(true, sendIntent)
     }
 
-    override fun determineToSave(title: String, category: Int): Pair<Boolean, Int> {
-        val intent = intent
-        return Pair<Boolean, Int>(
-            (title.isNotEmpty() || Html.toHtml(etContent.text) != "") && -5 != intent.getIntExtra(EXTRA_CATEGORY, -5),
-            R.string.toast_emptyNote
-        )
+    override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {
+        hasChanged = hasChanged || (oldText?.trim() != etContent.text.toString().trim())
+        return if (!hasChanged) {
+            Pair(false, null)
+        } else {
+            Pair(title.isNotEmpty() || Html.toHtml(etContent.text).isNotEmpty(), R.string.toast_emptyNote)
+        }
     }
 
     override fun onClick(v: View) {
@@ -112,9 +169,16 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         val underlined: UnderlineSpan
         val totalText: SpannableStringBuilder
         when (v.id) {
-            R.id.btn_bold -> applyStyle(Typeface.BOLD, isBold)
-            R.id.btn_italics -> applyStyle(Typeface.ITALIC, isItalic)
+            R.id.btn_bold -> {
+                hasChanged = true
+                applyStyle(Typeface.BOLD, isBold)
+            }
+            R.id.btn_italics -> {
+                hasChanged = true
+                applyStyle(Typeface.ITALIC, isItalic)
+            }
             R.id.btn_underline -> {
+                hasChanged = true
                 underlined = UnderlineSpan()
                 var alreadyUnderlined = false
                 totalText = etContent.text as SpannableStringBuilder
@@ -348,11 +412,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         etContent.setSelection(startSelection)
     }
 
-    override fun updateNoteToSave(name: String, category: Int): ActionResult<Note, Int> {
-        return ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
-    }
-
-    override fun noteToSave(name: String, category: Int): ActionResult<Note, Int> {
+    override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {

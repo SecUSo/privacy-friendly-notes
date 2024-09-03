@@ -14,8 +14,13 @@
 package org.secuso.privacyfriendlynotes.room.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.REPLACE
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.secuso.privacyfriendlynotes.room.model.Category
 
 /**
@@ -30,15 +35,18 @@ interface CategoryDao {
     @Update(onConflict = REPLACE)
     fun update(category: Category)
 
+    @Query("UPDATE categories SET color = :color WHERE _id = :id")
+    fun update(id: Int, color: String?)
+
     @Delete
     fun delete(category: Category)
 
     @get:Query("SELECT * FROM categories GROUP BY name")
-    val allCategoriesLive: LiveData<List<Category>>
-
-    @Query("SELECT * FROM categories GROUP BY name")
-    suspend fun getAllCategories(): List<Category>
+    val allCategories: Flow<List<Category>>
 
     @Query("SELECT name FROM categories WHERE _id=:thisCategoryId ")
     fun categoryNameFromId(thisCategoryId: Integer): LiveData<String?>
+
+    @Query("SELECT color FROM categories WHERE _id=:category ")
+    fun getCategoryColor(category: Int): String?
 }

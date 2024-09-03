@@ -11,20 +11,20 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <com.google.android.material.circularreveal.CircularRevealLinearLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_centerHorizontal="true"
-        android:visibility="invisible"
+        android:orientation="vertical"
         android:background="@android:color/transparent"
-        android:layout_marginBottom="@dimen/fab_size_normal"
         app:layout_behavior="@string/fab_transformation_scrim_behavior">
 
         <LinearLayout
             android:id="@+id/fab_menu_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -36,8 +36,10 @@
                 android:text="@string/action_bold"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:layout_marginBottom="2dp"
+                app:borderWidth="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_italics"
@@ -48,8 +50,10 @@
                 android:text="@string/action_italics"
                 android:textSize="24sp"
                 android:textStyle="italic"
+                android:layout_marginBottom="2dp"
+                app:borderWidth="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_underline"
@@ -59,21 +63,23 @@
                 android:src="@drawable/ic_baseline_format_underlined_24"
                 android:text="@string/action_underline"
                 android:textSize="24sp"
+                android:layout_marginBottom="2dp"
+                app:borderWidth="2dp"
                 app:tint="@color/white"
-                app:backgroundTint="@color/colorAccent"
+                app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
 
         </LinearLayout>
-    </com.google.android.material.circularreveal.CircularRevealLinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:src="@drawable/ic_baseline_format_color_text_24"
-        android:contentDescription="@string/text_note_fab_menu_desc"
-        app:tint="@color/white"
-        app:backgroundTint="@color/colorAccent"
-        app:borderWidth="0dp" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/ic_baseline_format_color_text_24"
+            android:contentDescription="@string/text_note_fab_menu_desc"
+            app:tint="@color/white"
+            app:backgroundTint="@color/colorSecuso"
+            app:borderWidth="0dp" />
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

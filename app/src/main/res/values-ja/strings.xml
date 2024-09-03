@@ -2,6 +2,7 @@
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
     <string name="default_category">デフォルト</string>
+    <string name="default_color">デフォルト</string>
 
     <string name="title_manage_categories">カテゴリー</string>
     <string name="title_textnote">テキスト メモ</string>
@@ -46,6 +47,8 @@
     <string name="action_underline"><u>キ</u></string>
 
 
+    <string name="action_convert_to_checklist">チェックリストに変換</string>
+    <string name="action_convert_to_text">テキストメモに変換</string>
     <string name="hint_name">名前</string>
     <string name="hint_note">メモ</string>
     <string name="hint_new_item">新しいアイテム</string>
@@ -68,6 +71,8 @@
     <string name="dialog_delete_message">%1s を削除してもよろしいですか?</string>
     <string name="dialog_trash_title">ゴミ箱に移動しています</string>
     <string name="dialog_trash_message">メモはゴミ箱に移動されます。 そこから復元したり永久に削除することができます。 通知は復元できません。</string>
+    <string name="dialog_delete_category_with_notes">%1sを永久に削除しますか？カテゴリのメモはすべて<b>永久削除</b>されます</string>
+    <string name="dialog_delete_category_without_notes">%1sを完全に削除しますか？<b>いいえ</b>メモは削除されます。</string>
     <string name="dialog_save_title">選択したアイテムを削除しています。</string>
     <string name="dialog_save_message">メモを更新または保存する際にチェックしたアイテムは削除されます。</string>
     <string name="dialog_restore_title">%1s を復元または削除しますか?</string>
@@ -77,13 +82,16 @@
     <string name="dialog_welcome">ようこそ</string>
     <string name="dialog_help">ヘルプを表示</string>
     <string name="dialog_welcome_text">このアプリで、テキスト、チェックリスト、メモ、スケッチの形式でメモを作成および共有することができます。</string>
+    <string name="dialog_create_category_title">カテゴリー作成</string>
+    <string name="dialog_create_category_btn">作成</string>
+    <string name="category_fab_desc">カテゴリー作成</string>
 
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">通知を有効にする</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">この機能を使用するには、通知の送信、アラームとリマインダーのスケジュールの許可が必要です。</string>
 
     <string name="dialog_option_delete">削除</string>
     <string name="dialog_option_restore">復元</string>
-    <string name="dialog_checklist_edit">アイテムを変更します。 </string>
+    <string name="dialog_checklist_edit">アイテムを変更します。 %s</string>
 
 
     <string name="fab_text">新しいテキスト</string>
@@ -147,5 +155,12 @@
     <string name="action_category">カテゴリ</string>
     <string name="text_note_fab_menu_desc">フォーマッティング</string>
     <string name="note_not_saved">メモが保存されていません</string>
+    <string name="dialog_convert_to_checklist_title">チェックリストに変換</string>
+    <string name="dialog_convert_to_checklist_desc">これにより、このメモがチェックリストに変換されます。チェックされていない項目は\"- [ ]\"で、チェックされている項目は\"- [x]\"で始まります。続けますか？</string>
+    <string name="dialog_convert_action">コンバート</string>
+    <string name="dialog_convert_to_text_title">テキストメモに変換</string>
+    <string name="dialog_convert_to_text_desc">このメモはテキストメモに変換されます。続けますか？</string>
+    <string name="settings_sketch_undo_redo_desc">スケッチの元に戻す/やり直し機能を有効にします。このオプションは、古いデバイスでパフォーマンスの問題を引き起こす可能性があります。</string>
+    <string name="settings_sketch_undo_redo_title">スケッチの元に戻す/やり直し</string>
 
 </resources>

@@ -13,6 +13,9 @@
  */
 package org.secuso.privacyfriendlynotes.backup;
 
+import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -23,28 +26,20 @@ import androidx.annotation.NonNull;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
-import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 import org.secuso.privacyfriendlybackup.api.backup.DatabaseUtil;
+import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
-import org.secuso.privacyfriendlynotes.NotesApplication;
+import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.secuso.privacyfriendlynotes.room.NoteDatabase.DATABASE_NAME;
-
 public class BackupCreator implements IBackupCreator {
 
     @Override
     public boolean writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
-        // lock application, so no changes can be made as long as this backup is created
-        // depending on the size of the application - this could take a bit
-        ((NotesApplication) context.getApplicationContext()).lock();
-
         Log.d("PFA BackupCreator", "createBackup() started");
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, UTF_8);
         JsonWriter writer = new JsonWriter(outputStreamWriter);
@@ -69,7 +64,7 @@ public class BackupCreator implements IBackupCreator {
             Log.d("PFA BackupCreator", "Writing files");
             writer.name("files");
             writer.beginObject();
-            for(String path : Arrays.asList("sketches", "audio_notes")) {
+            for (String path : Arrays.asList("sketches", "audio_notes")) {
                 writer.name(path);
                 FileUtil.writePath(writer, new File(context.getFilesDir().getPath(), path), false);
             }
@@ -87,7 +82,6 @@ public class BackupCreator implements IBackupCreator {
 
         Log.d("PFA BackupCreator", "Backup created successfully");
 
-        ((NotesApplication) context.getApplicationContext()).release();
         return true;
     }
 }

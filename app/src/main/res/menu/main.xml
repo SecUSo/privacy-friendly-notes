@@ -5,6 +5,6 @@
         android:id="@+id/action_sort_alphabetical"
         android:orderInCategory="100"
         android:title="@string/action_sort_alphabetical"
-        android:icon="@drawable/ic_sort_by_alpha_white_24dp"
+        android:icon="@drawable/ic_sort_by_alpha_icon_24dp"
         app:showAsAction="ifRoom" />
 </menu>

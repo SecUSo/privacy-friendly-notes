@@ -1,29 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/settings_general_heading">
-        <SwitchPreference
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.preference.PreferenceCategory android:title="@string/settings_general_heading"
+        app:iconSpaceReserved="false">
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_del_notes"
             android:defaultValue="false"
             android:title="@string/settings_del_notes_title"
-            android:summary="@string/settings_del_notes_sum"/>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/settings_appearance_heading">
-        <SwitchPreference
+            android:summary="@string/settings_del_notes_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_dialog_on_trashing"
+            android:defaultValue="true"
+            android:title="@string/settings_note_trashing_dialog_title"
+            android:summary="@string/settings_note_trashing_dialog_desc"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_sketch_undo_redo"
+            android:defaultValue="true"
+            android:title="@string/settings_sketch_undo_redo_title"
+            android:summary="@string/settings_sketch_undo_redo_desc"
+            app:iconSpaceReserved="false" />
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory android:title="@string/settings_appearance_heading"
+        app:iconSpaceReserved="false">
+        <androidx.preference.ListPreference
+            android:key="settings_day_night_theme"
+            android:title="@string/select_day_night_theme"
+            android:summary="%s"
+            android:defaultValue="-1"
+            android:entries="@array/array_day_night_theme"
+            android:entryValues="@array/array_day_night_theme_values"
+            app:iconSpaceReserved="false"
+            />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_color_category"
+            android:title="@string/settings_color_category_title"
+            android:summary="@string/settings_color_category_summary"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_use_custom_font_size"
             android:defaultValue="false"
             android:title="@string/settings_use_custom_font_size_title"
-            android:summary="@string/settings_use_custom_font_size_sum" />
-        <ListPreference
+            android:summary="@string/settings_use_custom_font_size_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.ListPreference
             android:key="settings_font_size"
             android:dependency="settings_use_custom_font_size"
             android:title="@string/settings_font_size_title"
             android:summary="@string/settings_font_size_sum"
             android:entries="@array/font_size_entries"
-            android:entryValues="@array/font_size_values" />
-        <SwitchPreference
+            android:entryValues="@array/font_size_values"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_show_preview"
             android:defaultValue="true"
             android:title="@string/settings_settings_show_preview_title"
-            android:summary="@string/settings_settings_settings_show_preview_sum" />
-    </PreferenceCategory>
-</PreferenceScreen>
+            android:summary="@string/settings_settings_settings_show_preview_sum"
+            app:iconSpaceReserved="false" />
+    </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

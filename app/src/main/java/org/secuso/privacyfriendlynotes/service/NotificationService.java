@@ -31,10 +31,13 @@ import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity;
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity;
 
-/**
+/***
  * Service does handle the activated notifications with a PendingIntent
  * Created by Robin on 26.06.2016.
+ *
+ * @deprecated THIS CLASS IS ONLY FOR LEGACY REASONS. USE NotificationReceiver instead.
  */
+@Deprecated(forRemoval = true)
 public class NotificationService extends IntentService {
     public static final String NOTIFICATION_ID = "notification_id";
     public static final String NOTIFICATION_TYPE = "notification_type";
