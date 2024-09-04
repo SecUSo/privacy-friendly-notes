@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (className == MainFABFragment::class.java.name) {
                     this@MainActivity.fab = MainFABFragment {
                         Log.d("Received", "$it")
-                        Intent(
+                        val i = Intent(
                             application, when (it) {
                                 DbContract.NoteEntry.TYPE_TEXT -> TextNoteActivity::class.java
                                 DbContract.NoteEntry.TYPE_CHECKLIST -> ChecklistNoteActivity::class.java
@@ -111,7 +111,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 DbContract.NoteEntry.TYPE_SKETCH -> SketchActivity::class.java
                                 else -> throw NotImplementedError("Note of type $it cannot be created")
                             }
-                        ).let { intent -> setCategoryResultAfter.launch(intent) }
+                        )
+                        i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, mainActivityViewModel.getCategory())
+                        setCategoryResultAfter.launch(i)
                         fab.close()
                     }
                     return fab
@@ -327,25 +329,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    /**
-     * Handles when notes are added.
-     * @param v
-     */
     override fun onClick(v: View) {
-        val intent =
-            Function { activity: Class<out BaseNoteActivity?>? ->
-                val i = Intent(application, activity)
-                i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, mainActivityViewModel.getCategory())
-                i
-            }
-        var i: Intent? = null
-        when (v.id) {
-            R.id.fab_text -> i = intent.apply(TextNoteActivity::class.java)
-            R.id.fab_checklist -> i = intent.apply(ChecklistNoteActivity::class.java)
-            R.id.fab_audio -> i = intent.apply(AudioNoteActivity::class.java)
-            R.id.fab_sketch -> i = intent.apply(SketchActivity::class.java)
-        }
-        setCategoryResultAfter.launch(i)
     }
 
     override fun onPause() {
