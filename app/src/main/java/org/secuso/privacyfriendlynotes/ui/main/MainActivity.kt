@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         val data = result.data
-        if (result.resultCode == RESULT_OK && data != null) {
+        if (result.resultCode == RESULT_OK && data != null && data.hasExtra(BaseNoteActivity.EXTRA_CATEGORY)) {
             mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
         fab.close()

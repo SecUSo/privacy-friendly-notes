@@ -159,12 +159,13 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
 
 
-        val intent = intent
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, 0)
         savedCat = currentCat
 
         // Return the given intent as result to return to the same category as started
-        setResult(Activity.RESULT_OK, intent)
+        val resultIntent = Intent()
+        resultIntent.putExtra(EXTRA_CATEGORY, currentCat)
+        setResult(Activity.RESULT_OK, resultIntent)
 
         createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) { s ->
             catSelection.setText(s ?: getString(R.string.default_category), false)
