@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Set the severity of missing translations to warning instead of error -->
+    <issue id="MissingTranslation" severity="warning" />
+</lint>

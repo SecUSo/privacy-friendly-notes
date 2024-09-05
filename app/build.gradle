@@ -58,6 +58,10 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    lint {
+        lintConfig = file("lint.xml")
+    }
+
     room {
         schemaDirectory "$projectDir/schemas"
     }
