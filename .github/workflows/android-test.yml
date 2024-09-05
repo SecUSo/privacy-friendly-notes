@@ -92,6 +92,7 @@ jobs:
             adb uninstall ${{needs.check-if-tests-exist.outputs.app-id}} || true
             adb uninstall ${{needs.check-if-tests-exist.outputs.app-id}}.test || true
             adb uninstall ${{needs.check-if-tests-exist.outputs.app-id}}.androidTest || true
+            chmod +x gradlew
             ./gradlew :app:connectedCheck --stacktrace
             adb uninstall ${{needs.check-if-tests-exist.outputs.app-id}} || true
             adb uninstall ${{needs.check-if-tests-exist.outputs.app-id}}.test || true
