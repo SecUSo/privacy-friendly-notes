@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.app.Activity
 import android.graphics.Color
 import android.preference.PreferenceManager
 import android.text.Html
@@ -22,12 +23,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
+import java.io.File
 
 /**
  * Adapter that provides a binding for notes
@@ -36,6 +40,7 @@ import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
  * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
 class NoteAdapter(
+    private val activity: Activity,
     private val mainActivityViewModel: MainActivityViewModel,
     var colorCategory: Boolean,
 ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
@@ -113,12 +118,10 @@ class NoteAdapter(
                     value.data
                 })
                 if (pref.getBoolean("settings_show_preview", true)) {
-                    val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
-                    if (bitmap != null) {
-                        holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))
-                    } else {
-                        holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
-                    }
+                    holder.imageViewcategory.minimumHeight = 200; holder.imageViewcategory.minimumWidth = 200
+                    Glide.with(activity).load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
+                        .placeholder(AppCompatResources.getDrawable(activity, R.drawable.ic_photo_icon_24dp))
+                        .into(holder.imageViewcategory)
                 } else {
                     holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
                 }

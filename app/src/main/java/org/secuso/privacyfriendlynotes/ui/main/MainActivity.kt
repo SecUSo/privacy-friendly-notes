@@ -139,6 +139,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
         adapter = NoteAdapter(
+            this,
             mainActivityViewModel,
             PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)
                     && mainActivityViewModel.getCategory() == CAT_ALL
