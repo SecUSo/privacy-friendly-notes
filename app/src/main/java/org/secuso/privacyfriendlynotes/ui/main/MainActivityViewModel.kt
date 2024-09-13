@@ -161,16 +161,16 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private fun Flow<List<Note>>.filterNotes(): Flow<List<Note>> {
         return this.map {
             it.filter { note ->
-                if (note.name.contains(filter.value)) {
+                if (note.name.contains(filter.value, ignoreCase = true)) {
                     return@filter true
                 }
                 when (note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
-                        return@filter Html.fromHtml(note.content).toString().contains(filter.value)
+                        return@filter Html.fromHtml(note.content).toString().contains(filter.value, ignoreCase = true)
                     }
 
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
-                        return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value)
+                        return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value, ignoreCase = true)
                     }
 
                     else -> return@filter false
