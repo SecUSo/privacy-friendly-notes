@@ -21,6 +21,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -111,8 +112,8 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         return id
     }
 
-    fun update(note: Note) {
-        viewModelScope.launch(Dispatchers.Default) {
+    fun update(note: Note): Job {
+        return viewModelScope.launch(Dispatchers.Default) {
             database.noteDao().update(note)
         }
     }
