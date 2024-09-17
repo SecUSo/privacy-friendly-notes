@@ -185,7 +185,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {
         return this.map {
-            it.filter { note -> note.category == category.value || category.value == CAT_ALL }
+            it.filter { note ->
+                note.category == category.value // Note matches current category
+                        || category.value == CAT_ALL // We're in the all notes category
+                        || (category.value == 0 && note.category == -1) // Note is still in old default category (-1). Should still show in new default category (0)
+            }
         }
     }
 
