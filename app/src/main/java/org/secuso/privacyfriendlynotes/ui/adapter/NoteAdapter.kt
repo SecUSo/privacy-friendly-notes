@@ -13,8 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.app.Activity
 import android.graphics.Color
-import android.preference.PreferenceManager
 import android.text.Html
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -22,12 +22,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
+import java.io.File
 
 /**
  * Adapter that provides a binding for notes
@@ -36,6 +40,7 @@ import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
  * @see org.secuso.privacyfriendlynotes.ui.RecycleActivity
  */
 class NoteAdapter(
+    private val activity: Activity,
     private val mainActivityViewModel: MainActivityViewModel,
     var colorCategory: Boolean,
 ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
@@ -62,7 +67,8 @@ class NoteAdapter(
         holder.textViewTitle.text = currentNote.name
         holder.textViewDescription.text = ""
         val pref = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context)
-        holder.textViewDescription.visibility = if (pref.getBoolean("settings_show_preview", true)) View.VISIBLE else View.GONE
+        val showPreview = pref.getBoolean("settings_show_preview", true)
+        holder.textViewDescription.visibility = if (showPreview) View.VISIBLE else View.GONE
         holder.textViewExtraText.visibility = View.GONE
         holder.textViewExtraText.text = null
         holder.imageViewcategory.visibility = View.GONE
@@ -94,45 +100,50 @@ class NoteAdapter(
             }
         }
 
-        when (currentNote.type) {
-            DbContract.NoteEntry.TYPE_TEXT -> {
-                holder.textViewDescription.text = Html.fromHtml(currentNote.content)
-                holder.textViewDescription.maxLines = 3
-            }
+            when (currentNote.type) {
+                DbContract.NoteEntry.TYPE_TEXT -> {
+                    if (showPreview) {
+                        holder.textViewDescription.text = Html.fromHtml(currentNote.content)
+                        holder.textViewDescription.maxLines = 3
+                    }
+                }
 
-            DbContract.NoteEntry.TYPE_AUDIO -> {
-                holder.imageViewcategory.visibility = View.VISIBLE
-                holder.imageViewcategory.setImageResource(R.drawable.ic_mic_icon_24dp)
-            }
+                DbContract.NoteEntry.TYPE_AUDIO -> {
+                    holder.imageViewcategory.visibility = View.VISIBLE
+                    holder.imageViewcategory.setImageResource(R.drawable.ic_mic_icon_24dp)
+                }
 
-            DbContract.NoteEntry.TYPE_SKETCH -> {
-                holder.imageViewcategory.visibility = View.VISIBLE
-                holder.imageViewcategory.setBackgroundColor(run {
-                    val value = TypedValue()
-                    holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
-                    value.data
-                })
-                if (pref.getBoolean("settings_show_preview", true)) {
-                    val bitmap = mainActivityViewModel.sketchPreview(currentNote, 200)
-                    if (bitmap != null) {
-                        holder.imageViewcategory.setImageBitmap(mainActivityViewModel.sketchPreview(currentNote, 200))
+                DbContract.NoteEntry.TYPE_SKETCH -> {
+                    holder.imageViewcategory.visibility = View.VISIBLE
+                    if (showPreview) {
+                        holder.imageViewcategory.setBackgroundColor(run {
+                            val value = TypedValue()
+                            holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
+                            value.data
+                        })
+                        holder.imageViewcategory.minimumHeight = 200; holder.imageViewcategory.minimumWidth = 200
+                        Glide.with(activity).load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
+                            .placeholder(AppCompatResources.getDrawable(activity, R.drawable.ic_photo_icon_24dp))
+                            .into(holder.imageViewcategory)
                     } else {
                         holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
                     }
-                } else {
-                    holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
+                }
+
+                DbContract.NoteEntry.TYPE_CHECKLIST -> {
+                    holder.imageViewcategory.visibility = View.GONE
+                    holder.textViewExtraText.visibility = View.VISIBLE
+
+                    if (showPreview) {
+                        val preview = mainActivityViewModel.checklistPreview(currentNote)
+                        holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
+                        holder.textViewDescription.text = preview.take(3).joinToString(System.lineSeparator()) { it.second }
+                        holder.textViewDescription.maxLines = 3
+                    } else {
+                        holder.textViewExtraText.text = "-/-"
+                    }
                 }
             }
-
-            DbContract.NoteEntry.TYPE_CHECKLIST -> {
-                val preview = mainActivityViewModel.checklistPreview(currentNote)
-                holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
-                holder.textViewExtraText.visibility = View.VISIBLE
-                holder.imageViewcategory.visibility = View.GONE
-                holder.textViewDescription.text = preview.take(3).joinToString(System.lineSeparator()) { it.second }
-                holder.textViewDescription.maxLines = 3
-            }
-        }
 
         // if the Description is empty, don't show it
         if (holder.textViewDescription.text.toString().isEmpty()) {

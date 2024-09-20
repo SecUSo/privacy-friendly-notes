@@ -36,7 +36,14 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.DatePicker
+import android.widget.EditText
+import android.widget.PopupMenu
+import android.widget.TextView
+import android.widget.TimePicker
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -47,6 +54,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -59,7 +67,8 @@ import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.removeNotifi
 import org.secuso.privacyfriendlynotes.ui.helper.NotificationHelper.showAlertScheduledToast
 import org.secuso.privacyfriendlynotes.ui.manageCategories.ManageCategoriesActivity
 import java.io.OutputStream
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 /**
  * A abstract note.
@@ -159,12 +168,13 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
 
 
-        val intent = intent
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, 0)
         savedCat = currentCat
 
         // Return the given intent as result to return to the same category as started
-        setResult(Activity.RESULT_OK, intent)
+        val resultIntent = Intent()
+        resultIntent.putExtra(EXTRA_CATEGORY, currentCat)
+        setResult(Activity.RESULT_OK, resultIntent)
 
         createEditNoteViewModel.getCategoryNameFromId(currentCat).observe(this) { s ->
             catSelection.setText(s ?: getString(R.string.default_category), false)
@@ -463,7 +473,14 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
         if (isLoadedNote) {
             note._id = id
-            createEditNoteViewModel.update(note)
+            if (showNotSaved) {
+                //Wait for job to complete
+                runBlocking {
+                    createEditNoteViewModel.update(note).join()
+                }
+            } else {
+                createEditNoteViewModel.update(note)
+            }
             Toast.makeText(applicationContext, R.string.toast_updated, Toast.LENGTH_SHORT).show()
         } else {
             id = createEditNoteViewModel.insert(note)

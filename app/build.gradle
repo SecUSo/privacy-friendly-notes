@@ -24,8 +24,8 @@ android {
         minSdkVersion 21
         compileSdk 34
         targetSdkVersion 34
-        versionCode 19
-        versionName "2.0.0"
+        versionCode 20
+        versionName "2.0.1"
     }
 
     applicationVariants.configureEach { variant ->
@@ -58,6 +58,10 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    lint {
+        lintConfig = file("lint.xml")
+    }
+
     room {
         schemaDirectory "$projectDir/schemas"
     }
@@ -82,6 +86,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
 
     def work_version = "2.8.1"
     implementation "androidx.work:work-runtime:$work_version"

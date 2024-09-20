@@ -54,7 +54,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val repository: NoteDatabase = NoteDatabase.getInstance(application)
     private var filter: MutableStateFlow<String> = MutableStateFlow("")
     private var ordering: MutableStateFlow<SortingOrder> = MutableStateFlow(
-        SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.AlphabeticalAscending.name)!!)
+        kotlin.runCatching {
+            SortingOrder.valueOf(prefManager.getString(PreferenceKeys.SP_NOTES_ORDERING, SortingOrder.AlphabeticalAscending.name)!!)
+        }.getOrElse { SortingOrder.AlphabeticalAscending }
     )
     private var reversed: MutableStateFlow<Boolean> = MutableStateFlow(
         prefManager.getBoolean(PreferenceKeys.SP_NOTES_REVERSED, false)
@@ -161,16 +163,16 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private fun Flow<List<Note>>.filterNotes(): Flow<List<Note>> {
         return this.map {
             it.filter { note ->
-                if (note.name.contains(filter.value)) {
+                if (note.name.contains(filter.value, ignoreCase = true)) {
                     return@filter true
                 }
                 when (note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
-                        return@filter Html.fromHtml(note.content).toString().contains(filter.value)
+                        return@filter Html.fromHtml(note.content).toString().contains(filter.value, ignoreCase = true)
                     }
 
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
-                        return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value)
+                        return@filter ChecklistUtil.parse(note.content).joinToString(System.lineSeparator()).contains(filter.value, ignoreCase = true)
                     }
 
                     else -> return@filter false
@@ -185,7 +187,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {
         return this.map {
-            it.filter { note -> note.category == category.value || category.value == CAT_ALL }
+            it.filter { note ->
+                note.category == category.value // Note matches current category
+                        || category.value == CAT_ALL // We're in the all notes category
+                        || (category.value == 0 && note.category == -1) // Note is still in old default category (-1). Should still show in new default category (0)
+            }
         }
     }
 
@@ -239,7 +245,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             throw IllegalArgumentException("Only checklist notes allowed")
         }
         return ChecklistUtil.parse(note.content).map { (checked, name) ->
-            return@map Pair(checked, String.format("[%s] $name", if (checked) "x" else "  "))
+            return@map Pair(checked, "[${if (checked) "x" else "  "}] $name")
         }
     }
 

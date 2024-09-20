@@ -14,7 +14,6 @@
 package org.secuso.privacyfriendlynotes.ui
 
 import android.os.Bundle
-import androidx.preference.PreferenceManager
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
@@ -24,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +43,7 @@ import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 class RecycleActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilterRecycle) }
-    private val adapter: NoteAdapter by lazy { NoteAdapter(mainActivityViewModel, true) }
+    private val adapter: NoteAdapter by lazy { NoteAdapter(this, mainActivityViewModel, true) }
     private val trashedNotes by lazy {
         mainActivityViewModel.trashedNotes.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).stateIn(lifecycleScope, SharingStarted.Lazily, listOf())
     }
