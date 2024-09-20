@@ -1,7 +1,15 @@
 # Changelog
 
+<a name="v2.0.1"></a>
+## [Notes (Privacy Friendly) v2.0.1](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.0.1) - 20 Sep 2024
+
+
+
+[Changes][v2.0.1]
+
+
 <a name="v2.0.0"></a>
-## [v2.0.0](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.0.0) - 03 Sep 2024
+## [Notes (Privacy Friendly) v2.0.0](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.0.0) - 03 Sep 2024
 
 ## What's Changed
 ### UI
@@ -265,6 +273,7 @@ This app belongs to the Privacy Friendly Apps group developed by the research gr
 [Changes][v1.0]
 
 
+[v2.0.1]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.5...v2.0.0
 [v1.4.5]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.4...v1.4.5
 [v1.4.4]: https://github.com/SecUSo/privacy-friendly-notes/compare/v1.4.2...v1.4.4
