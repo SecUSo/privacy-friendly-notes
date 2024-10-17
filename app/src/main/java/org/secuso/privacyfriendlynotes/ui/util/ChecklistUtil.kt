@@ -18,6 +18,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
 
+data class ChecklistItem(var state: Boolean, var name: String)
+
 /**
  * Provides common utilities to interact with a checklist.
  * @author Patrick Schneider
@@ -25,25 +27,25 @@ import java.util.regex.Pattern
 class ChecklistUtil {
 
     companion object {
-        fun parse(checklist: String): List<Pair<Boolean, String>> {
+        fun parse(checklist: String): List<ChecklistItem> {
             try {
                 val content = JSONArray(checklist)
                 return (0 until content.length()).map {
                     val obj = content.getJSONObject(it)
-                    return@map Pair(obj.getBoolean("checked"), obj.getString("name"))
+                    return@map ChecklistItem(obj.getBoolean("checked"), obj.getString("name"))
                 }
             } catch (ex: JSONException) {
                 return ArrayList()
             }
         }
 
-        fun json(checklist: List<Pair<Boolean, String>>): JSONArray {
+        fun json(checklist: List<ChecklistItem>): JSONArray {
             val jsonArray = JSONArray()
             try {
-                for ((checked, name) in checklist) {
+                for ((state, name) in checklist) {
                     val jsonObject = JSONObject()
                     jsonObject.put("name", name)
-                    jsonObject.put("checked", checked)
+                    jsonObject.put("checked", state)
                     jsonArray.put(jsonObject)
                 }
             } catch (e: JSONException) {
@@ -52,15 +54,15 @@ class ChecklistUtil {
             return jsonArray
         }
 
-        fun textToItem(text: String): Pair<Boolean, String> {
+        fun textToItem(text: String): ChecklistItem {
             Pattern.compile("-\\s*\\[(.*)]\\s*(.*)").matcher(text).apply {
                 if (matches()) {
                     val checked = group(1)
                     val name = group(2)
-                    return Pair(checked !== null && checked.isNotEmpty() && checked.isNotBlank(), name!!)
+                    return ChecklistItem(checked !== null && checked.isNotEmpty() && checked.isNotBlank(), name!!)
                 }
             }
-            return Pair(false, text)
+            return ChecklistItem(false, text)
         }
     }
 }

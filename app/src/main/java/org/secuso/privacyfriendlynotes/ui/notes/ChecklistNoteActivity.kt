@@ -31,9 +31,11 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.adapter.ChecklistAdapter
+import org.secuso.privacyfriendlynotes.ui.util.ChecklistItem
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.OutputStream
 import java.io.PrintWriter
+import java.util.Collections
 
 /**
  * Activity that allows to add, edit and delete checklist notes.
@@ -79,7 +81,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
         }
         val ith = ItemTouchHelper(itemTouchCallback)
-        adapter = ChecklistAdapter(mutableListOf()) { holder -> ith.startDrag(holder) }
+        adapter = ChecklistAdapter(startDrag = { ith.startDrag(it) })
         checklist.adapter = adapter
         checklist.layoutManager = LinearLayoutManager(this)
         btnAdd.setOnClickListener {
@@ -125,7 +127,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        adapter.setAll(ChecklistUtil.parse(note.content))
+        adapter.setItems(ChecklistUtil.parse(note.content))
     }
 
     override fun hasNoteChanged(title: String, category: Int): Pair<Boolean, Int?> {

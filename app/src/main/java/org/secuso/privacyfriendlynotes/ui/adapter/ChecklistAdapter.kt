@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.text.Editable
 import android.text.TextWatcher
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.ui.SettingsActivity
+import org.secuso.privacyfriendlynotes.ui.util.ChecklistItem
 import java.util.Collections
 
 /**
@@ -32,30 +34,26 @@ import java.util.Collections
  * @author Patrick Schneider
  */
 class ChecklistAdapter(
-    private var items: MutableList<Pair<Boolean, String>>,
     private val startDrag: (ItemHolder) -> Unit,
 ) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
 
+    private var items: MutableList<ChecklistItem> = mutableListOf()
     var hasChanged = false
         private set
 
-    fun getItems(): List<Pair<Boolean, String>> {
+    @SuppressLint("NotifyDataSetChanged")
+    fun setItems(items: List<ChecklistItem>) {
+        this.items = items.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    fun getItems(): List<ChecklistItem> {
         return items
     }
 
     fun swap(from: Int, to: Int) {
         Collections.swap(items, from, to)
         hasChanged = true
-    }
-
-    fun setAll(items: Collection<Pair<Boolean, String>>) {
-        if (this.items.isNotEmpty()) {
-            this.items.clear()
-        } else {
-            hasChanged = false
-        }
-        this.items.addAll(items)
-        notifyItemRangeChanged(0, this.items.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
@@ -73,7 +71,7 @@ class ChecklistAdapter(
             v.performClick()
         }
         holder.checkbox.setOnClickListener { _ ->
-            items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, holder.textView.text.toString())
+            items[holder.bindingAdapterPosition].state = holder.checkbox.isChecked
             holder.textView.apply {
                 paintFlags = if (holder.checkbox.isChecked) {
                     paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
@@ -93,7 +91,7 @@ class ChecklistAdapter(
             }
 
             override fun afterTextChanged(text: Editable?) {
-                items[holder.bindingAdapterPosition] = Pair(holder.checkbox.isChecked, (text ?: "").toString())
+                items[holder.bindingAdapterPosition].name = (text ?: "").toString()
                 hasChanged = true
             }
 
@@ -114,7 +112,7 @@ class ChecklistAdapter(
     }
 
     fun addItem(item: String) {
-        this.items.add(Pair(false, item))
+        this.items.add(ChecklistItem(false, item))
         notifyItemInserted(items.size - 1)
         hasChanged = true
     }
