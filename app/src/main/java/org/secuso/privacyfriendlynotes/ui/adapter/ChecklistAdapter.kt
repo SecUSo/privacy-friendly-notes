@@ -119,6 +119,7 @@ class ChecklistAdapter(
 
     fun removeItem(position: Int) {
         this.items.removeAt(position)
+        hasChanged = true
         notifyItemRemoved(position)
     }
 

@@ -2,9 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_export_plain"
+        android:orderInCategory="140"
+        android:title="@string/action_export_html"
+        android:icon="@drawable/baseline_html_24"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_convert_to_checklist"
         android:orderInCategory="150"
         android:title="@string/action_convert_to_checklist"
         android:icon="@drawable/ic_format_list_bulleted_icon_24dp"
         app:showAsAction="ifRoom"/>
+
 </menu>

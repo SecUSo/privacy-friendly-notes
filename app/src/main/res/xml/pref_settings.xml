@@ -22,6 +22,12 @@
             android:title="@string/settings_sketch_undo_redo_title"
             android:summary="@string/settings_sketch_undo_redo_desc"
             app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_import_text_title_file_first_line"
+            android:defaultValue="false"
+            android:title="@string/settings_import_text_title_file_first_line_title"
+            android:summary="@string/settings_import_text_title_file_first_line_desc"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory android:title="@string/settings_appearance_heading"
         app:iconSpaceReserved="false">
@@ -39,6 +45,13 @@
             android:title="@string/settings_color_category_title"
             android:summary="@string/settings_color_category_summary"
             android:defaultValue="true"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_color_category_always_background"
+            android:title="@string/settings_color_category_always_background_title"
+            android:summary="@string/settings_color_category_always_background_desc"
+            android:dependency="settings_color_category"
+            android:defaultValue="false"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
             android:key="settings_use_custom_font_size"
