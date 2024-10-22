@@ -91,6 +91,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     }
 
     private val etName by lazy { findViewById<View>(R.id.etName) as EditText }
+    val noteTitle: String
+        get() = etName.text.toString()
     private val catSelection by lazy { findViewById<View>(R.id.spinner_category) as AutoCompleteTextView }
     private lateinit var reminder: MenuItem
 

@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.notes
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -31,6 +32,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -120,6 +123,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                     .setNegativeButton(android.R.string.cancel, null)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
+            }
+            R.id.action_export_plain -> {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.putExtra(Intent.EXTRA_TITLE, noteTitle + getFileExtension())
+                intent.type = getMimeType()
+                saveToExternalStorageResultLauncher.launch(intent)
             }
 
             else -> {}
@@ -424,10 +434,28 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     override fun getFileExtension() = ".txt"
 
+    private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
+                fileOutputStream?.let {
+                    val out = PrintWriter(it)
+                    out.println(Html.toHtml(etContent.text))
+                    out.close()
+                    Toast.makeText(
+                        applicationContext,
+                        String.format(getString(R.string.toast_file_exported_to), uri.toString()),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                fileOutputStream?.close()
+            }
+        }
+    }
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
         val out = PrintWriter(outputStream)
-        out.println(Html.toHtml(etContent.text))
+        out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
         out.close()
     }
 }

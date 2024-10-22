@@ -64,7 +64,6 @@
     <string name="toast_updated">Notiz aktualisiert</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
-    <string name="toast_deleted">Notiz gelöscht</string>
 
 
     <string name="action_bold">F</string>
@@ -75,6 +74,7 @@
     <string name="action_share">Teilen</string>
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
+    <string name="action_export_html">Als HTML exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>

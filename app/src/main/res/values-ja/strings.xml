@@ -152,6 +152,7 @@
     <string name="settings_settings_show_preview_title">ノートプレビューを表示する</string>
     <string name="settings_settings_settings_show_preview_sum">ノートの短いプレビューを表示する</string>
     <string name="action_export">輸出</string>
+    <string name="action_export_html">HTMLとしてエクスポート</string>
     <string name="action_category">カテゴリ</string>
     <string name="text_note_fab_menu_desc">フォーマッティング</string>
     <string name="note_not_saved">メモが保存されていません</string>
