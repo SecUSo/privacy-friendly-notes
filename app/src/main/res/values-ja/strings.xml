@@ -165,5 +165,7 @@
     <string name="settings_sketch_undo_redo_title">スケッチの元に戻す/やり直し</string>
     <string name="settings_import_text_title_file_first_line_title">最初の行をタイトルとして</string>
     <string name="settings_import_text_title_file_first_line_desc">有効にすると、インポートされたテキスト ノートのタイトルは、インポートされたテキストの最初の行全体になります。有効にしない場合は、インポートされたファイルの名前が選択されます。</string>
+    <string name="settings_color_category_always_background_title">常に背景をカラーにする</string>
+    <string name="settings_color_category_always_background_desc">有効にすると、選択したテーマに関係なく、背景は常にカテゴリの色になります。</string>
 
 </resources>

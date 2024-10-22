@@ -47,6 +47,13 @@
             android:defaultValue="true"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_color_category_always_background"
+            android:title="@string/settings_color_category_always_background_title"
+            android:summary="@string/settings_color_category_always_background_desc"
+            android:dependency="settings_color_category"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_use_custom_font_size"
             android:defaultValue="false"
             android:title="@string/settings_use_custom_font_size_title"

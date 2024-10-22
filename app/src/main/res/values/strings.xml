@@ -196,4 +196,6 @@
     <string name="settings_sketch_undo_redo_title">Undo/Redo in sketches</string>
     <string name="settings_import_text_title_file_first_line_title">First line as Title</string>
     <string name="settings_import_text_title_file_first_line_desc">If enabled, the title of the imported text note will be the whole first line of the imported text. Otherwise the name of the imported file will be selected.</string>
+    <string name="settings_color_category_always_background_title">Always color background</string>
+    <string name="settings_color_category_always_background_desc">If enabled, the background is always colored in the color of the category, regardless of the selected theme.</string>
 </resources>

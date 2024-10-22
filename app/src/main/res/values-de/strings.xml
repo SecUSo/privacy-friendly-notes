@@ -169,4 +169,6 @@
     <string name="settings_sketch_undo_redo_title">Rückgängig/Wiederherstellen in Skizzen</string>
     <string name="settings_import_text_title_file_first_line_title">Erste Zeile als Titel</string>
     <string name="settings_import_text_title_file_first_line_desc">Wenn diese Option aktiviert ist, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
+    <string name="settings_color_category_always_background_title">Immer den Hintergrund färben</string>
+    <string name="settings_color_category_always_background_desc">Wenn aktiviert, wird der Hintergrund immer in der Farbe der Kategorie eingefärbt, unabhängig vom ausgewählten Design.</string>
 </resources>
