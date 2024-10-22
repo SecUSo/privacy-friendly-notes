@@ -143,19 +143,18 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         if (intent != null) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
-                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
-                if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_import_text_title_file_first_line", false)) {
-                    super.setTitle(text[0])
-                    etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
-                } else {
-                    val title = uri.path?.let { File(it).nameWithoutExtension } ?: ""
-                    super.setTitle(title)
-                    etContent.setText(Html.fromHtml(text.joinToString("<br>")))
+                val (title: String, text) = InputStreamReader(contentResolver.openInputStream(uri)).readLines().let {
+                    if (PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
+                        it[0] to it.subList(1, it.size)
+                    } else {
+                        (uri.path?.let { file -> File(file).nameWithoutExtension } ?: "") to it
+                    }
                 }
+                super.setTitle(Html.fromHtml(title).toString())
+                etContent.setText(Html.fromHtml(text.joinToString("<br>")))
             }
-            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
-            if (text != null) {
-                etContent.setText(Html.fromHtml(text))
+            intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
+                etContent.setText(Html.fromHtml(it))
             }
         }
     }
