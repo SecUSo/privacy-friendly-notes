@@ -167,4 +167,6 @@
     <string name="dialog_convert_to_text_desc">Dadurch wird diese Notiz in eine Textnotiz umgewandelt. Möchten Sie fortfahren?</string>
     <string name="settings_sketch_undo_redo_desc">Aktiviere die Rückgängig/Wiederherstellen Funktionalität in Skizzen. Diese Funktion kann auf älteren Geräten zu Leistungsproblemen führen.</string>
     <string name="settings_sketch_undo_redo_title">Rückgängig/Wiederherstellen in Skizzen</string>
+    <string name="settings_import_text_title_file_first_line_title">Erste Zeile als Titel</string>
+    <string name="settings_import_text_title_file_first_line_desc">Wenn diese Option aktiviert ist, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
 </resources>

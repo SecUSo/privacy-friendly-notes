@@ -20,13 +20,13 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
@@ -35,12 +35,14 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
@@ -142,8 +144,14 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
                 val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
-                super.setTitle(text[0])
-                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
+                if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_import_text_title_file_first_line", false)) {
+                    super.setTitle(text[0])
+                    etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
+                } else {
+                    val title = uri.path?.let { File(it).nameWithoutExtension } ?: ""
+                    super.setTitle(title)
+                    etContent.setText(Html.fromHtml(text.joinToString("<br>")))
+                }
             }
             val text = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (text != null) {

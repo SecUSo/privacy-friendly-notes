@@ -194,5 +194,6 @@
     <string name="dialog_convert_to_text_desc">This will convert this note into a text note. Do you want to continue?</string>
     <string name="settings_sketch_undo_redo_desc">Enable the undo/redo functionality in sketches. This option may lead to performance issues on older devices.</string>
     <string name="settings_sketch_undo_redo_title">Undo/Redo in sketches</string>
-
+    <string name="settings_import_text_title_file_first_line_title">First line as Title</string>
+    <string name="settings_import_text_title_file_first_line_desc">If enabled, the title of the imported text note will be the whole first line of the imported text. Otherwise the name of the imported file will be selected.</string>
 </resources>

@@ -163,5 +163,7 @@
     <string name="dialog_convert_to_text_desc">このメモはテキストメモに変換されます。続けますか？</string>
     <string name="settings_sketch_undo_redo_desc">スケッチの元に戻す/やり直し機能を有効にします。このオプションは、古いデバイスでパフォーマンスの問題を引き起こす可能性があります。</string>
     <string name="settings_sketch_undo_redo_title">スケッチの元に戻す/やり直し</string>
+    <string name="settings_import_text_title_file_first_line_title">最初の行をタイトルとして</string>
+    <string name="settings_import_text_title_file_first_line_desc">有効にすると、インポートされたテキスト ノートのタイトルは、インポートされたテキストの最初の行全体になります。有効にしない場合は、インポートされたファイルの名前が選択されます。</string>
 
 </resources>
