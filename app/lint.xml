@@ -4,7 +4,7 @@
     <issue id="NotificationPermission">
         <ignore regexp="com.bumptech.glide.request.target.NotificationTarget" />
     </issue>
-
     <!-- Set the severity of missing translations to warning instead of error -->
     <issue id="MissingTranslation" severity="warning" />
+    <issue id="MissingQuantity" severity="warning" />
 </lint>
