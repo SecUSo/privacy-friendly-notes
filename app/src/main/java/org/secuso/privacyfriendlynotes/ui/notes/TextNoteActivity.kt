@@ -144,7 +144,8 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
                 val (title: String, text) = InputStreamReader(contentResolver.openInputStream(uri)).readLines().let {
-                    if (PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
+                    if (it.size > 1 &&
+                        PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
                         it[0] to it.subList(1, it.size)
                     } else {
                         (uri.path?.let { file -> File(file).nameWithoutExtension } ?: "") to it
