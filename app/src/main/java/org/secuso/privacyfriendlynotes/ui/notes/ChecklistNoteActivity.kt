@@ -167,7 +167,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     }
 
     private fun getContentString(): String {
-        return adapter.getItems().joinToString(System.lineSeparator()) { (checked, name) -> "- [${if (checked) "x" else "   "}] $name" }
+        return adapter.getItems().joinToString(System.lineSeparator()) { (checked, name) -> "- [${if (checked) "x" else " "}] $name" }
     }
 
     private fun addItem() {

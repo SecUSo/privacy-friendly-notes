@@ -245,7 +245,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             throw IllegalArgumentException("Only checklist notes allowed")
         }
         return ChecklistUtil.parse(note.content).map { (checked, name) ->
-            return@map Pair(checked, "[${if (checked) "x" else "  "}] $name")
+            val preview = if (name.length > 30) name.take(30) + "..." else name.take(33)
+            return@map Pair(checked, "[${if (checked) "x" else "  "}] $preview")
         }
     }
 

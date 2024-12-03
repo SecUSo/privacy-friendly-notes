@@ -152,6 +152,7 @@
     <string name="settings_settings_show_preview_title">ノートプレビューを表示する</string>
     <string name="settings_settings_settings_show_preview_sum">ノートの短いプレビューを表示する</string>
     <string name="action_export">輸出</string>
+    <string name="action_export_html">HTMLとしてエクスポート</string>
     <string name="action_category">カテゴリ</string>
     <string name="text_note_fab_menu_desc">フォーマッティング</string>
     <string name="note_not_saved">メモが保存されていません</string>
@@ -162,5 +163,9 @@
     <string name="dialog_convert_to_text_desc">このメモはテキストメモに変換されます。続けますか？</string>
     <string name="settings_sketch_undo_redo_desc">スケッチの元に戻す/やり直し機能を有効にします。このオプションは、古いデバイスでパフォーマンスの問題を引き起こす可能性があります。</string>
     <string name="settings_sketch_undo_redo_title">スケッチの元に戻す/やり直し</string>
+    <string name="settings_import_text_title_file_first_line_title">最初の行をタイトルとして</string>
+    <string name="settings_import_text_title_file_first_line_desc">有効にすると、インポートされたテキスト ノートのタイトルは、インポートされたテキストの最初の行全体になります。有効にしない場合は、インポートされたファイルの名前が選択されます。</string>
+    <string name="settings_color_category_always_background_title">常に背景をカラーにする</string>
+    <string name="settings_color_category_always_background_desc">有効にすると、選択したテーマに関係なく、背景は常にカテゴリの色になります。</string>
 
 </resources>

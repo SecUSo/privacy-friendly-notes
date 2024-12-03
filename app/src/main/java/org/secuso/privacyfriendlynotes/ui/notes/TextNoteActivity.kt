@@ -13,31 +13,36 @@
  */
 package org.secuso.privacyfriendlynotes.ui.notes
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
@@ -121,6 +126,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
             }
+            R.id.action_export_plain -> {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.putExtra(Intent.EXTRA_TITLE, noteTitle + getFileExtension())
+                intent.type = getMimeType()
+                saveToExternalStorageResultLauncher.launch(intent)
+            }
 
             else -> {}
         }
@@ -131,13 +143,19 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         if (intent != null) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
-                val text = InputStreamReader(contentResolver.openInputStream(uri)).readLines()
-                super.setTitle(text[0])
-                etContent.setText(Html.fromHtml(text.subList(1, text.size).joinToString("<br>")))
+                val (title: String, text) = InputStreamReader(contentResolver.openInputStream(uri)).readLines().let {
+                    if (it.size > 1 &&
+                        PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
+                        it[0] to it.subList(1, it.size)
+                    } else {
+                        (uri.path?.let { file -> File(file).nameWithoutExtension } ?: "") to it
+                    }
+                }
+                super.setTitle(Html.fromHtml(title).toString())
+                etContent.setText(Html.fromHtml(text.joinToString("<br>")))
             }
-            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
-            if (text != null) {
-                etContent.setText(Html.fromHtml(text))
+            intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
+                etContent.setText(Html.fromHtml(it))
             }
         }
     }
@@ -424,10 +442,28 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     override fun getFileExtension() = ".txt"
 
+    private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
+                fileOutputStream?.let {
+                    val out = PrintWriter(it)
+                    out.println(Html.toHtml(etContent.text))
+                    out.close()
+                    Toast.makeText(
+                        applicationContext,
+                        String.format(getString(R.string.toast_file_exported_to), uri.toString()),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                fileOutputStream?.close()
+            }
+        }
+    }
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
         val out = PrintWriter(outputStream)
-        out.println(Html.toHtml(etContent.text))
+        out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
         out.close()
     }
 }

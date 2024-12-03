@@ -64,7 +64,6 @@
     <string name="toast_updated">Notiz aktualisiert</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
-    <string name="toast_deleted">Notiz gelöscht</string>
 
 
     <string name="action_bold">F</string>
@@ -75,6 +74,7 @@
     <string name="action_share">Teilen</string>
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
+    <string name="action_export_html">Als HTML exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>
@@ -167,4 +167,8 @@
     <string name="dialog_convert_to_text_desc">Dadurch wird diese Notiz in eine Textnotiz umgewandelt. Möchten Sie fortfahren?</string>
     <string name="settings_sketch_undo_redo_desc">Aktiviere die Rückgängig/Wiederherstellen Funktionalität in Skizzen. Diese Funktion kann auf älteren Geräten zu Leistungsproblemen führen.</string>
     <string name="settings_sketch_undo_redo_title">Rückgängig/Wiederherstellen in Skizzen</string>
+    <string name="settings_import_text_title_file_first_line_title">Erste Zeile als Titel</string>
+    <string name="settings_import_text_title_file_first_line_desc">Wenn diese Option aktiviert ist, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
+    <string name="settings_color_category_always_background_title">Immer den Hintergrund färben</string>
+    <string name="settings_color_category_always_background_desc">Wenn aktiviert, wird der Hintergrund immer in der Farbe der Kategorie eingefärbt, unabhängig vom ausgewählten Design.</string>
 </resources>
