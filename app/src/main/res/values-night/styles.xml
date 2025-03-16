@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="Theme.Material3.DayNight">
+		<item name="secusoLogoDrawable">@drawable/secuso_logo_white</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorSurfaceSecondary">@color/colorSurfaceSecondaryDark</item>
         <item name="colorBackground">@color/colorBackgroundDark</item>

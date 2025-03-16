@@ -2,6 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.Material3.DayNight">
+		<item name="secusoLogoDrawable">@drawable/secuso_logo_black</item>
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
