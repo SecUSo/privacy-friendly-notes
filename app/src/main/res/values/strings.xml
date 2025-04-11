@@ -1,9 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
     <string name="default_category">Default</string>
     <string name="default_color">Default</string>
-
     <string name="title_manage_categories">Categories</string>
     <string name="title_textnote">Text Note</string>
     <string name="title_checklistnote">Checklist Note</string>
@@ -14,11 +14,8 @@
     <string name="title_help">Help</string>
     <string name="title_about">About</string>
     <string name="title_tutorial">Tutorial</string>
-
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="nav_all">All notes</string>
     <string name="nav_trash">Recycle bin</string>
     <string name="nav_manage_categories">Manage categories</string>
@@ -26,8 +23,6 @@
     <string name="nav_help">Help</string>
     <string name="nav_about">About</string>
     <string name="nav_tutorial">Tutorial</string>
-
-
     <string name="action_sort_alphabetical">Sort alphabetical</string>
     <string name="action_settings">Settings</string>
     <string name="action_help">Help</string>
@@ -35,7 +30,6 @@
     <string name="action_reminder">Set reminder</string>
     <string name="action_reminder_edit">Edit reminder</string>
     <string name="action_reminder_delete">Delete reminder</string>
-
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_delete_all">Delete all</string>
@@ -54,11 +48,9 @@
     <string name="action_sketch_redo">Redo</string>
     <string name="action_convert_to_checklist">Convert to checklist</string>
     <string name="action_convert_to_text">Convert to text note</string>
-
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
-
     <string name="toast_canceled">Canceled without saving</string>
     <string name="toast_saved">Note saved</string>
     <string name="toast_updated">Note updated</string>
@@ -71,9 +63,6 @@
     <string name="toast_emptyNote">Empty note cannot be saved</string>
     <string name="toast_checklist_oneItem">Only one item can be modified.</string>
     <string name="toast_deleted">Note deleted</string>
-
-
-
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
     <string name="dialog_delete_category_with_notes">Are you sure you want to delete %1s? All notes in the category <b>will be deleted!</b></string>
@@ -95,24 +84,16 @@
     <string name="dialog_create_category_title">Create category</string>
     <string name="dialog_create_category_btn">Create</string>
     <string name="category_fab_desc">Create category</string>
-
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Enable notifications</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Permission to send notifications and schedule alarms and reminders is needed for this feature.</string>
-
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
-    <string name="dialog_checklist_edit">You change the item: %s</string>
-
-
     <string name="fab_text">New text</string>
     <string name="fab_audio">New audio</string>
     <string name="fab_checklist">New checklist</string>
     <string name="fab_sketch">New sketch</string>
-
     <string name="note_standardname">Note %d</string>
-
     <string name="tv_category">Category:</string>
-
     <string name="settings_general_heading">General</string>
     <string name="settings_del_notes_title">Delete notes in category</string>
     <string name="settings_del_notes_sum">Also delete notes that are in the category that is deleted.</string>
@@ -124,7 +105,6 @@
     <string name="settings_font_size_sum">Click here to select the font size.</string>
     <string name="settings_color_category_title">Color notes by category</string>
     <string name="settings_color_category_summary">Use a custom color per category and display notes colored in their category.</string>
-
     <string name="help_overview_heading">Overview</string>
     <string name="help_intro">Welcome to the help page. This app lets you take and manage notes without compromising your privacy.</string>
     <string name="help_privacy_heading">Privacy Info</string>
@@ -134,7 +114,6 @@
     <string name="help_perm_record_audio_sum">is needed to record audio notes; if this is not granted, audio notes are unavailable.</string>
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">is needed to save notes to the internal memory; if this is not granted, notes cannot be saved externally.</string>
-
     <string name="about_version_number">Version</string>
     <string name="about_author">Authors: </string>
     <string name="about_author_names" translatable="false">Robin Morawetz, Maximilian Zimmermann,\n Patrick Schneider</string>
@@ -144,21 +123,15 @@
     <string name="about_more_info">More information can be found on:</string>
     <string name="about_url" translatable="false"><a href="https://www.secuso.org/pfa">SECUSO-Website</a></string>
     <string name="about_github" translatable="false"><a href="https://github.com/SecUSo/privacy-friendly-notes">Github-Repo</a></string>
-
     <string name="note_item_title">Title</string>
     <string name="note_item_description">Description</string>
-
-
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome!</string>
     <string name="slide1_text">This app lets you create and manage notes.</string>
-
     <string name="slide2_heading">Key Elements</string>
     <string name="slide2_text">Currently it supports four types of notes: Text, Checklist, Audio, Sketch. </string>
-
     <string name="slide3_heading">Advantages</string>
     <string name="slide3_text">Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.Privacy Friendly Apps are group of Android applications which are optimized regarding privacy.</string>
-
     <string name="okay">Okay</string>
     <string name="viewhelp">View Help</string>
     <string name="main_floating_button">Floating Button</string>
@@ -169,7 +142,6 @@
     <string name="settings_settings_settings_show_preview_sum">Display a short preview of notes in the overview</string>
     <string name="text_note_fab_menu_desc">Formatting</string>
     <string name="note_not_saved">Note not saved</string>
-
     <string name="select_day_night_theme">Design</string>
     <string name="category_color">With Color</string>
     <string-array name="array_day_night_theme">
@@ -177,7 +149,6 @@
         <item>Light</item>
         <item>Dark</item>
     </string-array>
-
     <!-- Text for sorting options of notes in main activity   -->
     <!-- Order has to match the ordering of model/SortingOrder   -->
     <string-array name="notes_sort_ordering_text">
