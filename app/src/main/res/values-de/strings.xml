@@ -64,8 +64,6 @@
     <string name="toast_updated">Notiz aktualisiert</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
-
-
     <string name="action_bold">F</string>
     <string name="action_italics">K</string>
     <string name="action_underline"><u>U</u></string>
@@ -78,7 +76,6 @@
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>
-
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -118,22 +115,15 @@
     <string name="settings_use_custom_font_size_sum">Nutze eine eigene Schriftgröße im Text Notiz Editor.</string>
     <string name="title_sketchnote">Skizze</string>
     <string name="title_tutorial">Tutorial</string>
-
-
     <string name="note_item_title">Titel</string>
     <string name="note_item_description">Beschreibung</string>
-
-
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Willkommen!</string>
     <string name="slide1_text">Mit dieser App können Sie Notizen erstellen und verwalten.</string>
-
     <string name="slide2_heading">Wesentliche Elemente</string>
     <string name="slide2_text">Derzeit werden vier Arten von Notizen unterstützt: Text, Checkliste, Audio, Skizze.</string>
-
     <string name="slide3_heading">Vorteile</string>
     <string name="slide3_text">Die meisten Apps für Notizen benötigen eine Menge Berechtigungen und synchronisieren über das Internet. Daher verwenden sie einen Unternehmensdienst, dem Sie vertrauen müssen. Dies ist zwar eine praktische Funktion, schwächt aber Ihre Privatsphäre. Datenschutzfreundliche Apps sind eine Gruppe von Android-Anwendungen, die hinsichtlich des Datenschutzes optimiert sind.</string>
-
     <string name="okay">Okay</string>
     <string name="viewhelp">Hilfe anzeigen</string>
     <string name="main_floating_button">Schwimmende Schaltfläche</string>
@@ -148,7 +138,6 @@
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Für diese Funktion ist die Berechtigung zum Senden von Benachrichtigungen und zur Planung von Alarmen und Erinnerungen erforderlich.</string>
     <string name="dialog_delete_all_recycle_bin_title">Alle Notizen im Papierkorb löschen</string>
     <string name="dialog_delete_all_recycle_bin_message">Wollen Sie alle momentan sichtbaren Notizen im Papierkorb entgültig löschen?</string>
-
     <!-- Text for sorting options of notes in main activity   -->
     <!-- Order has to match the ordering of model/SortingOrder   -->
     <string-array name="notes_sort_ordering_text">
@@ -171,4 +160,5 @@
     <string name="settings_import_text_title_file_first_line_desc">Wenn diese Option aktiviert ist, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
     <string name="settings_color_category_always_background_title">Immer den Hintergrund färben</string>
     <string name="settings_color_category_always_background_desc">Wenn aktiviert, wird der Hintergrund immer in der Farbe der Kategorie eingefärbt, unabhängig vom ausgewählten Design.</string>
+    <string name="toast_deleted">Notiz gelöscht</string>
 </resources>
