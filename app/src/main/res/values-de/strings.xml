@@ -101,7 +101,6 @@
     <string name="dialog_help">Hilfe anzeigen</string>
     <string name="dialog_welcome_text">Mit dieser App ist es möglich Notizen in Form von Text, Checklisten, Memos oder Skizzen zu erstellen und zu teilen.</string>
     <string name="dialog_welcome">Willkommen</string>
-    <string name="dialog_checklist_edit">Sie verändern den Punkt: %s</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_general_heading">Allgemein</string>
