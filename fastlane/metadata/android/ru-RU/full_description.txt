@@ -1,0 +1,13 @@
+Свободное приложение для заметок. Оно из группы приложений дружественных к конфиденциальности (Privacy Friendly Apps, PWA) разработанными исследовательской группой SECUSO в Институте Технологии Карлсруэ (KIT). Подробнее читайте на <a href="https://secuso.org/pfa">secuso.org</a>.
+
+Доступны следующие четыре типа заметок:
+1. Простые текстовые заметки
+2. Контрольный список
+3. Аудиозаметки
+4. Зарисовки
+
+Вы можете связаться с нами через:
+<a href="https://bsky.app/profile/secusoresearch.bsky.social">Bluesky</a>
+Twitter: <a href="https://twitter.com/secusoresearch">@SECUSOResearch</a>
+Mastodon: <a href="https://xn--baw-joa.social/@SECUSO_Research/">@SECUSO_Research@bawü.social</a>
+<a href="https://secuso.aifb.kit.edu/english/Job_Offers.php">Открытые вакансии<a/>
