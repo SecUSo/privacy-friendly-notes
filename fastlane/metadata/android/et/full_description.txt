@@ -1,0 +1,28 @@
+Privaatsussõbralik märkmik võimaldab sul koostada ja hallata märkmeid ning ülestähendusi Androidi-põhistes nutiseadmetes. Meie rakendus kuulub privaatsussõbralike rakenduste (Privacy Friendly Apps) kogumisse, mis on välja töötatud SECUSO teadusgrupi poolt Karlsruhe Tehnoloogiainstutuudis. Lisainformatsiooni leiad aadressilt https://secuso.org/pfa
+
+Kasutada saad nelja tüüpi ülestähendusi:
+1. Lihtsad tekstimärked
+2. Kontrollnimekiri
+3. Helimemo
+4. Visand
+
+Lisaks saad märkmeid rühmitada kategooriate kaupa, lisada neile meeldetuletusi ning eksportida nutiseadmesse.
+
+Kuidas Privaatsussõbralik märkmik erineb muudest sarnastest rakendustest?
+
+1. Minimalselt õigusi
+„RECORD_AUDIO“ (kategoorias „Mikrofon“) õigus on vajalik helimemode salvestamiseks. Selle õiguse puudumisel (Android versioonides 6 ja uuemates) helimemode salvestamine ei toimi.
+
+„WRITE_EXTERNAL_STORAGE“ (kategoorias „Salvestamine“) õigus on vajalik märkmete ekspordika andmeruumi. Selle õiguse puudumisel (Android versioonides 6 ja uuemates) märmete eksport ei toimi.
+
+Lisaks on vajalik „RECEIVE_BOOT_COMPLETED“ (kategoorias „Tavaline/mittekriitiline“) õigus meeldetuletuste ajastamiseks peale nutiseadme käivitamist. Seda õigust kasutaja muuta ei saa.
+
+Võrdluseks: 10 populaarsemat Google Play poest leiduvat sarnast rakendust eeldavad keskmiselt 11,7 õiguse olemasolu (novembris 2016). Need on näiteks asukoha tuvastamine või õigused andmeruumi lugemiseks, muutmiseks või kustutamiseks.
+
+2. Ei mingeid reklaame
+Lisaks eristub Privaatsussõbralik märkmik looja paljudest teistest rakendustest sellega, et ta ei kasuta ega kuva reklaamide. Reklaamid võivad jälgida kasutaja tegevust. Need võivad vähendada ka aku kestvust või kasutada mobiilset andmesidet.
+
+Meid võid leida:
+BlueSky - https://bsky.app/profile/secusoresearch.bsky.social
+Mastodon - @SECUSO_Research@bawü.social https://xn--baw-joa.social/@SECUSO_Research/
+Tööpakkumised - https://secuso.aifb.kit.edu/english/Job_Offers.php
