@@ -1,9 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notes</string>
     <string name="app_name_long">Privacy Friendly Notes</string>
     <string name="default_category">デフォルト</string>
     <string name="default_color">デフォルト</string>
-
     <string name="title_manage_categories">カテゴリー</string>
     <string name="title_textnote">テキスト メモ</string>
     <string name="title_checklistnote">チェックリスト メモ</string>
@@ -13,10 +13,8 @@
     <string name="title_settings">設定</string>
     <string name="title_help">ヘルプ</string>
     <string name="title_about">アプリについて</string>
-
     <string name="navigation_drawer_open">ナビゲーションドロワーを開く</string>
     <string name="navigation_drawer_close">ナビゲーションドロワーを閉じる</string>
-
     <string name="nav_all">すべてのメモ</string>
     <string name="nav_trash">ゴミ箱</string>
     <string name="nav_manage_categories">カテゴリーの管理</string>
@@ -24,8 +22,6 @@
     <string name="nav_help">ヘルプ</string>
     <string name="nav_about">その上</string>
     <string name="nav_tutorial">チュートリアル</string>
-
-
     <string name="action_sort_alphabetical">アルファベット順に並び替え</string>
     <string name="action_settings">設定</string>
     <string name="action_help">ヘルプ</string>
@@ -33,7 +29,6 @@
     <string name="action_reminder">リマインダーを設定</string>
     <string name="action_reminder_edit">リマインダーを編集</string>
     <string name="action_reminder_delete">リマインダーを削除</string>
-
     <string name="action_cancel">キャンセル</string>
     <string name="action_delete">削除</string>
     <string name="action_delete_all">すべて削除</string>
@@ -45,14 +40,11 @@
     <string name="action_bold">エ</string>
     <string name="action_italics">削</string>
     <string name="action_underline"><u>キ</u></string>
-
-
     <string name="action_convert_to_checklist">チェックリストに変換</string>
     <string name="action_convert_to_text">テキストメモに変換</string>
     <string name="hint_name">名前</string>
     <string name="hint_note">メモ</string>
     <string name="hint_new_item">新しいアイテム</string>
-
     <string name="toast_canceled">保存せずにキャンセルしました</string>
     <string name="toast_saved">メモを保存しました</string>
     <string name="toast_updated">メモを更新しました</string>
@@ -65,8 +57,6 @@
     <string name="toast_emptyNote">空のノートは保存できない</string>
     <string name="toast_checklist_oneItem">修正できるのは項目のみです。</string>
     <string name="toast_deleted">注 削除</string>
-
-
     <string name="dialog_delete_title">%1s を削除しますか?</string>
     <string name="dialog_delete_message">%1s を削除してもよろしいですか?</string>
     <string name="dialog_trash_title">ゴミ箱に移動しています</string>
@@ -85,24 +75,16 @@
     <string name="dialog_create_category_title">カテゴリー作成</string>
     <string name="dialog_create_category_btn">作成</string>
     <string name="category_fab_desc">カテゴリー作成</string>
-
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">通知を有効にする</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">この機能を使用するには、通知の送信、アラームとリマインダーのスケジュールの許可が必要です。</string>
-
     <string name="dialog_option_delete">削除</string>
     <string name="dialog_option_restore">復元</string>
-    <string name="dialog_checklist_edit">アイテムを変更します。 %s</string>
-
-
     <string name="fab_text">新しいテキスト</string>
     <string name="fab_audio">新しいオーディオ</string>
     <string name="fab_checklist">新しいチェックリスト</string>
     <string name="fab_sketch">新しいスケッチ</string>
-
     <string name="note_standardname">メモ %d</string>
-
     <string name="tv_category">カテゴリー:</string>
-
     <string name="settings_general_heading">全般</string>
     <string name="settings_del_notes_title">カテゴリーのメモを削除</string>
     <string name="settings_del_notes_sum">削除するカテゴリー内のメモも削除されます。</string>
@@ -110,7 +92,6 @@
     <string name="settings_use_custom_font_size_sum">テキストメモエディターでカスタムフォントサイズを使用します。</string>
     <string name="settings_font_size_title">フォントサイズ</string>
     <string name="settings_font_size_sum">ここをクリックしてフォントサイズを選択します。</string>
-
     <string name="help_overview_heading">概要</string>
     <string name="help_intro">ヘルプページにようこそ。 このアプリは、プライバシーを損なうことなくメモを取ったり管理したりできます。</string>
     <string name="help_privacy_heading">プライバシー情報</string>
@@ -120,29 +101,22 @@
     <string name="help_perm_record_audio_sum">オーディオの録音は、オーディオメモを録音するために必要です。 これが許可されていないと、オーディオメモは利用できません。</string>
     <string name="help_perm_write_external_title">WRITE EXTERNAL STORAGE</string>
     <string name="help_perm_write_external_sum">外部ストレージの書き込みは、メモを外部メモリに保存するために必要です。 これが許可されていないと、メモを外部に保存することはできません。</string>
-
     <string name="about_version_number">バージョン</string>
     <string name="about_author">作者: </string>
     <string name="about_author_contributors">および貢献者。</string>
     <string name="about_affiliation">提携</string>
     <string name="about_privacy_friendly">このアプリケーションは、ダルムシュタット工科大学 (Karlsruhe Institute of Technology, Germany) が開発したプライバシーフレンドリーアプリのグループに属しています。ソースコードは GPLv3 の下でライセンスされます。画像の著作権は Karlsruhe Institute of Technology および Google Inc.</string>
     <string name="about_more_info">さらに詳しい情報は以下でご覧ください:</string>
-
     <string name="note_item_title">題名</string>
     <string name="note_item_description">説明</string>
     <string name="title_tutorial">チュートリアル</string>
-
-
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">歓迎します。</string>
     <string name="slide1_text">このアプリでは、ノートを作成・管理することができます。</string>
-
     <string name="slide2_heading">主要な要素</string>
     <string name="slide2_text"> 現在、4種類のノートをサポートしています。テキスト、チェックリスト、オーディオ、スケッチの4種類に対応しています。 </string>
-
     <string name="slide3_heading">メリット</string>
     <string name="slide3_text">ほとんどのノートアプリは、多くの許可を必要とし、インターネット上で同期します。そのため、信頼できる企業のサービスを利用することになります。Privacy Friendly Appsは、プライバシーに関して最適化されたAndroidアプリケーションのグループです。</string>
-
     <string name="okay">オーケー</string>
     <string name="viewhelp">ヘルプを表示</string>
     <string name="main_floating_button">フローティングボタン</string>
@@ -167,5 +141,4 @@
     <string name="settings_import_text_title_file_first_line_desc">有効にすると、インポートされたテキスト ノートのタイトルは、インポートされたテキストの最初の行全体になります。有効にしない場合は、インポートされたファイルの名前が選択されます。</string>
     <string name="settings_color_category_always_background_title">常に背景をカラーにする</string>
     <string name="settings_color_category_always_background_desc">有効にすると、選択したテーマに関係なく、背景は常にカテゴリの色になります。</string>
-
 </resources>

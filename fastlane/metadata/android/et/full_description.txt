@@ -25,4 +25,4 @@ Lisaks eristub Privaatsussõbralik märkmik looja paljudest teistest rakendustes
 Meid võid leida:
 BlueSky - https://bsky.app/profile/secusoresearch.bsky.social
 Mastodon - @SECUSO_Research@bawü.social https://xn--baw-joa.social/@SECUSO_Research/
-Tööpakkumised - https://secuso.aifb.kit.edu/english/Job_Offers_1557.php
+Tööpakkumised - https://secuso.aifb.kit.edu/english/Job_Offers.php

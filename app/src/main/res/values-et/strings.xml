@@ -99,7 +99,6 @@
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Selle funktsionaalsuse toimimiseks on vajalikud õigused saata teavitusi ja ajastada meeldetuletusi.</string>
     <string name="dialog_option_delete">Kustuta</string>
     <string name="dialog_option_restore">Taasta</string>
-    <string name="dialog_checklist_edit">Sa muutsid kirjet: %s</string>
     <string name="fab_text">Uus tekstimärge</string>
     <string name="help_overview_heading">Ülevaade</string>
     <string name="about_author">Autorid:</string>
