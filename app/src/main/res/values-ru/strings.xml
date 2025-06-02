@@ -24,13 +24,13 @@
     <string name="nav_settings">Настройки</string>
     <string name="settings_general_heading">Главные</string>
     <string name="settings_del_notes_title">Убрать заметки в категории</string>
-    <string name="help_overview_heading">Знакомство</string>
+    <string name="help_overview_heading">Обзор</string>
     <string name="about_author_contributors">и помощники</string>
     <string name="slide3_heading">Преимущества</string>
-    <string name="skip">Пропустить</string>
+    <string name="skip">Пропуск</string>
     <string name="about_privacy_friendly">Это одно из приложений группы Уважающих Конфиденциальность Приложений (Privacy Friendly Apps, PFA), разработанных исследовательской группой SECUSO в Технологическом Институте Карлсруэ (KIT). Исходный код доступен по лицензии GPLv3. Авторские права на изображения принадлежат KIT и Google Inc.</string>
     <string name="about_affiliation">Вместе с</string>
-    <string name="next">Далее</string>
+    <string name="next">Дальше</string>
     <string name="nav_trash">Мусорная корзина</string>
     <string name="nav_help">Справка</string>
     <string name="nav_about">О приложении</string>
@@ -77,7 +77,7 @@
     <string name="note_item_title">Заголовок</string>
     <string name="note_item_description">Описание</string>
     <string name="slide2_heading">Ключевые элементы</string>
-    <string name="okay">Ладно</string>
+    <string name="okay">Хорошо</string>
     <string name="viewhelp">Посмотреть справку</string>
     <string name="main_floating_button">Плавающая кнопка</string>
     <string name="settings_appearance_heading">Внешний вид</string>
@@ -97,4 +97,5 @@
     <string name="toast_file_exported_to">Экспортирована заметка в %1s</string>
     <string name="toast_emptyNote">Пустая заметка не может быть сохранена</string>
     <string name="toast_external_storage_not_mounted">Ошибка: нельзя записать на внешнее хранилище</string>
+    <string name="help_privacy_heading">О конфиденциальности</string>
 </resources>
