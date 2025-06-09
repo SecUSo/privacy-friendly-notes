@@ -1,4 +1,4 @@
-package org.secuso.privacyfriendlyboardgameclock
+package org.secuso.privacyfriendlynotes;
 
 import android.content.Context
 import android.graphics.text.LineBreaker
