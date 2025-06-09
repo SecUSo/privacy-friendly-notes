@@ -169,4 +169,11 @@
     <string name="settings_import_text_title_file_first_line_desc">If enabled, the title of the imported text note will be the whole first line of the imported text. Otherwise the name of the imported file will be selected.</string>
     <string name="settings_color_category_always_background_title">Always color background</string>
     <string name="settings_color_category_always_background_desc">If enabled, the background is always colored in the color of the category, regardless of the selected theme.</string>
+	<string name="dialog_goodbye_google_title">Goodbye Google Play __</string>
+	<string name="dialog_goodbye_google_desc">Our apps will have to say goodbye to Google Play. You can continue to use the app but you will not receive any updates in the future.
+You can find more info about the reasons and why this isn_t the end of the Privacy Friendly Apps on our website:
+
+<a href="https://secuso.aifb.kit.edu/english/2809.php">Click here to learn more</a>
+	</string>
+	<string name="dialog_goodbye_google_deactivate_notice">Don't show this notice again.</string>
 </resources>
