@@ -50,6 +50,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
+import org.secuso.privacyfriendlynotes.checkGoodbyeGoogle
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -237,6 +238,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
+        checkGoodbyeGoogle(this, layoutInflater)
     }
 
     // taken from https://dev.to/ahmmedrejowan/hide-the-soft-keyboard-and-remove-focus-from-edittext-in-android-ehp on 14/03/2024
