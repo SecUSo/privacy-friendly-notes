@@ -35,7 +35,7 @@
     <string name="nav_help">Справка</string>
     <string name="nav_about">О приложении</string>
     <string name="nav_tutorial">Руководство</string>
-    <string name="action_help">Помощь</string>
+    <string name="action_help">Справка</string>
     <string name="action_reminder">Установить напоминание</string>
     <string name="action_reminder_edit">Изменить напоминание</string>
     <string name="action_reminder_delete">Убрать напоминание</string>
@@ -91,4 +91,10 @@
     <string name="toast_category_exists">Категория уже существует</string>
     <string name="toast_need_permission_audio">Для этой функциональности требуется разрешение на использование микрофона</string>
     <string name="toast_need_permission_write_external">Для этой функциональности требуется разрешение для записи на внешнее хранилище</string>
+    <string name="action_bold">B</string>
+    <string name="action_italics">I</string>
+    <string name="action_underline"><u>U</u></string>
+    <string name="toast_file_exported_to">Экспортирована заметка в %1s</string>
+    <string name="toast_emptyNote">Пустая заметка не может быть сохранена</string>
+    <string name="toast_external_storage_not_mounted">Ошибка: нельзя записать на внешнее хранилище</string>
 </resources>
