@@ -17,7 +17,7 @@ The permission "RECORD_AUDIO" (Category "Mikrofon") is required to record audio 
 
 Beside the permissions above the permission “RECEIVE_BOOT_COMPLETED” (Category “Normal/non-critical”) is required to reschedule notifications after a reboot. This permission cannot be modified by the user.
 
-For comparison: The Top Ten of similar apps from the Google Play Store , die im Google Play Store requires an average of 11,7 permissions (in December 2016). These are for instance the location permission or the permissions to access, modify or delete storage.
+For comparison: The Top Ten of similar apps from the Google Play Store require an average of 11,7 permissions (in December 2016). These are for instance the location permission or the permissions to access, modify or delete storage.
 
 2. No advertisement
 Moreover, Privacy Friendly Notes distinguishes from many other applications in the way that it completely relinquishes advertisements. Advertisement might track a user's actions. It could also shorten battery life or use mobile data.
