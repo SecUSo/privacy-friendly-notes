@@ -75,8 +75,8 @@
     <string name="about_version_number">גירסה</string>
     <string name="slide2_text">נכון לעכשיו האפליקציה תומכת בארבעה סוגים של הערות: טקסט, רשימת תיוג, אודיו, סקיצה.</string>
     <string name="slide3_heading">יתרונות</string>
-    <string name="okay">אוקיי</string>
-    <string name="viewhelp">הצג עזרה</string>
+    <string name="okay">בסדר</string>
+    <string name="viewhelp">הצגת עזרה</string>
     <string name="main_floating_button">כפתור צף</string>
     <string name="next">הבא</string>
     <string name="settings_appearance_heading">מראה</string>
@@ -106,7 +106,7 @@
     <string name="toast_canceled">בוטל ללא שמירה</string>
     <string name="toast_alarm_scheduled">התראה מתוזמנת ל-%1s</string>
     <string name="tv_category">קטגוריה:</string>
-    <string name="skip">דלג</string>
+    <string name="skip">דילוג</string>
     <string name="help_intro">ברוכים הבאים לדף העזרה. אפליקציה זו מאפשרת לך לרשום ולנהל הערות מבלי לפגוע בפרטיות שלך.</string>
     <string name="toast_deleted">הערה נמחקה</string>
     <string name="dialog_delete_category_with_notes">האם אתה בטוח שברצונך למחוק את %1s? כל ההערות בקטגוריה <b>יימחקו!</b></string>
@@ -143,10 +143,10 @@
     <string name="about_affiliation">בהשתייכות ל</string>
     <string name="about_privacy_friendly">אפליקציה זו שייכת לקבוצת אפליקציות ידידותיות לפרטיות שפותחה על ידי המכון הטכנולוגי של Karlsruhe (KIT). קוד מקור מורשה תחת GPLv3. זכויות יוצרים של תמונות KIT ו-Google Inc.</string>
     <string name="note_item_title">כותרת</string>
-    <string name="slide1_text">אפליקציה זו מאפשרת לך ליצור ולנהל הערות.</string>
-    <string name="slide2_heading">אלמנטים מרכזיים</string>
+    <string name="slide1_text">יישומון זה מאפשר לך ליצור ולנהל הערות.</string>
+    <string name="slide2_heading">רכיבים מרכזיים</string>
     <string name="note_item_description">תיאור</string>
-    <string name="slide1_heading">ברוכים הבאים!</string>
+    <string name="slide1_heading">ברוך בואך!</string>
     <string name="settings_color_category_always_background_desc">אם מופעלת, הרקע תמיד נצבע בצבע הקטגוריה, ללא קשר לערכת הנושא שנבחרה.</string>
     <string name="settings_color_category_always_background_title">צבע רקע תמיד</string>
     <string name="settings_import_text_title_file_first_line_desc">אם מופעל, הכותרת של הערת הטקסט המיובאת תהיה כל השורה הראשונה של הטקסט המיובא. אחרת ייבחר שם הקובץ המיובא.</string>
