@@ -1,0 +1,28 @@
+O Privacy Friendly Notes te permite criar e gerenciar notas em dispositivos Android. Ele pertence aos Privacy Friendly Apps desenvolvidos pelo grupo de pesquisa SECUSO no Instituto Karlsruhe de Tecnologia. Mais informações podem ser encontradas em secuso.org/pfa
+
+Os seguintes quatro tipos de notas estão disponíveis:
+1. Notas de texto simples
+2. Listas de tarefas
+3. Notas de áudio
+4. Notas de esboço
+
+Além disso, as notas podem agrupadas em categorias, lembretes podem ser definidos às notas, e as notas podem ser exportadas para o armazenamento do dispositivo.
+
+Como o Privacy Friendly Notes se diferencia de outros apps parecidos?
+
+1. Permissões mínimas
+A permissão "RECORD_AUDIO" (categoria "Mikrofon") é necessária para gravar notas de áudio. Caso a permissão não for autorizada pelo usuário (em versões posteriores ao Android 6) não será possível gravar notas de áudio.
+
+"WRITE_EXTERNAL_STORAGE" (categoria "Speicher") é usada para exportar notas para o armazenamento do dispositivo. Caso a permissão não for autorizada pelo usuário (em versões posteriores ao Android 6) não será possível exportar notas.
+
+Junto com as permissões acima, a permissão "RECEIVE_BOOT_COMPLETED" (categoria "Normal/não-crítico") é necessária para agendar notificações novamente após um reinício. Essa permissão não pode ser modificada pelo usuário.
+
+Para comparação: o Top 10 apps similares na Google Play Store, requer uma média de 11,7 permissões (em dezembro de 2016). Essas são por exemplo, a permissão de localização ou permissões para acessar, modificar, ou apagar armazenamento.
+
+2. Sem propaganda
+Além disso, o Privacy Friendly Notes se diferencia de muitos outros aplicativos pois completamente desaprova de anúncios. A publicidade pode rastrear as ações de usuário. Também pode diminuir o tempo de uso da bateria ou usar os dados móveis.
+
+Você pode entrar em contato conosco via
+Bluesky - @secusoresearch.bsky.social https://bsky.app/profile/secusoresearch.bsky.social
+Mastodon - @SECUSO_Research@bawü.social https://xn--baw-joa.social/@SECUSO_Research/
+Empregos - https://secuso.aifb.kit.edu/english/Job_Offers.php
