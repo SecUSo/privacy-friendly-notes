@@ -126,17 +126,17 @@
     <string name="note_item_title">Title</string>
     <string name="note_item_description">Description</string>
     <!-- ### TUTORIAL DIALOG ### -->
-    <string name="slide1_heading">Bienvenue!</string>
+    <string name="slide1_heading">Welcome!</string>
     <string name="slide1_text">This app lets you create and manage notes.</string>
     <string name="slide2_heading">Key Elements</string>
     <string name="slide2_text">Currently it supports four types of notes: Text, Checklist, Audio, Sketch. </string>
     <string name="slide3_heading">Advantages</string>
     <string name="slide3_text">Most apps for note taking need a lot of permissions and synchronize over the internet. Consequently they use some company service, that you have to trust. While this is a convenient feature, it weakens your privacy.Privacy Friendly Apps are group of Android applications which are optimized regarding privacy.</string>
-    <string name="okay">Ok</string>
-    <string name="viewhelp">Voir l\'aide</string>
+    <string name="okay">Okay</string>
+    <string name="viewhelp">View Help</string>
     <string name="main_floating_button">Floating Button</string>
-    <string name="next">Suivant</string>
-    <string name="skip">Passer</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
     <string name="settings_appearance_heading">Appearance</string>
     <string name="settings_settings_show_preview_title">Show note previews</string>
     <string name="settings_settings_settings_show_preview_sum">Display a short preview of notes in the overview</string>
