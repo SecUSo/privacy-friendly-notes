@@ -77,8 +77,8 @@
     <string name="note_item_title">Заголовок</string>
     <string name="note_item_description">Описание</string>
     <string name="slide2_heading">Ключевые элементы</string>
-    <string name="okay">Ладно</string>
-    <string name="viewhelp">Смотреть Справку</string>
+    <string name="okay">Хорошо</string>
+    <string name="viewhelp">Просмотр справки</string>
     <string name="main_floating_button">Плавающая кнопка</string>
     <string name="settings_appearance_heading">Внешний вид</string>
     <string name="text_note_fab_menu_desc">Форматирование</string>
