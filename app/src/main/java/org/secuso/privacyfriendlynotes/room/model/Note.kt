@@ -13,7 +13,6 @@
  */
 package org.secuso.privacyfriendlynotes.room.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Calendar
@@ -31,7 +30,7 @@ data class Note(
     var type: Int,
     var category: Int,
     var in_trash: Int = 0,
-    var last_modified: String,
+    var last_modified: Long,
     var custom_order: Int
 ) {
 
@@ -42,7 +41,7 @@ data class Note(
         category = category,
         in_trash = 0,
         _id = 0,
-        last_modified = Calendar.getInstance().time.toString(),
+        last_modified = Calendar.getInstance().timeInMillis,
         custom_order = 0
     )
 
@@ -53,7 +52,7 @@ data class Note(
         category = category,
         in_trash = 0,
         _id = 0,
-        last_modified = Calendar.getInstance().time.toString(),
+        last_modified = Calendar.getInstance().timeInMillis,
         custom_order = custom_order
     )
 }
