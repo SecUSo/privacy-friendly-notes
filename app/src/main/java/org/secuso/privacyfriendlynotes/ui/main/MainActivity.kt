@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -48,7 +49,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 import org.secuso.privacyfriendlynotes.room.DbContract
@@ -67,6 +71,8 @@ import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.Collections
 
 
@@ -95,6 +101,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mainActivityViewModel.setCategory(data.getIntExtra(BaseNoteActivity.EXTRA_CATEGORY, CAT_ALL))
         }
         fab.close()
+    }
+
+    private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val fileOutputStream = contentResolver.openOutputStream(uri)
+                if (fileOutputStream == null) {
+                    return@registerForActivityResult
+                }
+                Toast.makeText(
+                    applicationContext,
+                    String.format(getString(R.string.toast_file_export_all_start)),
+                    Toast.LENGTH_LONG
+                ).show()
+                CoroutineScope(Dispatchers.IO).launch {
+                    mainActivityViewModel.zipAllNotes(adapter.notes, fileOutputStream)
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            String.format(getString(R.string.toast_file_exported_to), uri.toString()),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -294,6 +326,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 updateList(searchView.query.toString())
             }
             dialog.chooseSortingOption()
+        } else if (id == R.id.action_export_all) {
+            exportAllNotes()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -371,6 +405,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         note.in_trash = 1
         Toast.makeText(this@MainActivity, getString(R.string.toast_deleted), Toast.LENGTH_SHORT).show()
         mainActivityViewModel.update(note)
+    }
+
+    private fun exportAllNotes() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+
+        intent.putExtra(Intent.EXTRA_TITLE, "notes_export.zip")
+        intent.type = "application/zip"
+        saveToExternalStorageResultLauncher.launch(intent)
     }
 
     companion object {

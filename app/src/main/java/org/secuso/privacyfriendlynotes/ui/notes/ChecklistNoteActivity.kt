@@ -158,7 +158,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun getMimeType() = "text/plain"
 
-    override fun getFileExtension() = ".txt"
+    override fun getFileExtension() = ChecklistNoteActivity.getFileExtension()
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
         val out = PrintWriter(outputStream)
@@ -173,5 +173,9 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     private fun addItem() {
         adapter.addItem(etNewItem.text.toString())
         etNewItem.setText("")
+    }
+
+    companion object {
+        fun getFileExtension() = ".txt"
     }
 }

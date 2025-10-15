@@ -267,7 +267,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
     }
 
-    override fun getFileExtension() = ".aac"
+    override fun getFileExtension() = AudioNoteActivity.getFileExtension()
     override fun getMimeType() = "audio/mp4a-latm"
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
@@ -282,5 +282,9 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
                 }
             }
         }
+    }
+
+    companion object {
+        fun getFileExtension() = ".aac"
     }
 }

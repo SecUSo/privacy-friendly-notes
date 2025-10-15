@@ -469,7 +469,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     override fun getMimeType() = "text/plain"
 
-    override fun getFileExtension() = ".txt"
+    override fun getFileExtension() = TextNoteActivity.getFileExtension()
 
     private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -494,5 +494,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         val out = PrintWriter(outputStream)
         out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
         out.close()
+    }
+
+    companion object {
+        fun getFileExtension() = ".txt"
     }
 }

@@ -62,6 +62,7 @@
     <string name="toast_need_permission_write_external">Berichtigung um externen Speicher zu schreiben wird für diese Funktion benötigt</string>
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
+    <string name="toast_file_export_all_start">Export läuft...</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Nur ein Punkt kann gleichzeitig verändert werden.</string>
     <string name="action_bold">F</string>
@@ -72,6 +73,7 @@
     <string name="action_share">Teilen</string>
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
+    <string name="action_export_all">Alle Notizen exportieren</string>
     <string name="action_export_html">Als HTML exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>

@@ -42,6 +42,7 @@
     <string name="action_italics">I</string>
     <string name="action_underline"><u>U</u></string>
     <string name="action_export">Export</string>
+    <string name="action_export_all">Export all notes</string>
     <string name="action_export_html">Export as HTML</string>
     <string name="action_category">Category</string>
     <string name="action_sketch_undo">Undo</string>
@@ -60,6 +61,7 @@
     <string name="toast_need_permission_write_external">Permission to write to external storage is needed for this feature</string>
     <string name="toast_external_storage_not_mounted">Error: Cannot write to external storage</string>
     <string name="toast_file_exported_to">Exported note to %1s</string>
+    <string name="toast_file_export_all_start">Export of all notes started</string>
     <string name="toast_emptyNote">Empty note cannot be saved</string>
     <string name="toast_checklist_oneItem">Only one item can be modified.</string>
     <string name="toast_open_file_too_large">The opened file is too large.</string>

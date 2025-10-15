@@ -298,7 +298,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         return false
     }
 
-    override fun getFileExtension() = ".jpeg"
+    override fun getFileExtension() = SketchActivity.getFileExtension()
     override fun getMimeType() = "image/jpeg"
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
@@ -315,6 +315,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     companion object {
+        fun getFileExtension() = ".jpeg"
+
         private const val TAG = "SketchActivity"
         private const val COLOR_DIALOG_TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
 
