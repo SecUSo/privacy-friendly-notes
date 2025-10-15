@@ -24,6 +24,7 @@ import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.view.ContextThemeWrapper
@@ -96,6 +97,8 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         isUnderline.observe(this) { b: Boolean ->
             underlineBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
+
+        etContent.movementMethod = LinkMovementMethod.getInstance()
         super.onCreate(savedInstanceState)
     }
 
