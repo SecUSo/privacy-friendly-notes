@@ -62,6 +62,8 @@
     <string name="toast_file_exported_to">Exported note to %1s</string>
     <string name="toast_emptyNote">Empty note cannot be saved</string>
     <string name="toast_checklist_oneItem">Only one item can be modified.</string>
+    <string name="toast_open_file_too_large">The opened file is too large.</string>
+    <string name="toast_open_file_too_many_characters">The file has too many characters. Only loading until limit reached.</string>
     <string name="toast_deleted">Note deleted</string>
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
@@ -169,4 +171,22 @@
     <string name="settings_import_text_title_file_first_line_desc">If enabled, the title of the imported text note will be the whole first line of the imported text. Otherwise the name of the imported file will be selected.</string>
     <string name="settings_color_category_always_background_title">Always color background</string>
     <string name="settings_color_category_always_background_desc">If enabled, the background is always colored in the color of the category, regardless of the selected theme.</string>
+    <string-array name="array_import_text_file_size_limit">
+        <item>1 KB</item>
+        <item>10 KB</item>
+        <item>100 KB</item>
+        <item>1 MB</item>
+        <item>10 MB</item>
+        <item>Unlimited</item>
+    </string-array>
+    <string-array name="array_import_text_file_char_limit">
+        <item>Low</item>
+        <item>Normal</item>
+        <item>Medium</item>
+        <item>High</item>
+        <item>Unlimited</item>
+    </string-array>
+    <string name="settings_text_note_heading">Text Note</string>
+    <string name="select_import_text_file_char_limit">Character limit for imported text notes</string>
+    <string name="select_import_text_file_size_limit">File Size limit for imported text notes</string>
 </resources>

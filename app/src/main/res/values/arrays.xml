@@ -64,4 +64,21 @@
         <!--        <item>Alphabetical Descending</item>-->
     </integer-array>
 
+    <string-array name="array_import_text_file_size_limit_values">
+        <item>1000</item>
+        <item>10000</item>
+        <item>100000</item>
+        <item>1000000</item>
+        <item>10000000</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="array_import_text_file_char_limit_values">
+        <item>1000</item>
+        <item>10000</item>
+        <item>100000</item>
+        <item>1000000</item>
+        <item>-1</item>
+    </string-array>
+
 </resources>
