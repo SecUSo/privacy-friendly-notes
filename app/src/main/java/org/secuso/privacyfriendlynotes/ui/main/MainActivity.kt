@@ -207,6 +207,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val note = adapter.getNoteAt(viewHolder.adapterPosition)
+
+                // Do not delete the note if it is readonly
+                if (note.readonly > 0) {
+                    adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                    return
+                }
+
                 if (PreferenceManager.getDefaultSharedPreferences(this@MainActivity).getBoolean("settings_dialog_on_trashing", false)) {
                     MaterialAlertDialogBuilder(ContextThemeWrapper(this@MainActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
                         .setTitle(String.format(getString(R.string.dialog_delete_title), note.name))
