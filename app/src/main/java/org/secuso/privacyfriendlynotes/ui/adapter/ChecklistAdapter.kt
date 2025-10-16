@@ -34,6 +34,7 @@ import java.util.Collections
  * @author Patrick Schneider
  */
 class ChecklistAdapter(
+    var isEnabled: Boolean,
     private val startDrag: (ItemHolder) -> Unit,
 ) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
 
@@ -105,6 +106,10 @@ class ChecklistAdapter(
             }
             textSize = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.PREF_CUSTOM_FONT_SIZE, "15")!!.toFloat()
         }
+
+        holder.textView.isEnabled = isEnabled
+        holder.checkbox.isEnabled = isEnabled
+        holder.dragHandle.isEnabled = isEnabled
     }
 
     override fun getItemCount(): Int {
