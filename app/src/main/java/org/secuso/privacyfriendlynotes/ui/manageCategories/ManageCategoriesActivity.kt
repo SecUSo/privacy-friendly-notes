@@ -62,6 +62,9 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
             displayColorDialog(bundle)
         }
         adapter.updateCategory = { manageCategoriesViewModel.update(it) }
+        adapter.displayChangeNameDialog = { category, categoryHolder ->
+            displayChangeNameDialog(category)
+        }
         this.recyclerList.adapter = adapter
 
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -162,6 +165,26 @@ class ManageCategoriesActivity : AppCompatActivity(), OnDialogResultListener {
             .neg(android.R.string.cancel)
             .extra(bundle)
             .show(this, TAG_COLORDIALOG)
+    }
+
+    private fun displayChangeNameDialog(category: Category) {
+        val view = layoutInflater.inflate(R.layout.dialog_create_category, null)
+        val name = view.findViewById<EditText>(R.id.etName)
+        view.findViewById<MaterialButton>(R.id.btn_color_selector).visibility = View.GONE
+        view.findViewById<View>(R.id.color_menu).visibility = View.GONE
+
+        MaterialAlertDialogBuilder(ContextThemeWrapper(this@ManageCategoriesActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+            .setView(view)
+            .setTitle(R.string.dialog_change_category_name_title)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                if (name.text.isNotEmpty()) {
+                    if (manageCategoriesViewModel.allCategories.value.count { it.name == category.name } == 0) {
+                        manageCategoriesViewModel.update(category)
+                    }
+                }
+            }
+            .setOnDismissListener { }
+            .show()
     }
 
     override fun onResult(dialogTag: String, which: Int, extras: Bundle): Boolean {

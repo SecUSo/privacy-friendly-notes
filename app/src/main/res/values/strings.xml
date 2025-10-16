@@ -90,6 +90,7 @@
     <string name="dialog_welcome_text">With this app you can create and share notes in the form of text, checklists, memos and sketches.</string>
     <string name="dialog_ok" translatable="false">OKAY</string>
     <string name="dialog_create_category_title">Create category</string>
+    <string name="dialog_change_category_name_title">Change category name</string>
     <string name="dialog_create_category_btn">Create</string>
     <string name="category_fab_desc">Create category</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Enable notifications</string>
