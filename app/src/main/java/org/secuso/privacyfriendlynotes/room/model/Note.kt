@@ -13,7 +13,6 @@
  */
 package org.secuso.privacyfriendlynotes.room.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Calendar
@@ -31,8 +30,9 @@ data class Note(
     var type: Int,
     var category: Int,
     var in_trash: Int = 0,
-    var last_modified: String,
-    var custom_order: Int
+    var last_modified: Long,
+    var custom_order: Int,
+    var readonly: Int
 ) {
 
     constructor(name: String, content: String, type: Int, category: Int) : this(
@@ -42,18 +42,20 @@ data class Note(
         category = category,
         in_trash = 0,
         _id = 0,
-        last_modified = Calendar.getInstance().time.toString(),
-        custom_order = 0
+        last_modified = Calendar.getInstance().timeInMillis,
+        custom_order = 0,
+        readonly = 0
     )
 
-    constructor(name: String, content: String, type: Int, category: Int, custom_order: Int) : this(
+    constructor(name: String, content: String, type: Int, category: Int, custom_order: Int, readonly: Int) : this(
         name = name,
         content = content,
         type = type,
         category = category,
         in_trash = 0,
         _id = 0,
-        last_modified = Calendar.getInstance().time.toString(),
-        custom_order = custom_order
+        last_modified = Calendar.getInstance().timeInMillis,
+        custom_order = custom_order,
+        readonly = readonly
     )
 }

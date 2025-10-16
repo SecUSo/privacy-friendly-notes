@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.notes
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -23,10 +24,14 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -46,9 +51,22 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     private val checklist: RecyclerView by lazy { findViewById(R.id.itemList) }
     private lateinit var adapter: ChecklistAdapter
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_checklist_note)
         findViewById<View>(R.id.btn_add).setOnClickListener(this)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isLocked.collect {
+                    btnAdd.isEnabled = !it
+                    etNewItem.isEnabled = !it
+                    adapter.isEnabled = !it
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+
         super.onCreate(savedInstanceState)
     }
 
@@ -77,11 +95,15 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                adapter.removeItem(viewHolder.bindingAdapterPosition)
+                if (!isLocked.value) {
+                    adapter.removeItem(viewHolder.bindingAdapterPosition)
+                } else {
+                    adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                }
             }
         }
         val ith = ItemTouchHelper(itemTouchCallback)
-        adapter = ChecklistAdapter(startDrag = { ith.startDrag(it) })
+        adapter = ChecklistAdapter(isEnabled = !isLocked.value, startDrag = { ith.startDrag(it) })
         checklist.adapter = adapter
         checklist.layoutManager = LinearLayoutManager(this)
         btnAdd.setOnClickListener {
@@ -116,6 +138,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
             }
+            R.id.action_select_all -> adapter.selectAll()
+            R.id.action_deselect_all -> adapter.deselectAll()
 
             else -> {}
         }
@@ -158,7 +182,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun getMimeType() = "text/plain"
 
-    override fun getFileExtension() = ".txt"
+    override fun getFileExtension() = ChecklistNoteActivity.getFileExtension()
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
         val out = PrintWriter(outputStream)
@@ -173,5 +197,9 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
     private fun addItem() {
         adapter.addItem(etNewItem.text.toString())
         etNewItem.setText("")
+    }
+
+    companion object {
+        fun getFileExtension() = ".txt"
     }
 }

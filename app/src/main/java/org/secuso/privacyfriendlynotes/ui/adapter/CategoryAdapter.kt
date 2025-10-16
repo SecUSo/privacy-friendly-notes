@@ -15,6 +15,7 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.graphics.Color
 import android.preference.PreferenceManager
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.model.Category
 
@@ -32,6 +34,7 @@ import org.secuso.privacyfriendlynotes.room.model.Category
 class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.CategoryHolder>() {
 
     var displayColorDialog: ((Category, CategoryHolder) -> Unit)? = null
+    var displayChangeNameDialog: ((Category, CategoryHolder) -> Unit)? = null
     var updateCategory: ((Category) -> Unit)? = null
 
     var categories: List<Category> = ArrayList()
@@ -62,6 +65,11 @@ class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.CategoryHolder>() {
             }
         } else {
             holder.colorSelectorWrapper.visibility = View.GONE
+        }
+        holder.itemView.isLongClickable = true
+        holder.itemView.setOnLongClickListener {
+            displayChangeNameDialog?.invoke(categories[position], holder)
+            return@setOnLongClickListener true
         }
     }
 

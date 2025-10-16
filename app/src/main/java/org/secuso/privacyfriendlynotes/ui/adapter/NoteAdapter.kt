@@ -151,6 +151,7 @@ class NoteAdapter(
         if (holder.textViewDescription.text.toString().isEmpty()) {
             holder.textViewDescription.visibility = View.GONE
         }
+        holder.imageLock.visibility = if (currentNote.readonly > 0) View.VISIBLE else View.GONE
         holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
     }
 
@@ -172,6 +173,8 @@ class NoteAdapter(
         val viewNoteItem: View
         val dragHandle: View
 
+        val imageLock: ImageView
+
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
             textViewDescription = itemView.findViewById(R.id.text_view_description)
@@ -179,6 +182,7 @@ class NoteAdapter(
             textViewExtraText = itemView.findViewById(R.id.note_text_extra)
             viewNoteItem = itemView.findViewById(R.id.note_item)
             dragHandle = itemView.findViewById(R.id.drag_handle)
+            imageLock = itemView.findViewById(R.id.imageView_lock)
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {

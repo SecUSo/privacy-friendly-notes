@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.room;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -25,6 +26,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.secuso.privacyfriendlynotes.room.dao.CategoryDao;
@@ -35,6 +37,12 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
@@ -46,8 +54,69 @@ import java.io.File;
 )
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 5;
+    public static final int VERSION = 7;
     public static final String DATABASE_NAME = "allthenotes";
+
+    static final Migration MIGRATION_6_7 = new Migration(6,7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE notes ADD COLUMN readonly INTEGER NOT NULL DEFAULT 0;");
+        }
+    };
+    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(
+                    "CREATE TABLE notes_new (_id INTEGER NOT NULL DEFAULT 0,"
+                            + "in_trash INTEGER NOT NULL DEFAULT 0,"
+                            + "name TEXT NOT NULL DEFAULT 'TEXT',"
+                            + "type INTEGER NOT NULL DEFAULT 0,"
+                            + "category INTEGER NOT NULL DEFAULT 0,"
+                            + "content TEXT NOT NULL DEFAULT 'TEXT',"
+                            + "last_modified INTEGER NOT NULL DEFAULT(unixepoch('subsec') * 1000),"
+                            + "custom_order INTEGER NOT NULL DEFAULT 0,"
+                            + "PRIMARY KEY(_id));");
+            try (Cursor cursor = database.query(new SimpleSQLiteQuery("SELECT * FROM notes;"))) {
+                while (cursor.moveToNext()) {
+                    @SuppressLint("Range") String lastModified = cursor.getString(cursor.getColumnIndex("last_modified"));
+                    long lastModifiedMillis = Date.parse(lastModified);
+                    @SuppressLint("Range") int _id = cursor.getInt(cursor.getColumnIndex("_id"));
+                    @SuppressLint("Range") int in_trash = cursor.getInt(cursor.getColumnIndex("in_trash"));
+                    @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("name"));
+                    @SuppressLint("Range") int type = cursor.getInt(cursor.getColumnIndex("type"));
+                    @SuppressLint("Range") int category = cursor.getInt(cursor.getColumnIndex("category"));
+                    @SuppressLint("Range") String content = cursor.getString(cursor.getColumnIndex("content"));
+                    @SuppressLint("Range") int custom_order = cursor.getInt(cursor.getColumnIndex("custom_order"));
+                    String value = String.format("(%s,%s,'%s',%s,%s,'%s',%s,%s)", _id, in_trash, name, type, category, content, lastModifiedMillis, custom_order);
+                    database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content,last_modified,custom_order) VALUES" + value + ";");
+                }
+            }
+            database.execSQL("DROP TABLE notes;");
+            database.execSQL("ALTER TABLE notes_new RENAME TO notes;");
+
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateLastModified] AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.last_modified = OLD.last_modified AND NEW.custom_order = OLD.custom_order AND NEW.in_trash = OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET last_modified = DateTime('now') WHERE _id=NEW._id; " +
+                            "END;"
+            );
+            database.execSQL(
+                    "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                            "END;"
+            );
+            // This trigger ensures that a custom_order cannot be updated to an invalid value <= 0 and defers to the old value or the id to ensure valid custom_orders.
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateCustomOrder] AFTER UPDATE OF custom_order ON notes FOR EACH ROW " +
+                            "WHEN NEW.custom_order <= 0 " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = (CASE WHEN OLD.custom_order <= 0 THEN OLD._id ELSE OLD.custom_order END) WHERE _id=NEW._id; " +
+                            "END;"
+            );
+        }
+    };
     static final Migration MIGRATION_4_5 = new Migration(4, 5) {
 
         @Override
@@ -232,7 +301,9 @@ public abstract class NoteDatabase extends RoomDatabase {
             MIGRATION_1_3,
             MIGRATION_2_3,
             MIGRATION_3_4,
-            MIGRATION_4_5
+            MIGRATION_4_5,
+            MIGRATION_5_6,
+            MIGRATION_6_7,
     };
     private static final RoomDatabase.Callback roomCallback = new RoomDatabase.Callback() {
         @Override

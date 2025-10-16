@@ -13,6 +13,13 @@
         android:orderInCategory="50"
         android:title="@string/action_save"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_lock"
+        android:icon="@drawable/lock_outline"
+        android:orderInCategory="25"
+        android:title="@string/action_lock"
+        app:showAsAction="ifRoom"
+        />
     <group>
         <item
             android:id="@+id/action_cancel"

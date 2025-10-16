@@ -22,12 +22,33 @@
             android:title="@string/settings_sketch_undo_redo_title"
             android:summary="@string/settings_sketch_undo_redo_desc"
             app:iconSpaceReserved="false" />
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory android:title="@string/settings_text_note_heading"
+        app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat
             android:key="settings_import_text_title_file_first_line"
             android:defaultValue="false"
             android:title="@string/settings_import_text_title_file_first_line_title"
             android:summary="@string/settings_import_text_title_file_first_line_desc"
             app:iconSpaceReserved="false" />
+        <androidx.preference.ListPreference
+            android:key="settings_import_text_file_size_limit"
+            android:title="@string/select_import_text_file_size_limit"
+            android:summary="%s"
+            android:defaultValue="10000"
+            android:entries="@array/array_import_text_file_size_limit"
+            android:entryValues="@array/array_import_text_file_size_limit_values"
+            app:iconSpaceReserved="false"
+            />
+        <androidx.preference.ListPreference
+            android:key="settings_import_text_file_char_limit"
+            android:title="@string/select_import_text_file_char_limit"
+            android:summary="%s"
+            android:defaultValue="1000"
+            android:entries="@array/array_import_text_file_char_limit"
+            android:entryValues="@array/array_import_text_file_char_limit_values"
+            app:iconSpaceReserved="false"
+            />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory android:title="@string/settings_appearance_heading"
         app:iconSpaceReserved="false">
