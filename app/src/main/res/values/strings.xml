@@ -33,6 +33,8 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_delete_all">Delete all</string>
+    <string name="action_deselect_all">Deselect all</string>
+    <string name="action_select_all">Select all</string>
     <string name="action_save">Save</string>
     <string name="action_lock">Lock</string>
     <string name="action_unlock">Unlock</string>

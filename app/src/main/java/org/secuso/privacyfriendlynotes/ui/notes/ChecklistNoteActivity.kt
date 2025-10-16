@@ -138,6 +138,8 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
             }
+            R.id.action_select_all -> adapter.selectAll()
+            R.id.action_deselect_all -> adapter.deselectAll()
 
             else -> {}
         }

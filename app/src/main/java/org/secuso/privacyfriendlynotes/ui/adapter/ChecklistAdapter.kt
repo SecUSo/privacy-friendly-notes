@@ -57,6 +57,18 @@ class ChecklistAdapter(
         hasChanged = true
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun selectAll() {
+        items.forEach { it.state = true }
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun deselectAll() {
+        items.forEach { it.state = false }
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_checklist, parent, false)
