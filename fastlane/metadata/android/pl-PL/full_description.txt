@@ -1,0 +1,29 @@
+Notes (Privacy Friendly) umożliwia robienie i zarządzanie notatkami na urządzeniach z systemem Android. Należy do grupy Privacy Friendly Apps opracowanej przez grupę badawczą SECUSO w Karlsruhe Institute of Technology. Więcej informacji można znaleźć na secuso.org/pfa
+
+Dostępne są następujące cztery typy notatek:
+1. Proste notatki tekstowe
+2. Notatki w formie listy kontrolnej
+3. Notatki audio
+4. Notatki szkicowe
+
+Ponadto notatki można grupować w kategorie, przypomnienia można przypisywać do notatek, a notatki można eksportować do pamięci urządzenia.
+
+Jak Notes (Privacy Friendly) wypada w porównaniu z innymi podobnymi aplikacjami?
+
+1. Minimalne uprawnienia
+Uprawnienie „RECORD_AUDIO” (kategoria „Mikrofon”) jest wymagane do nagrywania notatek audio. W przypadku, gdy użytkownik nie udzieli tego uprawnienia (w wersjach Androida wyższych niż 6), nagrywanie notatek audio nie będzie możliwe.
+
+„WRITE_EXTERNAL_STORAGE” (kategoria „Speicher”) służy do eksportowania notatek do pamięci urządzenia. W przypadku, gdy użytkownik nie udzieli tego uprawnienia (w wersjach Androida wyższych niż 6), eksport notatek nie będzie możliwy.
+
+Oprócz uprawnień wymienionych powyżej, uprawnienie „RECEIVE_BOOT_COMPLETED” (kategoria „Normalne/niekrytyczne”) jest wymagane do ponownego zaplanowania powiadomień po ponownym uruchomieniu. Uprawnienie to nie może być modyfikowane przez użytkownika.
+
+Dla porównania: Dziesięć najlepszych podobnych aplikacji ze sklepu Google Play, die im Google Play Store wymaga średnio 11,7 uprawnień (w grudniu 2016 r.). Są to na przykład uprawnienia do lokalizacji lub uprawnienia do dostępu, modyfikacji lub usuwania pamięci.
+
+2. Brak reklam
+Co więcej, Notes (Privacy Friendly) wyróżnia się spośród wielu innych aplikacji tym, że całkowicie rezygnuje z reklam. Reklamy mogą śledzić działania użytkownika. Mogą również skrócić żywotność baterii lub wykorzystać dane mobilne.
+
+Możesz się z nami skontaktować przez
+Bluesky - @secusoresearch.bsky.social https://bsky.app/profile/secusoresearch.bsky.social
+Mastodon - @SECUSO_Research@bawü.social https://xn--baw-joa.social/@SECUSO_Research/
+Oferta pracy - https://secuso.aifb.kit.edu/english/Job_Offers.php
+Polska wersja: tomix86
