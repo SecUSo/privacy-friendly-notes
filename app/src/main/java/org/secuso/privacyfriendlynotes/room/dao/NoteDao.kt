@@ -45,6 +45,9 @@ interface NoteDao {
     @get:Query("SELECT * FROM notes WHERE in_trash = 1 ORDER BY category DESC")
     val allTrashedNotes: Flow<List<Note>>
 
+    @get:Query("SELECT * FROM notes WHERE in_trash = 0 ORDER BY category DESC")
+    val allActiveNotesSyncFilter: List<Note>
+
     @Query("SELECT * FROM notes")
     fun getNotesDebug(): List<Note>
 

@@ -7,4 +7,14 @@
         android:title="@string/action_convert_to_text"
         android:icon="@drawable/ic_short_text_icon_24dp"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_deselect_all"
+        android:orderInCategory="100"
+        android:title="@string/action_deselect_all"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_select_all"
+        android:orderInCategory="80"
+        android:title="@string/action_select_all"
+        app:showAsAction="never"/>
 </menu>

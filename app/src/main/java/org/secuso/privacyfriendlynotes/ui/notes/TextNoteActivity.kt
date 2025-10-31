@@ -20,11 +20,11 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.view.ContextThemeWrapper
@@ -34,10 +34,14 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -63,6 +67,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     private var hasChanged = false
     private var oldText: String? = null
+
+    private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
+    private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
@@ -94,6 +101,16 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         isUnderline.observe(this) { b: Boolean ->
             underlineBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isLocked.collect {
+                    etContent.isEnabled = !it
+                }
+            }
+        }
+
+        etContent.movementMethod = LinkMovementMethod.getInstance()
         super.onCreate(savedInstanceState)
     }
 
@@ -143,12 +160,39 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         if (intent != null) {
             val uri: Uri? = listOf(intent.data, intent.getParcelableExtra(Intent.EXTRA_STREAM)).firstNotNullOfOrNull { it }
             if (uri != null) {
-                val (title: String, text) = InputStreamReader(contentResolver.openInputStream(uri)).readLines().let {
-                    if (it.size > 1 &&
-                        PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
-                        it[0] to it.subList(1, it.size)
+
+                contentResolver.openAssetFileDescriptor(uri, "r")?.use {
+                    if (it.length > fileSizeLimit && fileSizeLimit > 0) {
+                        Toast.makeText(applicationContext, R.string.toast_open_file_too_large, Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                }
+
+                lateinit var title: String
+                val text: MutableList<String> = mutableListOf()
+                InputStreamReader(contentResolver.openInputStream(uri)).useLines {
+                    val lines = it.iterator()
+                    var characterRead = 0L;
+                    val firstLine = if (lines.hasNext()) lines.next() else null
+                    if (firstLine != null && PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getBoolean("settings_import_text_title_file_first_line", false)) {
+                        title = firstLine
                     } else {
-                        (uri.path?.let { file -> File(file).nameWithoutExtension } ?: "") to it
+                        title = uri.path?.let { file -> File(file).nameWithoutExtension } ?: ""
+                        if (firstLine != null) {
+                            text += firstLine
+                            characterRead += firstLine.length
+                        }
+                    }
+
+                    // Limit max size of shared file to avoid unnecessary slow-down
+                    // This should hopefully only apply to binary files as clear text files are normally smaller
+                    for (line in lines.iterator()) {
+                        if (characterRead > fileCharLimit && fileCharLimit > 0) {
+                            Toast.makeText(applicationContext, R.string.toast_open_file_too_many_characters, Toast.LENGTH_SHORT).show()
+                            break
+                        }
+                        text += line
+                        characterRead += line.length
                     }
                 }
                 super.setTitle(Html.fromHtml(title).toString())
@@ -440,7 +484,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     override fun getMimeType() = "text/plain"
 
-    override fun getFileExtension() = ".txt"
+    override fun getFileExtension() = TextNoteActivity.getFileExtension()
 
     private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -465,5 +509,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         val out = PrintWriter(outputStream)
         out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
         out.close()
+    }
+
+    companion object {
+        fun getFileExtension() = ".txt"
     }
 }

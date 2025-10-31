@@ -34,6 +34,10 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
@@ -81,6 +85,16 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isLocked.collect {
+                    btnRecord.isEnabled = !it
+                    seekBar.isEnabled = !it
+                }
+            }
+        }
+
         super.onCreate(savedInstanceState)
     }
 
@@ -267,7 +281,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
     }
 
-    override fun getFileExtension() = ".aac"
+    override fun getFileExtension() = AudioNoteActivity.getFileExtension()
     override fun getMimeType() = "audio/mp4a-latm"
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
@@ -282,5 +296,9 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
                 }
             }
         }
+    }
+
+    companion object {
+        fun getFileExtension() = ".aac"
     }
 }

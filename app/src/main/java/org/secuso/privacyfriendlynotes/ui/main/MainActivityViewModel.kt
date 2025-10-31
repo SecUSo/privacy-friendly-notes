@@ -36,9 +36,19 @@ import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity
+import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
+import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
+import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.OutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 /**
  * The MainActivityViewModel provides the data for the MainActivity.
@@ -247,6 +257,37 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return ChecklistUtil.parse(note.content).map { (checked, name) ->
             val preview = if (name.length > 30) name.take(30) + "..." else name.take(33)
             return@map Pair(checked, "[${if (checked) "x" else "  "}] $preview")
+        }
+    }
+
+    fun zipAllNotes(notes: List<Note>, output: OutputStream) {
+        ZipOutputStream(output).use { zipOut ->
+            notes.forEach { note ->
+                val name = note.name.replace("/", "_")
+                lateinit var entry: String
+                lateinit var inputStream: InputStream
+                when(note.type) {
+                    DbContract.NoteEntry.TYPE_TEXT -> {
+                        entry = "text/" + name + "_" + System.currentTimeMillis() + "_" + TextNoteActivity.getFileExtension()
+                        inputStream = ByteArrayInputStream(note.content.toByteArray())
+                    }
+                    DbContract.NoteEntry.TYPE_CHECKLIST -> {
+                        entry = "checklist/" + name  + "_" + System.currentTimeMillis() + "_" + ChecklistNoteActivity.getFileExtension()
+                        inputStream = ByteArrayInputStream(note.content.toByteArray())
+                    }
+                    DbContract.NoteEntry.TYPE_AUDIO -> {
+                        entry = "audio/" + name + "_" + System.currentTimeMillis() + "_" + AudioNoteActivity.getFileExtension()
+                        inputStream = FileInputStream(File(filesDir.path + "/audio_notes" + note.content))
+                    }
+                    DbContract.NoteEntry.TYPE_SKETCH -> {
+                        entry ="sketch/" + name + "_" + System.currentTimeMillis() + "_" + SketchActivity.getFileExtension()
+                        inputStream = FileInputStream(File(filesDir.path + "/sketches" + note.content))
+                    }
+                }
+                zipOut.putNextEntry(ZipEntry(entry))
+                inputStream.copyTo(zipOut)
+                zipOut.closeEntry()
+            }
         }
     }
 

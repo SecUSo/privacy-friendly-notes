@@ -29,6 +29,7 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
@@ -47,12 +48,17 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.secuso.privacyfriendlynotes.R
@@ -109,6 +115,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private var hasChanged = false
     private var currentCat = 0
     private var id = -1
+    private val isLockedState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    protected val isLocked: StateFlow<Boolean> = isLockedState
+
+    private var lockedItem: MenuItem? = null
 
     private var notification: Notification? = null
     private var allCategories: List<Category>? = null
@@ -169,6 +179,19 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isLockedState.collect {
+                    lockedItem?.icon = AppCompatResources.getDrawable(this@BaseNoteActivity, if (it) R.drawable.lock_open_variant_outline else R.drawable.lock_outline)
+                    lockedItem?.title = getString(if (it) R.string.action_unlock else R.string.action_lock)
+
+                    etName.isEnabled = !isLocked.value
+                    catSelection.isEnabled = !isLocked.value
+
+                    hasChanged = true
+                }
+            }
+        }
 
         currentCat = intent.getIntExtra(EXTRA_CATEGORY, 0)
         savedCat = currentCat
@@ -198,6 +221,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.base_note, menu)
+
+        lockedItem = menu?.findItem(R.id.action_lock)
+        lockedItem?.icon = AppCompatResources.getDrawable(this@BaseNoteActivity, if (isLockedState.value) R.drawable.lock_open_variant_outline else R.drawable.lock_outline)
+        lockedItem?.title = getString(if (isLockedState.value) R.string.action_unlock else R.string.action_lock)
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -241,6 +269,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             ) { note ->
                 if (note != null) {
                     etName.setText(note.name)
+                    isLockedState.value = note.readonly > 0
 
                     //find the current category and set spinner to that
                     currentCat = note.category
@@ -352,6 +381,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
                 saveToExternalStorage()
                 return true
+            }
+
+            R.id.action_lock -> {
+                isLockedState.value = !isLockedState.value
             }
 
             R.id.action_share -> {
@@ -473,6 +506,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         if (etName.text.toString() != note.name) {
             etName.setText(note.name)
         }
+        note.readonly = if (isLocked.value) 1 else 0
         if (isLoadedNote) {
             note._id = id
             if (showNotSaved) {

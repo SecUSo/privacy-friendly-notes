@@ -7,4 +7,10 @@
         android:title="@string/action_sort_alphabetical"
         android:icon="@drawable/ic_sort_by_alpha_icon_24dp"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_export_all"
+        android:orderInCategory="50"
+        android:title="@string/action_export_all"
+        app:showAsAction="never"
+        />
 </menu>

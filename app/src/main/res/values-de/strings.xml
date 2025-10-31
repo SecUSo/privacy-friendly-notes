@@ -8,8 +8,10 @@
     <string name="action_delete_all">Alle löschen</string>
     <string name="action_sort_alphabetical">Alphabetisch sortieren</string>
     <string name="action_reminder">Erinnerung setzen</string>
+    <string name="action_select_all">Alle auswählen</string>
     <string name="action_save">Speichern</string>
     <string name="app_name_long">Privacy Friendly Notizen</string>
+    <string name="action_unlock">Entsperren</string>
     <string name="action_update">Aktualisieren</string>
     <string name="default_category">Standard</string>
     <string name="default_color">Standard</string>
@@ -30,6 +32,7 @@
     <string name="dialog_create_category_title">Kategorie erstellen</string>
     <string name="dialog_create_category_btn">Erstellen</string>
     <string name="category_fab_desc">Kategorie erstellen</string>
+    <string name="dialog_change_category_name_title">Ändere Kategorienname</string>
     <string name="fab_audio">Audio</string>
     <string name="fab_checklist">Checkliste</string>
     <string name="fab_sketch">Skizze</string>
@@ -62,6 +65,7 @@
     <string name="toast_need_permission_write_external">Berichtigung um externen Speicher zu schreiben wird für diese Funktion benötigt</string>
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
+    <string name="toast_file_export_all_start">Export läuft...</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Es kann nur ein Element geändert werden.</string>
     <string name="action_bold">F</string>
@@ -72,6 +76,7 @@
     <string name="action_share">Teilen</string>
     <string name="action_edit">Bearbeiten</string>
     <string name="action_export">Exportieren</string>
+    <string name="action_export_all">Alle Notizen exportieren</string>
     <string name="action_export_html">Als HTML exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
@@ -159,5 +164,12 @@
     <string name="settings_import_text_title_file_first_line_desc">Wenn aktiviert, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
     <string name="settings_color_category_always_background_title">Immer den Hintergrund färben</string>
     <string name="settings_color_category_always_background_desc">Wenn aktiviert, wird der Hintergrund immer in der Farbe der Kategorie eingefärbt, unabhängig vom ausgewählten Design.</string>
+    <string name="toast_open_file_too_large">Die geöffnete Datei ist zu groß</string>
+    <string name="toast_open_file_too_many_characters">Die Datei hat zu viele Zeichen, lade nur bis zum Limit.</string>
     <string name="toast_deleted">Notiz gelöscht</string>
+    <string name="settings_text_note_heading">Textnotiz</string>
+    <string name="select_import_text_file_char_limit">Zeichenlimit für importierte Textnotizen</string>
+    <string name="select_import_text_file_size_limit">Dateigrößenlimit für importierte Textnotizen</string>
+    <string name="action_deselect_all">Alle abwählen</string>
+    <string name="action_lock">Sperren</string>
 </resources>

@@ -30,14 +30,20 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import com.simplify.ink.InkView
 import eltos.simpledialogfragment.SimpleDialog.OnDialogResultListener
 import eltos.simpledialogfragment.color.SimpleColorDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.secuso.privacyfriendlynotes.R
@@ -55,9 +61,10 @@ import java.io.OutputStream
 class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDialogResultListener {
     private val drawView: InkView by lazy { findViewById(R.id.draw_view) }
     private val drawWrapper: LinearLayout by lazy { findViewById(R.id.sketch_wrapper) }
+    private val drawLock: View by lazy { findViewById(R.id.touchPreventView) }
     private val btnColorSelector: Button by lazy { findViewById(R.id.btn_color_selector) }
-    private lateinit var undoButton: MenuItem
-    private lateinit var redoButton: MenuItem
+    private var undoButton: MenuItem? = null
+    private var redoButton: MenuItem? = null
     private var mFileName = "finde_die_datei.mp4"
     private var mFilePath: String? = null
     private var sketchLoaded = false
@@ -87,7 +94,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 initialSize = Pair(drawWrapper.width, drawWrapper.height)
             }
             if (initialSize!!.first != drawView.layoutParams.width || initialSize!!.second != drawView.layoutParams.height) {
-                Log.d("Set size", "to ${drawWrapper.width},${drawWrapper.height}, from ${drawView.width},${drawView.height}")
+                Log.d("Set size", "to ${initialSize!!.first},${initialSize!!.second}, from ${drawView.width},${drawView.height}")
                 drawView.layoutParams = LinearLayout.LayoutParams(initialSize!!.first, initialSize!!.second)
                 if (oldSketch != null) {
                     drawView.background = oldSketch
@@ -97,6 +104,17 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 if (state != null) {
                     drawView.drawBitmap(Bitmap.createScaledBitmap(state!!, initialSize!!.first, initialSize!!.second, false), 0f, 0f, null)
                 }
+
+                // isLocked.collect is called immediately due to it being a Stateflow. That's why we need to manually adjust the visibility once in this listener
+                // as previously the drawView had not the correct size.
+                if (isLocked.value) {
+                    drawLock.background = (oldSketch?.overlay(drawView.bitmap) ?: drawView.bitmap).toDrawable(resources)
+                    drawLock.visibility = View.VISIBLE
+                    drawView.visibility = View.GONE
+                } else {
+                    drawLock.visibility = View.GONE
+                    drawView.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -105,6 +123,27 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         drawView.setColor(Color.BLACK)
         drawView.setMinStrokeWidth(1.5f)
         drawView.setMaxStrokeWidth(6f)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isLocked.collect {
+                    btnColorSelector.isEnabled = !it
+                    undoButton?.isEnabled = !it && undoStates.isNotEmpty()
+                    redoButton?.isEnabled = !it && redoStates.isNotEmpty()
+
+                    if (drawView.width > 0 && drawView.height > 0) {
+                        if (it) {
+                            drawLock.background = (oldSketch?.overlay(drawView.bitmap) ?: drawView.bitmap).toDrawable(resources)
+                            drawLock.visibility = View.VISIBLE
+                            drawView.visibility = View.GONE
+                        } else {
+                            drawLock.visibility = View.GONE
+                            drawView.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+        }
 
         if (undoRedoEnabled) {
             drawView.setOnTouchListener { view, motionEvent ->
@@ -116,11 +155,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                         undoStates.add(state!!)
                         redoStates.clear()
                         if (undoStates.size > 32) {
-                            undoStates.removeFirst()
+                            undoStates.removeAt(0)
                         }
                         state = drawView.bitmap.copy(Bitmap.Config.ARGB_8888, false)
-                        undoButton.isEnabled = true
-                        redoButton.isEnabled = false
+                        undoButton?.isEnabled = true
+                        redoButton?.isEnabled = false
                     }
 
                     return@setOnTouchListener it
@@ -157,11 +196,11 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         menuInflater.inflate(R.menu.activity_sketch, menu)
         undoButton = menu!!.findItem(R.id.action_sketch_undo)
         redoButton = menu.findItem(R.id.action_sketch_redo)
-        undoButton.isEnabled = false
-        redoButton.isEnabled = false
+        undoButton?.isEnabled = false
+        redoButton?.isEnabled = false
         if (!undoRedoEnabled) {
-            undoButton.setVisible(false)
-            redoButton.setVisible(false)
+            undoButton?.isVisible = false
+            redoButton?.isVisible = false
         }
         return super.onCreateOptionsMenu(menu)
     }
@@ -191,8 +230,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     private fun undoRedoState(state: Bitmap) {
         this.state = state
         drawView.drawBitmap(state, 0F, 0F, null)
-        undoButton.isEnabled = undoStates.isNotEmpty()
-        redoButton.isEnabled = redoStates.isNotEmpty()
+        undoButton?.isEnabled = undoStates.isNotEmpty()
+        redoButton?.isEnabled = redoStates.isNotEmpty()
     }
 
     override fun shareNote(name: String): ActionResult<Intent, Int> {
@@ -298,7 +337,7 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
         return false
     }
 
-    override fun getFileExtension() = ".jpeg"
+    override fun getFileExtension() = SketchActivity.getFileExtension()
     override fun getMimeType() = "image/jpeg"
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
@@ -315,6 +354,8 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
     }
 
     companion object {
+        fun getFileExtension() = ".jpeg"
+
         private const val TAG = "SketchActivity"
         private const val COLOR_DIALOG_TAG = "org.secuso.privacyfriendlynotes.COLORDIALOG"
 
