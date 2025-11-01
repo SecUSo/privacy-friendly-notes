@@ -150,4 +150,16 @@
     <string name="settings_import_text_title_file_first_line_title">Esimene rida on pealkiri</string>
     <string name="settings_color_category_always_background_title">Alati värvi tausta</string>
     <string name="settings_color_category_always_background_desc">Kui see eelistus on kasutusel, siis taust on alati kategooria värvi, ega arvesta rakenduse üldise kujunduse ja välimusega.</string>
+    <string name="action_deselect_all">Eemalda kogu valik</string>
+    <string name="action_select_all">Vali kõik</string>
+    <string name="action_lock">Lukusta</string>
+    <string name="action_unlock">Eemalda lukustus</string>
+    <string name="action_export_all">Ekspordi kõik märkmed</string>
+    <string name="toast_file_export_all_start">Ekspordi kõik märkmed alates</string>
+    <string name="toast_open_file_too_large">Avatud fail on liiga suur.</string>
+    <string name="toast_open_file_too_many_characters">Selles failis on liiga palju tähemärke. Laadin kuni lubatud ülempiirini.</string>
+    <string name="dialog_change_category_name_title">Muuda kategooria nime</string>
+    <string name="settings_text_note_heading">Tekstimärge</string>
+    <string name="select_import_text_file_char_limit">Imporditud tekstimärgete lubatud tähemärkide arvu ülempiir</string>
+    <string name="select_import_text_file_size_limit">Imporditud tekstimärgete lubatud suuruse ülempiir</string>
 </resources>
