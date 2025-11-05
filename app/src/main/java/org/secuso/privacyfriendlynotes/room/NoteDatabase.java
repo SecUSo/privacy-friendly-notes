@@ -38,7 +38,10 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
@@ -77,10 +80,22 @@ public abstract class NoteDatabase extends RoomDatabase {
                     "INSERT INTO notes_new(_id, in_trash, name, type, category, content, last_modified, custom_order)" +
                             " VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
             );
+            // Previous date format: Calendar.getInstance().time.toString() -> "Thu Jul 08 12:34:56 UTC 2023"
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault());
             try (Cursor cursor = database.query(new SimpleSQLiteQuery("SELECT * FROM notes;"))) {
                 while (cursor.moveToNext()) {
                     @SuppressLint("Range") String lastModified = cursor.getString(cursor.getColumnIndex("last_modified"));
-                    long lastModifiedMillis = Date.parse(lastModified);
+                    long lastModifiedMillis;
+                    try {
+                        Date parsed = sdf.parse(lastModified);
+                        lastModifiedMillis = parsed.getTime();
+                    } catch (ParseException | NullPointerException e) {
+                        try {
+                            lastModifiedMillis = Date.parse(lastModified);
+                        } catch (IllegalArgumentException iae) {
+                            lastModifiedMillis = 0L;
+                        }
+                    }
                     @SuppressLint("Range") int _id = cursor.getInt(cursor.getColumnIndex("_id"));
                     @SuppressLint("Range") int in_trash = cursor.getInt(cursor.getColumnIndex("in_trash"));
                     @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("name"));
