@@ -28,6 +28,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteStatement;
 
 import org.secuso.privacyfriendlynotes.room.dao.CategoryDao;
 import org.secuso.privacyfriendlynotes.room.dao.NoteDao;
@@ -37,12 +38,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note;
 import org.secuso.privacyfriendlynotes.room.model.Notification;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * The database that includes all used information like notes, notifications and categories.
@@ -57,7 +53,7 @@ public abstract class NoteDatabase extends RoomDatabase {
     public static final int VERSION = 7;
     public static final String DATABASE_NAME = "allthenotes";
 
-    static final Migration MIGRATION_6_7 = new Migration(6,7) {
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE notes ADD COLUMN readonly INTEGER NOT NULL DEFAULT 0;");
@@ -76,6 +72,11 @@ public abstract class NoteDatabase extends RoomDatabase {
                             + "last_modified INTEGER NOT NULL DEFAULT(unixepoch('subsec') * 1000),"
                             + "custom_order INTEGER NOT NULL DEFAULT 0,"
                             + "PRIMARY KEY(_id));");
+            // Prepare INSERT statement
+            SupportSQLiteStatement stmt = database.compileStatement(
+                    "INSERT INTO notes_new(_id, in_trash, name, type, category, content, last_modified, custom_order)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+            );
             try (Cursor cursor = database.query(new SimpleSQLiteQuery("SELECT * FROM notes;"))) {
                 while (cursor.moveToNext()) {
                     @SuppressLint("Range") String lastModified = cursor.getString(cursor.getColumnIndex("last_modified"));
@@ -87,8 +88,20 @@ public abstract class NoteDatabase extends RoomDatabase {
                     @SuppressLint("Range") int category = cursor.getInt(cursor.getColumnIndex("category"));
                     @SuppressLint("Range") String content = cursor.getString(cursor.getColumnIndex("content"));
                     @SuppressLint("Range") int custom_order = cursor.getInt(cursor.getColumnIndex("custom_order"));
-                    String value = String.format("(%s,%s,'%s',%s,%s,'%s',%s,%s)", _id, in_trash, name, type, category, content, lastModifiedMillis, custom_order);
-                    database.execSQL("INSERT INTO notes_new(_id, in_trash,name,type,category,content,last_modified,custom_order) VALUES" + value + ";");
+                    stmt.bindLong(1, _id);
+                    stmt.bindLong(2, in_trash);
+                    stmt.bindString(3, name);
+                    stmt.bindLong(4, type);
+                    stmt.bindLong(5, category);
+                    stmt.bindString(6, content);
+                    stmt.bindLong(7, lastModifiedMillis);
+                    stmt.bindLong(8, custom_order);
+
+                    // Execute insert
+                    stmt.executeInsert();
+
+                    // Clear bindings to be ready for next row
+                    stmt.clearBindings();
                 }
             }
             database.execSQL("DROP TABLE notes;");
