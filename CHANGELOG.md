@@ -1,17 +1,21 @@
 # Changelog
 
-<a id="v2.1.0"></a>
-## [Notes (Privacy Friendly) v2.1.0](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.1.0) - 2025-10-31
+<a id="v2.1.1"></a>
+## [Notes (Privacy Friendly) v2.1.1](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.1.1) - 2025-11-05
 
 ## What's Changed
 * Translations update from Hosted Weblate by [@weblate](https://github.com/weblate) in [#202](https://github.com/SecUSo/privacy-friendly-notes/pull/202)
 * Update changelog for v2.0.1 by [@github-actions](https://github.com/github-actions)[bot] in [#176](https://github.com/SecUSo/privacy-friendly-notes/pull/176)
 * Update changelog for v2.0.5 by [@github-actions](https://github.com/github-actions)[bot] in [#209](https://github.com/SecUSo/privacy-friendly-notes/pull/209)
 * Several Bugfixes + small UX Features by [@coderPaddyS](https://github.com/coderPaddyS) in [#213](https://github.com/SecUSo/privacy-friendly-notes/pull/213)
+* Fix database migration by [@udenr](https://github.com/udenr) in [#218](https://github.com/SecUSo/privacy-friendly-notes/pull/218)
+* Update changelog for v2.1.0 by [@github-actions](https://github.com/github-actions)[bot] in [#215](https://github.com/SecUSo/privacy-friendly-notes/pull/215)
+* Translations update from Hosted Weblate by [@weblate](https://github.com/weblate) in [#217](https://github.com/SecUSo/privacy-friendly-notes/pull/217)
 
-**Full Changelog**: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.5...v2.1.0
 
-[Changes][v2.1.0]
+**Full Changelog**: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.5...v2.1.1
+
+[Changes][v2.1.1]
 
 
 <a id="v2.0.5"></a>
@@ -338,7 +342,7 @@ This app belongs to the Privacy Friendly Apps group developed by the research gr
 [Changes][v1.0]
 
 
-[v2.1.0]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.5...v2.1.0
+[v2.1.1]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.5...v2.1.1
 [v2.0.5]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.3...v2.0.5
 [v2.0.3]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.2...v2.0.3
 [v2.0.2]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.1...v2.0.2
