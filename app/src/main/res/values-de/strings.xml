@@ -65,7 +65,7 @@
     <string name="toast_need_permission_write_external">Berichtigung um externen Speicher zu schreiben wird für diese Funktion benötigt</string>
     <string name="toast_saved">Notiz gespeichert</string>
     <string name="toast_updated">Notiz aktualisiert</string>
-    <string name="toast_file_export_all_start">Export läuft...</string>
+    <string name="toast_file_export_all_start">Export aller Notizen gestartet</string>
     <string name="toast_emptyNote">Leere Notiz kann nicht gespeichert werden</string>
     <string name="toast_checklist_oneItem">Es kann nur ein Element geändert werden.</string>
     <string name="action_bold">F</string>
@@ -164,7 +164,7 @@
     <string name="settings_import_text_title_file_first_line_desc">Wenn aktiviert, entspricht der Titel der importierten Textnotiz der gesamten ersten Zeile des importierten Textes. Andernfalls wird der Name der importierten Datei ausgewählt.</string>
     <string name="settings_color_category_always_background_title">Immer den Hintergrund färben</string>
     <string name="settings_color_category_always_background_desc">Wenn aktiviert, wird der Hintergrund immer in der Farbe der Kategorie eingefärbt, unabhängig vom ausgewählten Design.</string>
-    <string name="toast_open_file_too_large">Die geöffnete Datei ist zu groß</string>
+    <string name="toast_open_file_too_large">Die geöffnete Datei ist zu groß.</string>
     <string name="toast_open_file_too_many_characters">Die Datei hat zu viele Zeichen, lade nur bis zum Limit.</string>
     <string name="toast_deleted">Notiz gelöscht</string>
     <string name="settings_text_note_heading">Textnotiz</string>
