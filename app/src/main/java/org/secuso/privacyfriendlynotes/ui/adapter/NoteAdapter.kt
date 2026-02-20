@@ -16,6 +16,7 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 import android.app.Activity
 import android.graphics.Color
 import android.text.Html
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -48,6 +50,7 @@ class NoteAdapter(
     var notes: MutableList<Note> = ArrayList()
         private set
 
+    var saveContent: ((Note, NoteHolder) -> Unit)? = null
     private var listener: ((Note, NoteHolder) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -102,6 +105,7 @@ class NoteAdapter(
             }
         }
 
+        try {
             when (currentNote.type) {
                 DbContract.NoteEntry.TYPE_TEXT -> {
                     if (showPreview) {
@@ -120,12 +124,23 @@ class NoteAdapter(
                     if (showPreview) {
                         holder.imageViewcategory.setBackgroundColor(run {
                             val value = TypedValue()
-                            holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
+                            holder.itemView.context.theme.resolveAttribute(
+                                R.attr.colorSurfaceVariantLight,
+                                value,
+                                true
+                            )
                             value.data
                         })
-                        holder.imageViewcategory.minimumHeight = 200; holder.imageViewcategory.minimumWidth = 200
-                        Glide.with(activity).load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
-                            .placeholder(AppCompatResources.getDrawable(activity, R.drawable.ic_photo_icon_24dp))
+                        holder.imageViewcategory.minimumHeight =
+                            200; holder.imageViewcategory.minimumWidth = 200
+                        Glide.with(activity)
+                            .load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
+                            .placeholder(
+                                AppCompatResources.getDrawable(
+                                    activity,
+                                    R.drawable.ic_photo_icon_24dp
+                                )
+                            )
                             .into(holder.imageViewcategory)
                     } else {
                         holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
@@ -138,14 +153,24 @@ class NoteAdapter(
 
                     if (showPreview) {
                         val preview = mainActivityViewModel.checklistPreview(currentNote)
-                        holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
-                        holder.textViewDescription.text = preview.take(3).joinToString(System.lineSeparator()) { it.second }
+                        holder.textViewExtraText.text =
+                            "${preview.filter { it.first }.count()}/${preview.size}"
+                        holder.textViewDescription.text =
+                            preview.take(3).joinToString(System.lineSeparator()) { it.second }
                         holder.textViewDescription.maxLines = 3
                     } else {
                         holder.textViewExtraText.text = "-/-"
                     }
                 }
             }
+        } catch (error: Exception) {
+            Log.d("NoteAdapter", "could not preview note.")
+            error.printStackTrace()
+            holder.textViewDescription.text = ContextCompat.getString(activity, R.string.preview_note_failed)
+            holder.itemView.setOnClickListener {
+                saveContent?.let { it(currentNote, holder) }
+            }
+        }
 
         // if the Description is empty, don't show it
         if (holder.textViewDescription.text.toString().isEmpty()) {

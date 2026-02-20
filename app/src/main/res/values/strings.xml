@@ -196,4 +196,5 @@
     <string name="settings_text_note_heading">Text Note</string>
     <string name="select_import_text_file_char_limit">Character limit for imported text notes</string>
     <string name="select_import_text_file_size_limit">File Size limit for imported text notes</string>
+    <string name="preview_note_failed">This note could not be loaded. Click to save the stored content.</string>
 </resources>

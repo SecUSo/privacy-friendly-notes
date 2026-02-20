@@ -172,4 +172,5 @@
     <string name="select_import_text_file_size_limit">Dateigrößenlimit für importierte Textnotizen</string>
     <string name="action_deselect_all">Alle abwählen</string>
     <string name="action_lock">Sperren</string>
+    <string name="preview_note_failed">Diese Notiz konnte nicht geladen werden. Wenn Sie versuchen diese Notiz zu öffnen, wird stattdessen versucht den Inhalt der Notiz unformattiert zu speichern.</string>
 </resources>

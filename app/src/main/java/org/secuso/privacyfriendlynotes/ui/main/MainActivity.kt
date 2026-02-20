@@ -19,6 +19,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
@@ -35,6 +36,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.arch.core.util.Function
@@ -47,6 +49,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -71,6 +74,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.BaseNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
+import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.Collections
@@ -117,6 +121,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ).show()
                 CoroutineScope(Dispatchers.IO).launch {
                     mainActivityViewModel.zipAllNotes(adapter.notes, fileOutputStream)
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            String.format(getString(R.string.toast_file_exported_to), uri.toString()),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private var noteToExport: Note? = null
+    private val saveSingleNoteToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val fileOutputStream = contentResolver.openOutputStream(uri)
+                if (fileOutputStream == null) {
+                    return@registerForActivityResult
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    val content = when (noteToExport?.type) {
+                        DbContract.NoteEntry.TYPE_TEXT -> noteToExport!!.content
+                        DbContract.NoteEntry.TYPE_AUDIO -> File(filesDir.path + "/audio_notes" + noteToExport!!.content).readBytes().toString()
+                        DbContract.NoteEntry.TYPE_SKETCH -> File(filesDir.path + "/sketches" + noteToExport!!.content).readBytes().toString()
+                        DbContract.NoteEntry.TYPE_CHECKLIST -> noteToExport!!.content
+                        else -> return@launch
+                    }
+                    fileOutputStream.bufferedWriter().write(content)
                     runOnUiThread {
                         Toast.makeText(
                             applicationContext,
@@ -176,6 +209,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_color_category", true)
                     && mainActivityViewModel.getCategory() == CAT_ALL
         )
+        adapter.saveContent = { note, _ ->
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.putExtra(Intent.EXTRA_TITLE, note.name + ".txt")
+            intent.type = "text/plain"
+            noteToExport = note
+            saveSingleNoteToExternalStorageResultLauncher.launch(intent)
+        }
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
