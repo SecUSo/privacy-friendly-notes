@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.text.Html
 import android.text.SpannedString
 import android.view.ContextThemeWrapper
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -72,7 +73,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun onLoadActivity() {
         etNewItem.setOnEditorActionListener { _, _, event ->
-            if (event == null && etNewItem.text.isNotEmpty()) {
+            if ((event == null || event.keyCode == KeyEvent.KEYCODE_ENTER) && etNewItem.text.isNotEmpty()) {
                 addItem()
             }
             return@setOnEditorActionListener true
