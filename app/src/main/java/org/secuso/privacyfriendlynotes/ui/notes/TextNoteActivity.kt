@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.helper.ArrowKeyLinkTouchMovementMethod
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
 import java.io.InputStreamReader
@@ -110,7 +111,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             }
         }
 
-        etContent.movementMethod = LinkMovementMethod.getInstance()
+        etContent.movementMethod = ArrowKeyLinkTouchMovementMethod.getInstance()
         super.onCreate(savedInstanceState)
     }
 
