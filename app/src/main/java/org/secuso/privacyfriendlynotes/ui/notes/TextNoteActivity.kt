@@ -21,10 +21,12 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.text.method.TextKeyListener
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.view.ContextThemeWrapper
@@ -108,8 +110,15 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                isLocked.collect {
-                    etContent.isEnabled = !it
+                isLocked.collect { readonly ->
+                    if (readonly) {
+                        etContent.keyListener = null
+                        etContent.showSoftInputOnFocus = false
+                    } else {
+                        etContent.keyListener = TextKeyListener.getInstance()
+                        etContent.showSoftInputOnFocus = true
+                        etContent.movementMethod = ArrowKeyLinkTouchMovementMethod.getInstance()
+                    }
                 }
             }
         }
