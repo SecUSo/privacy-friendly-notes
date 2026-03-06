@@ -61,6 +61,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val boldBtn: FloatingActionButton by lazy { findViewById(R.id.btn_bold) }
     private val italicsBtn: FloatingActionButton by lazy { findViewById(R.id.btn_italics) }
     private val underlineBtn: FloatingActionButton by lazy { findViewById(R.id.btn_underline) }
+    private var lastCursorPosition = 0
 
     private val isBold = MutableLiveData(false)
     private val isItalic = MutableLiveData(false)
@@ -117,6 +118,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     override fun onNoteLoadedFromDB(note: Note) {
         etContent.setText(Html.fromHtml(note.content))
+        etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
     }
 
@@ -224,6 +226,11 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         } else {
             Pair(title.isNotEmpty() || Html.toHtml(etContent.text).isNotEmpty(), R.string.toast_emptyNote)
         }
+    }
+
+    override fun onPause() {
+        lastCursorPosition = etContent.selectionStart
+        super.onPause()
     }
 
     override fun onClick(v: View) {
