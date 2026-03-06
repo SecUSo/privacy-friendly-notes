@@ -262,25 +262,28 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun zipAllNotes(notes: List<Note>, output: OutputStream) {
         ZipOutputStream(output).use { zipOut ->
+            val categories =
+                repository.categoryDao().allCategoriesSync.associate { it._id to it.name }.toMutableMap()
+            categories[CAT_ALL] = "default"
             notes.forEach { note ->
                 val name = note.name.replace("/", "_")
                 lateinit var entry: String
                 lateinit var inputStream: InputStream
                 when(note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
-                        entry = "text/" + name + "_" + System.currentTimeMillis() + "_" + TextNoteActivity.getFileExtension()
+                        entry = categories[note.category] + "/text/" + name + "_" + note._id + "_" + TextNoteActivity.getFileExtension()
                         inputStream = ByteArrayInputStream(note.content.toByteArray())
                     }
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
-                        entry = "checklist/" + name  + "_" + System.currentTimeMillis() + "_" + ChecklistNoteActivity.getFileExtension()
+                        entry = categories[note.category] + "/checklist/" + name  + "_" + note._id + "_" + ChecklistNoteActivity.getFileExtension()
                         inputStream = ByteArrayInputStream(note.content.toByteArray())
                     }
                     DbContract.NoteEntry.TYPE_AUDIO -> {
-                        entry = "audio/" + name + "_" + System.currentTimeMillis() + "_" + AudioNoteActivity.getFileExtension()
+                        entry = categories[note.category] + "/audio/" + name + "_" + note._id + "_" + AudioNoteActivity.getFileExtension()
                         inputStream = FileInputStream(File(filesDir.path + "/audio_notes" + note.content))
                     }
                     DbContract.NoteEntry.TYPE_SKETCH -> {
-                        entry ="sketch/" + name + "_" + System.currentTimeMillis() + "_" + SketchActivity.getFileExtension()
+                        entry = categories[note.category] + "/sketch/" + name + "_" + note._id + "_" + SketchActivity.getFileExtension()
                         inputStream = FileInputStream(File(filesDir.path + "/sketches" + note.content))
                     }
                 }
