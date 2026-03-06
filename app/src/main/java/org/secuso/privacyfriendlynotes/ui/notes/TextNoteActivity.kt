@@ -46,6 +46,7 @@ import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.helper.ArrowKeyLinkTouchMovementMethod
+import org.secuso.privacyfriendlynotes.ui.helper.makeDraggable
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
 import java.io.InputStreamReader
@@ -78,6 +79,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
         val fabMenuBtn = findViewById<FloatingActionButton>(R.id.fab_menu)
         val fabMenu = findViewById<View>(R.id.fab_menu_wrapper)
+        fabMenuBtn.makeDraggable(fabMenuBtn.parent as View)
         var expanded = false
         fabMenuBtn.setOnClickListener {
             if (expanded) {

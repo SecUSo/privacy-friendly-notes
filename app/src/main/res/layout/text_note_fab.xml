@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
@@ -11,20 +11,13 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical"
-        android:background="@android:color/transparent"
-        app:layout_behavior="@string/fab_transformation_scrim_behavior">
-
         <LinearLayout
             android:id="@+id/fab_menu_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/fab_menu"
+            app:layout_constraintTop_toTopOf="parent"
             android:orientation="vertical">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -76,10 +69,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginTop="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:src="@drawable/ic_baseline_format_color_text_24"
             android:contentDescription="@string/text_note_fab_menu_desc"
             app:tint="@color/white"
             app:backgroundTint="@color/colorSecuso"
             app:borderWidth="0dp" />
-    </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
