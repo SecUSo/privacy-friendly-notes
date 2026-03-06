@@ -683,6 +683,20 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
+    fun newNote(content: String, type: Int, afterUpdate: (Int) -> Unit) {
+        saveNote(force = true)
+        shouldSaveOnPause = false
+        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) {
+            if (it != null) {
+                it.content = content
+                it.type = type
+                it._id = 0
+                val id = createEditNoteViewModel.insert(it)
+                afterUpdate(id)
+            }
+        }
+    }
+
     class ActionResult<O, E>(private val status: Boolean, val ok: O?, val err: E? = null) {
         fun isOk(): Boolean {
             return this.status

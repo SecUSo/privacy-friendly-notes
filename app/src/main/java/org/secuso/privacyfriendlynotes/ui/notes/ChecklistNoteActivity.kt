@@ -141,6 +141,24 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
             R.id.action_select_all -> adapter.selectAll()
             R.id.action_deselect_all -> adapter.deselectAll()
+            R.id.action_new_checked -> {
+                val items = adapter.getItems().filter { it.state }.map { ChecklistItem(false, it.name) }
+                super.newNote(ChecklistUtil.json(items).toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                    val i = Intent(application, ChecklistNoteActivity::class.java)
+                    i.putExtra(EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
+            R.id.action_new_unchecked -> {
+                val items = adapter.getItems().filter { !it.state }
+                super.newNote(ChecklistUtil.json(items).toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                    val i = Intent(application, ChecklistNoteActivity::class.java)
+                    i.putExtra(EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
 
             else -> {}
         }

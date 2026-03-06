@@ -35,6 +35,8 @@
     <string name="action_delete_all">Delete all</string>
     <string name="action_deselect_all">Deselect all</string>
     <string name="action_select_all">Select all</string>
+    <string name="action_new_checked">New checklist from checked</string>
+    <string name="action_new_unchecked">New checklist from unchecked</string>
     <string name="action_save">Save</string>
     <string name="action_lock">Lock</string>
     <string name="action_unlock">Unlock</string>

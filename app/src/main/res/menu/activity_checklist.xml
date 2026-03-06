@@ -8,6 +8,16 @@
         android:icon="@drawable/ic_short_text_icon_24dp"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_new_checked"
+        android:orderInCategory="100"
+        android:title="@string/action_new_checked"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_new_unchecked"
+        android:orderInCategory="100"
+        android:title="@string/action_new_unchecked"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_deselect_all"
         android:orderInCategory="100"
         android:title="@string/action_deselect_all"
