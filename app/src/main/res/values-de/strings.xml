@@ -176,4 +176,6 @@
     <string name="action_lock">Sperren</string>
     <string name="preview_note_failed">Diese Notiz konnte nicht geladen werden. Wenn Sie versuchen diese Notiz zu öffnen, wird stattdessen versucht den Inhalt der Notiz unformattiert zu speichern.</string>
     <string name="action_new_checked">Neue Checkliste mit Fertigen</string>
+    <string name="settings_checklist_strike_items_title">Einträge Checkliste durchstreichen</string>
+    <string name="settings_checklist_strike_items_sum">Streiche den Beschreibungstext eines Checklisteneintrages durch, sofern dieser abgehakt wurde.</string>
 </resources>

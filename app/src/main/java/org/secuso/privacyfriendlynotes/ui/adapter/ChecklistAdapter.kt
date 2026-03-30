@@ -77,6 +77,7 @@ class ChecklistAdapter(
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
         val (checked, item) = items[position]
+        val strikeThrough = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_checklist_strike_items", true)
         holder.textView.text = item
         holder.checkbox.isChecked = checked
         holder.dragHandle.setOnTouchListener { v, _ ->
@@ -86,7 +87,7 @@ class ChecklistAdapter(
         holder.checkbox.setOnClickListener { _ ->
             items[holder.bindingAdapterPosition].state = holder.checkbox.isChecked
             holder.textView.apply {
-                paintFlags = if (holder.checkbox.isChecked) {
+                paintFlags = if (holder.checkbox.isChecked && strikeThrough) {
                     paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 } else {
                     paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
@@ -111,7 +112,7 @@ class ChecklistAdapter(
         })
 
         holder.textView.apply {
-            paintFlags = if (checked) {
+            paintFlags = if (checked && strikeThrough) {
                 paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()

@@ -200,4 +200,6 @@
     <string name="select_import_text_file_char_limit">Character limit for imported text notes</string>
     <string name="select_import_text_file_size_limit">File Size limit for imported text notes</string>
     <string name="preview_note_failed">This note could not be loaded. Click to save the stored content.</string>
+    <string name="settings_checklist_strike_items_title">Strike checked items in checklist</string>
+    <string name="settings_checklist_strike_items_sum">If enabled, checked checklist items will be rendered with a strike-through line.</string>
 </resources>
