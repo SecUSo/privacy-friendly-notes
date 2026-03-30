@@ -79,6 +79,7 @@
     <string name="action_export">Exportieren</string>
     <string name="action_export_all">Alle Notizen exportieren</string>
     <string name="action_export_html">Als HTML exportieren</string>
+    <string name="action_export_png">Als PNG exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>

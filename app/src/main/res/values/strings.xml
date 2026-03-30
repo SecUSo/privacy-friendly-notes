@@ -50,6 +50,7 @@
     <string name="action_export">Export</string>
     <string name="action_export_all">Export all notes</string>
     <string name="action_export_html">Export as HTML</string>
+    <string name="action_export_png">Export as PNG</string>
     <string name="action_category">Category</string>
     <string name="action_sketch_undo">Undo</string>
     <string name="action_sketch_redo">Redo</string>
