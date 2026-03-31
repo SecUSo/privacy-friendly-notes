@@ -101,9 +101,6 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
     private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
 
-    // Remember initialId to move images to correct id if this was a new note.
-    private var initialId by Delegates.notNull<Int>()
-
     // Remember all loaded images to delete all not used images at activity end
     private val loadedImages = mutableListOf<String>()
     val htmlImageGetter = Html.ImageGetter { source ->
@@ -238,7 +235,6 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         etContent.setText(HtmlCompat.fromHtml(note.content, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
         etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
-        initialId = super.id
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -324,7 +320,6 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 etContent.setText(HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
         }
-        initialId = super.id
     }
 
     override fun onLoadActivity() {
@@ -348,27 +343,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         }
     }
 
-    override fun onPause() {
-        lastCursorPosition = etContent.selectionStart
-        super.onPause()
-    }
-
-    override fun onDestroy() {
+    override fun onNoteWasSaved() {
         val target = getImageFilePathForId(id)
-        if (initialId != id) {
-            val source = getImageFilePathForId(initialId)
-
-            if (source.isDirectory) {
-                if (!target.exists()) {
-                    target.mkdirs()
-                }
-
-                source.listFiles()?.forEach {
-                    it.copyTo(File(target, it.name))
-                }
-            }
-            source.delete()
-        }
+        // cleanup not used files
         target.apply {
             if (exists() && isDirectory) {
                 listFiles()?.forEach {
@@ -379,7 +356,11 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 }
             }
         }
-        super.onDestroy()
+    }
+
+    override fun onPause() {
+        lastCursorPosition = etContent.selectionStart
+        super.onPause()
     }
 
     override fun onClick(v: View) {

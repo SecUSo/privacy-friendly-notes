@@ -130,6 +130,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private val noteType by lazy { noteType }
 
     protected abstract fun onNoteSave(name: String, category: Int): ActionResult<Note, Int>
+    protected open fun onNoteWasSaved() {}
     protected abstract fun onLoadActivity()
     protected abstract fun onSaveExternalStorage(outputStream: OutputStream)
 
@@ -252,6 +253,12 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
         isLoadedNote = id != -1
 
+        if (id == -1) {
+            // We do not want to keep this default value as it does not behave nicely with the activity lifecycle if the activity depends on the note id
+            // e.g. storing files associated to the id like images for text notes.
+            id = createEditNoteViewModel.nextNoteId()
+        }
+
         // Should we set a custom font size?
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
@@ -264,6 +271,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         if (adapter!!.count == 0) {
             displayCategoryDialog()
         }
+
 
         //fill in values if update
         if (isLoadedNote) {
@@ -509,8 +517,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             etName.setText(note.name)
         }
         note.readonly = if (isLocked.value) 1 else 0
+        note._id = id
         if (isLoadedNote) {
-            note._id = id
             if (showNotSaved) {
                 //Wait for job to complete
                 runBlocking {
@@ -523,8 +531,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         } else {
             id = createEditNoteViewModel.insert(note)
             Toast.makeText(applicationContext, R.string.toast_saved, Toast.LENGTH_SHORT).show()
+            // ensure that the note is only inserted once, even if the activity was paused
+            isLoadedNote = true
         }
         initialLockState = isLocked.value
+        onNoteWasSaved()
         return true
     }
 
