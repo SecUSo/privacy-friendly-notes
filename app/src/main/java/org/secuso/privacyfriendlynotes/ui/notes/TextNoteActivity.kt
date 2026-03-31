@@ -65,7 +65,11 @@ import java.util.jar.Manifest
 import kotlin.io.path.exists
 import androidx.core.text.toHtml
 import androidx.core.text.parseAsHtml
+import java.nio.file.StandardCopyOption
 import java.util.UUID
+import kotlin.io.path.Path
+import kotlin.io.path.moveTo
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 /**
@@ -90,6 +94,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
     private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
+
+    // Remember initialId to move images to correct id if this was a new note.
+    private var initialId by Delegates.notNull<Int>()
 
     // Remember all loaded images to delete all not used images at activity end
     private val loadedImages = mutableListOf<String>()
@@ -220,6 +227,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         etContent.setText(HtmlCompat.fromHtml(note.content, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
         etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
+        initialId = super.id
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -305,6 +313,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 etContent.setText(HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
         }
+        initialId = super.id
     }
 
     override fun onLoadActivity() {
@@ -334,6 +343,21 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onDestroy() {
+        if (initialId != id) {
+            val source = File("${filesDir.path}/text_notes/${initialId}")
+            val target = File("${filesDir.path}/text_notes/${id}")
+
+            if (source.isDirectory) {
+                if (!target.exists()) {
+                    target.mkdirs()
+                }
+
+                source.listFiles()?.forEach {
+                    it.copyTo(File(target, it.name))
+                }
+            }
+            source.delete()
+        }
         File("${filesDir.path}/text_notes/${id}").apply {
             if (exists() && isDirectory) {
                 listFiles()?.forEach {
