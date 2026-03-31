@@ -91,6 +91,8 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
     private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
 
+    // Remember all loaded images to delete all not used images at activity end
+    private val loadedImages = mutableListOf<String>()
     val htmlImageGetter = Html.ImageGetter { source ->
         try {
             val file = File("${filesDir.path}/text_notes/${id}", source)
@@ -100,6 +102,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 drawable?.let {
                     it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
                 }
+                loadedImages.add(source)
                 return@ImageGetter drawable
             }
         } catch (e: Exception) {
@@ -328,6 +331,20 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     override fun onPause() {
         lastCursorPosition = etContent.selectionStart
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        File("${filesDir.path}/text_notes/${id}").apply {
+            if (exists() && isDirectory) {
+                listFiles()?.forEach {
+                    if (!loadedImages.contains(it.name)) {
+                        Log.d("TextNote", "Deleting file ${it.name}")
+                        it.delete()
+                    }
+                }
+            }
+        }
+        super.onDestroy()
     }
 
     override fun onClick(v: View) {
