@@ -14,6 +14,7 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -65,8 +66,13 @@ import java.util.jar.Manifest
 import kotlin.io.path.exists
 import androidx.core.text.toHtml
 import androidx.core.text.parseAsHtml
+import java.io.ByteArrayInputStream
+import java.io.DataInputStream
+import java.io.FileInputStream
 import java.nio.file.StandardCopyOption
 import java.util.UUID
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.io.path.Path
 import kotlin.io.path.moveTo
 import kotlin.properties.Delegates
@@ -102,7 +108,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val loadedImages = mutableListOf<String>()
     val htmlImageGetter = Html.ImageGetter { source ->
         try {
-            val file = File("${filesDir.path}/text_notes/${id}", source)
+            // This is intentionally not getImageFilePathForId as we want to produce a correct html file on export,
+            // Which points correctly to the images directory next to the exported source file.
+            val file = File("${filesDir.path}/text_notes/${id}/images", source)
 
             if (file.exists()) {
                 val drawable = Drawable.createFromPath(file.absolutePath)
@@ -132,11 +140,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) {
             imageFile = System.currentTimeMillis().toString() + ".png"
-            File("${filesDir.path}/text_notes/${id}").mkdirs()
-            val file = File("${filesDir.path}/text_notes/${id}", imageFile!!)
-            val uri = FileProvider.getUriForFile(this, "org.secuso.privacyfriendlynotes", file)
-            Log.d("TextNoteActivity", "Now attempting to take picture for ${imageFile} and uri ${uri}")
-            takePictureLauncher.launch(uri)
+            getImageFilePathForId(id).apply {
+                mkdirs()
+                val file = File(this, imageFile!!)
+                val uri = FileProvider.getUriForFile(this@TextNoteActivity, "org.secuso.privacyfriendlynotes", file)
+                Log.d("TextNoteActivity", "Now attempting to take picture for ${imageFile} and uri ${uri}")
+                takePictureLauncher.launch(uri)
+            }
         }
     }
 
@@ -145,11 +155,12 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             return@registerForActivityResult
         }
         val file = "${System.currentTimeMillis()}.png"
-        val path = "${filesDir.path}/text_notes/${id}"
         val inputStream = contentResolver.openInputStream(uri)
-        val outputStream = FileOutputStream(File(path, file))
-        File("${filesDir.path}/text_notes/${id}").mkdirs()
-        inputStream.use { input -> outputStream.use { input?.copyTo(it) } }
+        getImageFilePathForId(id).apply {
+            mkdirs()
+            val outputStream = FileOutputStream(File(this, file))
+            inputStream.use { input -> outputStream.use { input?.copyTo(it) } }
+        }
         insertImageToText(file)
     }
 
@@ -343,9 +354,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onDestroy() {
+        val target = getImageFilePathForId(id)
         if (initialId != id) {
-            val source = File("${filesDir.path}/text_notes/${initialId}")
-            val target = File("${filesDir.path}/text_notes/${id}")
+            val source = getImageFilePathForId(initialId)
 
             if (source.isDirectory) {
                 if (!target.exists()) {
@@ -358,7 +369,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
             }
             source.delete()
         }
-        File("${filesDir.path}/text_notes/${id}").apply {
+        target.apply {
             if (exists() && isDirectory) {
                 listFiles()?.forEach {
                     if (!loadedImages.contains(it.name)) {
@@ -631,18 +642,24 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         }
     }
 
-    override fun getMimeType() = "text/plain"
+    override fun getMimeType() = if (loadedImages.isEmpty()) {
+        "text/plain"
+    } else {
+        "application/zip"
+    }
 
-    override fun getFileExtension() = TextNoteActivity.getFileExtension()
+    override fun getFileExtension() = if (loadedImages.isEmpty()) {
+        TextNoteActivity.getFileExtension()
+    } else {
+        ".zip"
+    }
 
     private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
-                fileOutputStream?.let {
-                    val out = PrintWriter(it)
-                    out.println(Html.toHtml(etContent.text))
-                    out.close()
+                fileOutputStream?.let { outputStream ->
+                    exportWithImages(filesDir, etContent.text.toHtml(), id, outputStream)
                     Toast.makeText(
                         applicationContext,
                         String.format(getString(R.string.toast_file_exported_to), uri.toString()),
@@ -655,12 +672,48 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
-        val out = PrintWriter(outputStream)
-        out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
-        out.close()
+        exportWithImages(filesDir, etContent.text.toHtml(), id, outputStream)
     }
 
+    private fun getImageFilePathForId(id: Int) = getImageFilePathForId(filesDir, id)
+
     companion object {
-        fun getFileExtension() = ".txt"
+
+        private fun getImageFilePathForId(filesDir: File, id: Int): File {
+            val path = File("${filesDir}/text_notes/$id/images")
+            return path
+        }
+        fun getFileExtension(filesDir: File? = null, id: Int? = null): String {
+            if (id != null && filesDir != null) {
+                val dir = getImageFilePathForId(filesDir, id)
+                return if (dir.exists() && dir.isDirectory && dir.listFiles()?.isNotEmpty() == true) {
+                    ".zip"
+                } else {
+                    ".txt"
+                }
+            } else {
+                return ".txt"
+            }
+        }
+
+        fun exportWithImages(filesDir: File, content: String, id: Int, outputStream: OutputStream, zipped: Boolean = true) {
+            val dir = getImageFilePathForId(filesDir, id)
+            if (dir.exists() && dir.isDirectory) {
+                ZipOutputStream(outputStream).use {
+                    it.putNextEntry(ZipEntry("text.txt"))
+                    ByteArrayInputStream(content.toByteArray()).copyTo(it)
+                    it.closeEntry()
+                    dir.listFiles()?.forEach { file ->
+                        it.putNextEntry(ZipEntry("images/${file}"))
+                        FileInputStream(file).copyTo(it)
+                        it.closeEntry()
+                    }
+                }
+            } else {
+                PrintWriter(outputStream).use {
+                    println(content)
+                }
+            }
+        }
     }
 }

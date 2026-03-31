@@ -42,6 +42,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -271,8 +272,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 lateinit var inputStream: InputStream
                 when(note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
-                        entry = categories[note.category] + "/text/" + name + "_" + note._id + "_" + TextNoteActivity.getFileExtension()
-                        inputStream = ByteArrayInputStream(note.content.toByteArray())
+                        entry = categories[note.category] + "/text/" + name + "_" + note._id + "_" + TextNoteActivity.getFileExtension(filesDir, note._id)
+                        // This could be a problem for large Notes, so if the app crashes due to OOM
+                        val out = ByteArrayOutputStream()
+                        TextNoteActivity.exportWithImages(filesDir, note.content, note._id, out)
+                        inputStream = ByteArrayInputStream(out.toByteArray())
                     }
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
                         entry = categories[note.category] + "/checklist/" + name  + "_" + note._id + "_" + ChecklistNoteActivity.getFileExtension()
