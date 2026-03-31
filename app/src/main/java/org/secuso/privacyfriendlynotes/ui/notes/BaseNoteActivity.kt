@@ -114,7 +114,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected var shouldSaveOnPause = true
     private var hasChanged = false
     private var currentCat = 0
-    private var id = -1
+    protected var id = -1
+        private set
     private val isLockedState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     protected val isLocked: StateFlow<Boolean> = isLockedState
     private var initialLockState: Boolean? = null
@@ -461,11 +462,6 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             shouldSaveOnPause = true
         }
         super.onBackPressed()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadActivity(false)
     }
 
     override fun onRequestPermissionsResult(

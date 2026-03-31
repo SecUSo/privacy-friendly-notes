@@ -61,6 +61,30 @@
                 app:tint="@color/white"
                 app:backgroundTint="@color/colorSecuso"
                 app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_photo_icon_24dp"
+                android:textSize="24sp"
+                android:layout_marginBottom="2dp"
+                app:borderWidth="2dp"
+                app:tint="@color/white"
+                app:backgroundTint="@color/colorSecuso"
+                app:fabSize="mini" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_photo_camera_24px"
+                android:textSize="24sp"
+                android:layout_marginBottom="2dp"
+                app:borderWidth="2dp"
+                app:tint="@color/white"
+                app:backgroundTint="@color/colorSecuso"
+                app:fabSize="mini" />
 
         </LinearLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton

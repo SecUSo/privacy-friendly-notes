@@ -16,8 +16,10 @@ package org.secuso.privacyfriendlynotes.ui.notes
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
@@ -29,13 +31,17 @@ import android.text.method.LinkMovementMethod
 import android.text.method.TextKeyListener
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -51,9 +57,16 @@ import org.secuso.privacyfriendlynotes.ui.helper.ArrowKeyLinkTouchMovementMethod
 import org.secuso.privacyfriendlynotes.ui.helper.makeDraggable
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
+import java.util.jar.Manifest
+import kotlin.io.path.exists
+import androidx.core.text.toHtml
+import androidx.core.text.parseAsHtml
+import java.util.UUID
+import kotlin.random.Random
 
 /**
  * Activity that allows to add, edit and delete text notes.
@@ -64,6 +77,8 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val boldBtn: FloatingActionButton by lazy { findViewById(R.id.btn_bold) }
     private val italicsBtn: FloatingActionButton by lazy { findViewById(R.id.btn_italics) }
     private val underlineBtn: FloatingActionButton by lazy { findViewById(R.id.btn_underline) }
+    private val galleryBtn: FloatingActionButton by lazy { findViewById(R.id.btn_gallery) }
+    private val cameraBtn: FloatingActionButton by lazy { findViewById(R.id.btn_camera) }
     private var lastCursorPosition = 0
 
     private val isBold = MutableLiveData(false)
@@ -75,6 +90,70 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
     private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
+
+    val htmlImageGetter = Html.ImageGetter { source ->
+        try {
+            val file = File("${filesDir.path}/text_notes/${id}", source)
+
+            if (file.exists()) {
+                val drawable = Drawable.createFromPath(file.absolutePath)
+                drawable?.let {
+                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                }
+                return@ImageGetter drawable
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        null
+    }
+
+    private var imageFile: String? = null
+
+    val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        Log.d("TextNoteActivity", "Received picture callback with result $it")
+        if (!it || imageFile == null) {
+            return@registerForActivityResult
+        }
+        // image was successfully stored in our requested location
+        // so add the image to the text field
+        insertImageToText(imageFile!!)
+    }
+    val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        if (it) {
+            imageFile = System.currentTimeMillis().toString() + ".png"
+            File("${filesDir.path}/text_notes/${id}").mkdirs()
+            val file = File("${filesDir.path}/text_notes/${id}", imageFile!!)
+            val uri = FileProvider.getUriForFile(this, "org.secuso.privacyfriendlynotes", file)
+            Log.d("TextNoteActivity", "Now attempting to take picture for ${imageFile} and uri ${uri}")
+            takePictureLauncher.launch(uri)
+        }
+    }
+
+    val pickImageLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri == null) {
+            return@registerForActivityResult
+        }
+        val file = "${System.currentTimeMillis()}.png"
+        val path = "${filesDir.path}/text_notes/${id}"
+        val inputStream = contentResolver.openInputStream(uri)
+        val outputStream = FileOutputStream(File(path, file))
+        File("${filesDir.path}/text_notes/${id}").mkdirs()
+        inputStream.use { input -> outputStream.use { input?.copyTo(it) } }
+        insertImageToText(file)
+    }
+
+    private fun insertImageToText(file: String) {
+        // Use a random anchor to obtain the current cursor location and insert the image there.
+        val anchor = UUID.randomUUID().toString()
+        var html = SpannableStringBuilder(etContent.text).apply {
+            insert(etContent.selectionStart, anchor)
+        }.toHtml(HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
+        html = html.replace(anchor, "<br><img src=\"${file}\" alt=\"${file}\" />")
+        etContent.setText(html.parseAsHtml(HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter))
+        etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
+        Log.d("TextNoteActivity", "Successfully taken picture and inserted into text note")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
@@ -97,6 +176,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         boldBtn.setOnClickListener(this)
         italicsBtn.setOnClickListener(this)
         underlineBtn.setOnClickListener(this)
+        galleryBtn.setOnClickListener {
+            pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        cameraBtn.setOnClickListener {
+            requestCameraPermission.launch(android.Manifest.permission.CAMERA)
+        }
+
 
         isBold.observe(this) { b: Boolean ->
             boldBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
@@ -128,7 +214,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        etContent.setText(Html.fromHtml(note.content))
+        etContent.setText(HtmlCompat.fromHtml(note.content, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
         etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
     }
@@ -210,10 +296,10 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                     }
                 }
                 super.setTitle(Html.fromHtml(title).toString())
-                etContent.setText(Html.fromHtml(text.joinToString("<br>")))
+                etContent.setText(HtmlCompat.fromHtml(text.joinToString("<br>"), HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
             intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-                etContent.setText(Html.fromHtml(it))
+                etContent.setText(HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
         }
     }
@@ -378,6 +464,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 }
                 etContent.text = totalText
                 etContent.setSelection(startSelection)
+            }
+            R.id.btn_gallery -> {
+
             }
 
             else -> {}
