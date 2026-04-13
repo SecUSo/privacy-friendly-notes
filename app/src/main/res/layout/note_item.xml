@@ -28,12 +28,24 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/pin_handle"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    app:tint="?attr/colorIconFill"
+                    android:src="@drawable/ic_pin"
+                    android:rotation="25" />
+
+                <ImageView
                     android:id="@+id/imageView_lock"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     app:tint="?attr/colorIconFill"
-                    android:paddingEnd="8dp"
                     android:src="@drawable/lock_outline" />
+
+                <Space
+                    android:id="@+id/note_item_title_space"
+                    android:layout_width="8dp"
+                    android:layout_height="match_parent"/>
 
                 <TextView
                     android:id="@+id/text_view_title"

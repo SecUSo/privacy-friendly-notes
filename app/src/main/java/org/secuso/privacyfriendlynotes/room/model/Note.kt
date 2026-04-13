@@ -34,6 +34,7 @@ data class Note(
     var custom_order: Int,
     var readonly: Int,
     var in_trash_time: Long = 0,
+    var pinned: Int = 0,
 ) {
 
     constructor(name: String, content: String, type: Int, category: Int) : this(

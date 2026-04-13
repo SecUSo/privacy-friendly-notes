@@ -83,6 +83,8 @@
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>
+    <string name="action_pin">Anheften</string>
+    <string name="action_unpin">Lösen</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -186,4 +188,6 @@
         <item>Eine Woche</item>
         <item>Einen Monat</item>
     </string-array>
+    <string name="settings_pinned_notes_fixed_title">Fixe angehefete Notizen</string>
+    <string name="settings_pinned_notes_fixed_sum">Falls aktiviert, dann werden angeheftete Notizen in einem separaten Bereich am über den restlichen Notizen angezeigt.</string>
 </resources>

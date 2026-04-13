@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
 import java.io.File
+
 
 /**
  * Adapter that provides a binding for notes
@@ -47,11 +49,27 @@ class NoteAdapter(
     var colorCategory: Boolean,
 ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
     var startDrag: ((NoteAdapter.NoteHolder) -> Unit)? = null
+    var setNoteLockState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
+    var setNotePinState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
     var notes: MutableList<Note> = ArrayList()
         private set
 
     var saveContent: ((Note, NoteHolder) -> Unit)? = null
     private var listener: ((Note, NoteHolder) -> Unit)? = null
+
+    constructor(adapter: NoteAdapter, notes: List<Note>? = null) : this(
+        adapter.activity,
+        adapter.mainActivityViewModel,
+        adapter.colorCategory
+    ) {
+        startDrag = adapter.startDrag
+        setNotePinState = adapter.setNotePinState
+        setNoteLockState = adapter.setNoteLockState
+        saveContent = adapter.saveContent
+        listener = adapter.listener
+        this.notes = (notes ?: adapter.notes).toMutableList()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.note_item, parent, false)
@@ -177,7 +195,42 @@ class NoteAdapter(
             holder.textViewDescription.visibility = View.GONE
         }
         holder.imageLock.visibility = if (currentNote.readonly > 0) View.VISIBLE else View.GONE
+        holder.pinHandle.visibility = if (currentNote.pinned > 0) View.VISIBLE else View.GONE
         holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
+        holder.space.visibility = if (currentNote.readonly > 0 || currentNote.pinned > 0) View.VISIBLE else View.GONE
+
+        holder.itemView.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            if (currentNote.readonly > 0) {
+                menu?.add(R.string.action_unlock)
+                    ?.setIcon(R.drawable.lock_open_variant_outline)
+                    ?.setOnMenuItemClickListener {
+                        setNoteLockState?.invoke(holder, currentNote, false)
+                        true
+                    }
+            } else {
+                menu?.add(R.string.action_lock)
+                    ?.setIcon(R.drawable.lock_outline)
+                    ?.setOnMenuItemClickListener {
+                        setNoteLockState?.invoke(holder, currentNote, true)
+                        true
+                    }
+            }
+            if (currentNote.pinned > 0) {
+                menu?.add(R.string.action_unpin)
+                    ?.setIcon(R.drawable.ic_pin)
+                    ?.setOnMenuItemClickListener {
+                        setNotePinState?.invoke(holder, currentNote, false)
+                        true
+                    }
+            } else {
+                menu?.add( R.string.action_pin)
+                    ?.setIcon(R.drawable.ic_pin)
+                    ?.setOnMenuItemClickListener {
+                        setNotePinState?.invoke(holder, currentNote, true)
+                        true
+                    }
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -197,8 +250,10 @@ class NoteAdapter(
         val textViewExtraText: TextView
         val viewNoteItem: View
         val dragHandle: View
+        val pinHandle: View
 
         val imageLock: ImageView
+        val space: View
 
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
@@ -208,6 +263,8 @@ class NoteAdapter(
             viewNoteItem = itemView.findViewById(R.id.note_item)
             dragHandle = itemView.findViewById(R.id.drag_handle)
             imageLock = itemView.findViewById(R.id.imageView_lock)
+            pinHandle = itemView.findViewById(R.id.pin_handle)
+            space = itemView.findViewById(R.id.note_item_title_space)
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {
@@ -216,6 +273,8 @@ class NoteAdapter(
                 }
             }
         }
+
+
     }
 
     fun setOnItemClickListener(listener: (Note, NoteHolder) -> Unit) {

@@ -78,6 +78,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.Collections
+import kotlin.math.max
 
 
 /**
@@ -91,9 +92,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //New Room variables
     private val mainActivityViewModel: MainActivityViewModel by lazy { ViewModelProvider(this)[MainActivityViewModel::class.java] }
     lateinit var adapter: NoteAdapter
+    var pinnedAdapter: NoteAdapter? = null
     private val searchView: SearchView by lazy { findViewById(R.id.searchViewFilter) }
     private lateinit var fab: MainFABFragment
     private var skipNextNoteFlow = false
+    private val separatePinnedNotes by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_pinned_notes_fixed", true) }
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -222,7 +225,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         lifecycleScope.launch {
             mainActivityViewModel.activeNotes.collect { notes ->
                 if (!skipNextNoteFlow) {
-                    adapter.setNotes(notes)
+                    if (separatePinnedNotes) {
+                        val index = max(0, notes.indexOfFirst { it.pinned == 0 })
+                        pinnedAdapter!!.setNotes(notes.subList(0, index))
+                        adapter.setNotes(notes.subList(index, notes.size))
+                    } else {
+                        adapter.setNotes(notes)
+                    }
                 }
                 skipNextNoteFlow = false
             }
@@ -243,6 +252,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val to = target.bindingAdapterPosition
                 val from = viewHolder.bindingAdapterPosition
 
+                // swapping with pinned notes is not possible.
+                if ((adapter.notes[to].pinned > 0) != (adapter.notes[from].pinned > 0)) {
+                    return false
+                }
                 // swap custom_orders
                 val temp = adapter.notes[from].custom_order
                 adapter.notes[from].custom_order = adapter.notes[to].custom_order
@@ -280,9 +293,92 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     trashNote(note)
                 }
             }
+
+            override fun isLongPressDragEnabled() = false
         })
         ith.attachToRecyclerView(recyclerView)
         adapter.startDrag = { holder -> ith.startDrag(holder) }
+        adapter.setNoteLockState = { holder, note, state ->
+            note.readonly = if (state) { 1 } else { 0 }
+            mainActivityViewModel.update(note)
+            skipNextNoteFlow = true
+            adapter.notifyItemChanged(holder.bindingAdapterPosition)
+        }
+        adapter.setNotePinState = { _, note, state ->
+            note.pinned = if (state) { 1 } else { 0 }
+            mainActivityViewModel.update(note)
+        }
+
+
+        if (separatePinnedNotes) {
+            pinnedAdapter = NoteAdapter(adapter, mutableListOf())
+            pinnedAdapter?.setNoteLockState = { holder, note, state ->
+                note.readonly = if (state) { 1 } else { 0 }
+                mainActivityViewModel.update(note)
+                skipNextNoteFlow = true
+                pinnedAdapter?.notifyItemChanged(holder.bindingAdapterPosition)
+            }
+            pinnedAdapter?.setNotePinState = { _, note, state ->
+                note.pinned = if (state) { 1 } else { 0 }
+                mainActivityViewModel.update(note)
+            }
+            val pinnedIth = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                    val to = target.bindingAdapterPosition
+                    val from = viewHolder.bindingAdapterPosition
+
+                    // swapping with pinned notes is not possible.
+                    if ((pinnedAdapter!!.notes[to].pinned > 0) != (pinnedAdapter!!.notes[from].pinned > 0)) {
+                        return false
+                    }
+                    // swap custom_orders
+                    val temp = pinnedAdapter!!.notes[from].custom_order
+                    pinnedAdapter!!.notes[from].custom_order = pinnedAdapter!!.notes[to].custom_order
+                    pinnedAdapter!!.notes[to].custom_order = temp
+                    Collections.swap(adapter.notes, from, to)
+                    skipNextNoteFlow = true
+                    mainActivityViewModel.updateAll(listOf(pinnedAdapter!!.notes[from], pinnedAdapter!!.notes[to]))
+
+                    pinnedAdapter!!.notifyItemMoved(to, from)
+
+                    return true
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val note = pinnedAdapter!!.getNoteAt(viewHolder.bindingAdapterPosition)
+
+                    // Do not delete the note if it is readonly
+                    if (note.readonly > 0) {
+                        pinnedAdapter!!.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                        return
+                    }
+
+                    if (PreferenceManager.getDefaultSharedPreferences(this@MainActivity).getBoolean("settings_dialog_on_trashing", false)) {
+                        MaterialAlertDialogBuilder(ContextThemeWrapper(this@MainActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                            .setTitle(String.format(getString(R.string.dialog_delete_title), note.name))
+                            .setMessage(String.format(getString(R.string.dialog_delete_message), note.name))
+                            .setPositiveButton(R.string.dialog_option_delete) { _, _ ->
+                                pinnedAdapter!!.notifyItemRemoved(viewHolder.bindingAdapterPosition)
+                                trashNote(note)
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .setOnDismissListener { pinnedAdapter!!.notifyItemChanged(viewHolder.bindingAdapterPosition) }
+                            .show()
+                    } else {
+                        trashNote(note)
+                    }
+                }
+
+                override fun isLongPressDragEnabled() = false
+            })
+            pinnedAdapter!!.startDrag = { holder -> pinnedIth.startDrag(holder) }
+            val pinnedRecyclerView = findViewById<RecyclerView>(R.id.pinned_notes)
+            pinnedRecyclerView.layoutManager = LinearLayoutManager(this)
+            pinnedRecyclerView.setHasFixedSize(true)
+            pinnedRecyclerView.adapter = pinnedAdapter
+            pinnedIth.attachToRecyclerView(pinnedRecyclerView)
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
                 mainActivityViewModel.setFilter(newText)
@@ -305,26 +401,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /*
          * Handels when a note is clicked.
          */
-        adapter.setOnItemClickListener { (_id, name, content, type, category, in_trash): Note, _ ->
-            val launchActivity =
-                Function<Class<out BaseNoteActivity?>, Void?> { activity: Class<out BaseNoteActivity?>? ->
-                    val i = Intent(application, activity)
-                    i.putExtra(BaseNoteActivity.EXTRA_ID, _id)
-                    i.putExtra(BaseNoteActivity.EXTRA_TITLE, name)
-                    i.putExtra(BaseNoteActivity.EXTRA_CONTENT, content)
-                    i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, category)
-                    i.putExtra(BaseNoteActivity.EXTRA_ISTRASH, in_trash)
-                    startActivity(i)
-                    null
+        listOfNotNull(adapter, pinnedAdapter)
+            .forEach {
+            it.setOnItemClickListener { (_id, name, content, type, category, in_trash): Note, _ ->
+                val launchActivity =
+                    Function<Class<out BaseNoteActivity?>, Void?> { activity: Class<out BaseNoteActivity?>? ->
+                        val i = Intent(application, activity)
+                        i.putExtra(BaseNoteActivity.EXTRA_ID, _id)
+                        i.putExtra(BaseNoteActivity.EXTRA_TITLE, name)
+                        i.putExtra(BaseNoteActivity.EXTRA_CONTENT, content)
+                        i.putExtra(BaseNoteActivity.EXTRA_CATEGORY, category)
+                        i.putExtra(BaseNoteActivity.EXTRA_ISTRASH, in_trash)
+                        startActivity(i)
+                        null
+                    }
+                when (type) {
+                    DbContract.NoteEntry.TYPE_TEXT -> launchActivity.apply(TextNoteActivity::class.java)
+                    DbContract.NoteEntry.TYPE_AUDIO -> launchActivity.apply(AudioNoteActivity::class.java)
+                    DbContract.NoteEntry.TYPE_SKETCH -> launchActivity.apply(SketchActivity::class.java)
+                    DbContract.NoteEntry.TYPE_CHECKLIST -> launchActivity.apply(
+                        ChecklistNoteActivity::class.java
+                    )
                 }
-            when (type) {
-                DbContract.NoteEntry.TYPE_TEXT -> launchActivity.apply(TextNoteActivity::class.java)
-                DbContract.NoteEntry.TYPE_AUDIO -> launchActivity.apply(AudioNoteActivity::class.java)
-                DbContract.NoteEntry.TYPE_SKETCH -> launchActivity.apply(SketchActivity::class.java)
-                DbContract.NoteEntry.TYPE_CHECKLIST -> launchActivity.apply(ChecklistNoteActivity::class.java)
+                fab.close()
             }
-            fab.close()
         }
+
         val theme = PreferenceManager.getDefaultSharedPreferences(this).getString("settings_day_night_theme", "-1")
         AppCompatDelegate.setDefaultNightMode(theme!!.toInt())
     }

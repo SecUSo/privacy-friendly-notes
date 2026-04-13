@@ -105,6 +105,12 @@
             android:entryValues="@array/font_size_values"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_pinned_notes_fixed"
+            android:defaultValue="true"
+            android:title="@string/settings_pinned_notes_fixed_title"
+            android:summary="@string/settings_pinned_notes_fixed_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_show_preview"
             android:defaultValue="true"
             android:title="@string/settings_settings_show_preview_title"

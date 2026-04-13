@@ -56,6 +56,8 @@
     <string name="action_sketch_redo">Redo</string>
     <string name="action_convert_to_checklist">Convert to checklist</string>
     <string name="action_convert_to_text">Convert to text note</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_unpin">Unpin</string>
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
@@ -210,4 +212,6 @@
         <item>One week</item>
         <item>One month</item>
     </string-array>
+    <string name="settings_pinned_notes_fixed_title">Fixed pinned notes</string>
+    <string name="settings_pinned_notes_fixed_sum">If enabled, pinned notes will be displayed in a separate area fixed at the top of the screen.</string>
 </resources>

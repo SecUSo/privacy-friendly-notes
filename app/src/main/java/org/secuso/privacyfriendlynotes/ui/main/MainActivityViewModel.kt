@@ -82,6 +82,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .filterCategories()
         .filterNotes()
         .sortNotes()
+        .sortPinned()
     val categories: Flow<List<Category>> = repository.categoryDao().allCategories
     private val filesDir: File = application.filesDir
     private val resources: Resources = application.resources
@@ -196,6 +197,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private fun Flow<List<Note>>.sortNotes(): Flow<List<Note>> {
         return this.map { it.sortedWith(ordering.comparator()).apply { return@map if (reversed.value) this.reversed() else this } }
+    }
+
+    private fun Flow<List<Note>>.sortPinned(): Flow<List<Note>> {
+        return this.map { it.sortedWith { a,b -> -a.pinned.compareTo(b.pinned) } }
     }
 
     private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {
