@@ -202,4 +202,12 @@
     <string name="preview_note_failed">This note could not be loaded. Click to save the stored content.</string>
     <string name="settings_checklist_strike_items_title">Strike checked items in checklist</string>
     <string name="settings_checklist_strike_items_sum">If enabled, checked checklist items will be rendered with a strike-through line.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Autodelete binned note</string>
+    <string name="settings_auto_delete_trashed_notes_sum">If enabled, any note longer in the recycle than the specified timespan will be automatically deleted.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Autodelete timespan</string>
+    <string-array name="array_auto_delete_trashed_notes_time">
+        <item>One day</item>
+        <item>One week</item>
+        <item>One month</item>
+    </string-array>
 </resources>

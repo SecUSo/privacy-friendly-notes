@@ -230,8 +230,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Delete all trashed notes which are old enough
         lifecycleScope.launch {
-            val time = 7 * 24 * 60 * 60 * 1000L
-            mainActivityViewModel.deleteOldTrashedNotes(time)
+            PreferenceManager.getDefaultSharedPreferences(this@MainActivity).apply {
+                if (getBoolean("settings_auto_delete_trashed_notes", false)) {
+                    val time = getString("settings_auto_delete_trashed_notes_time", (7 * 24 * 60 * 60 * 1000L).toString())!!.toLong()
+                    mainActivityViewModel.deleteOldTrashedNotes(time)
+                }
+            }
         }
 
         val ith = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

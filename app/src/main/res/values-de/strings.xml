@@ -178,4 +178,12 @@
     <string name="action_new_checked">Neue Checkliste mit Fertigen</string>
     <string name="settings_checklist_strike_items_title">Einträge Checkliste durchstreichen</string>
     <string name="settings_checklist_strike_items_sum">Streiche den Beschreibungstext eines Checklisteneintrages durch, sofern dieser abgehakt wurde.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Automatische Löschen im Papierkorb</string>
+    <string name="settings_auto_delete_trashed_notes_sum">Falls aktiviert, werden Notizen, die länger als die ausgewählte Zeitspanne im Papierkorb sind, automatisch gelöscht.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Zeitspanne automatisches Löschen</string>
+    <string-array name="array_auto_delete_trashed_notes_time">
+        <item>Einen Tag</item>
+        <item>Eine Woche</item>
+        <item>Einen Monat</item>
+    </string-array>
 </resources>

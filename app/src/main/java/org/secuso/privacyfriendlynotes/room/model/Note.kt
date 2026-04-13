@@ -32,7 +32,6 @@ data class Note(
     var in_trash: Int = 0,
     var last_modified: Long,
     var custom_order: Int,
-    var readonly: Int
     var readonly: Int,
     var in_trash_time: Long = 0,
 ) {
