@@ -8,10 +8,9 @@
     tools:context="org.secuso.privacyfriendlynotes.ui.main.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchViewFilter"
@@ -21,7 +20,9 @@
             android:theme="@style/AppTheme.SearchView"
             app:iconifiedByDefault="false"
             app:queryBackground="@color/transparent"
-            android:imeOptions="flagNoExtractUi" />
+            android:imeOptions="flagNoExtractUi"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pinned_notes"
@@ -29,16 +30,21 @@
             android:layout_height="wrap_content"
             tools:listitem="@layout/note_item"
             android:paddingBottom="2dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            app:layout_constraintTop_toBottomOf="@id/searchViewFilter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHeight_max="200dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             tools:listitem="@layout/note_item"
             android:paddingBottom="80dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            app:layout_constraintTop_toBottomOf="@id/pinned_notes"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>
