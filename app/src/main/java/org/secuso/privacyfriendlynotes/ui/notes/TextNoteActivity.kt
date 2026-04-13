@@ -660,7 +660,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
     companion object {
 
-        private fun getImageFilePathForId(filesDir: File, id: Int): File {
+        fun getImageFilePathForId(filesDir: File, id: Int): File {
             val path = File("${filesDir}/text_notes/$id/images")
             return path
         }

@@ -151,6 +151,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             } else if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
                 File(filesDir.path + "/sketches" + note.content).delete()
                 File(filesDir.path + "/sketches" + note.content.substring(0, note.content.length - 3) + "jpg").delete()
+            } else if (note.type == DbContract.NoteEntry.TYPE_TEXT) {
+                TextNoteActivity.getImageFilePathForId(filesDir, note._id).delete()
             }
         }
     }
@@ -225,6 +227,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun delete(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.categoryDao().delete(category)
+        }
+    }
+
+    fun deleteOldTrashedNotes(age: Long) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.noteDao().getAllTrashedNotesOlderThan(System.currentTimeMillis() - age)
+                .forEach {
+                    delete(it)
+                }
         }
     }
 

@@ -33,6 +33,8 @@ data class Note(
     var last_modified: Long,
     var custom_order: Int,
     var readonly: Int
+    var readonly: Int,
+    var in_trash_time: Long = 0,
 ) {
 
     constructor(name: String, content: String, type: Int, category: Int) : this(
