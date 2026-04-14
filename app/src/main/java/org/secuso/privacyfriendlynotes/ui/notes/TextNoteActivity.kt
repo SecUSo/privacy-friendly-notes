@@ -232,7 +232,11 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        etContent.setText(HtmlCompat.fromHtml(note.content, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
+        etContent.setText(
+            note.content.parseAsHtml(
+                HtmlCompat.FROM_HTML_MODE_LEGACY,
+                htmlImageGetter
+            ).trimEnd(' ', '\n'))
         etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
     }
@@ -619,7 +623,7 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {
-            ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
+            ActionResult(true, Note(name, Html.toHtml(etContent.text).trimEnd(' ', '\n'), DbContract.NoteEntry.TYPE_TEXT, category))
         }
     }
 
