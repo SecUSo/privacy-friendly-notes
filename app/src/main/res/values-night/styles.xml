@@ -6,6 +6,8 @@
         <item name="colorSurfaceSecondary">@color/colorSurfaceSecondaryDark</item>
         <item name="colorBackground">@color/colorBackgroundDark</item>
         <item name="android:windowBackground">@color/colorBackgroundDark</item>
+        <item name="android:actionModeBackground">@color/colorBackgroundDark</item>
+        <item name="windowActionModeOverlay">true</item>
 
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
@@ -49,6 +51,8 @@
         <item name="android:homeAsUpIndicator">@drawable/arrow_back</item>
         <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
         <item name="actionOverflowButtonStyle">@style/AppTheme.ActionBar.OverflowMenu</item>
+        <item name="actionModeStyle">@style/AppTheme.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/arrow_back</item>
     </style>
 
     <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
@@ -61,6 +65,11 @@
         <item name="navigationIconTint">@color/white</item>
         <item name="titleTextColor">@color/white</item>
         <item name="subtitleTextColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ActionMode" parent="Widget.Material3.ActionMode">
+        <item name="background">@color/colorSecuso</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.AppTheme.ActionMode</item>
     </style>
 
     <style name="AppTheme.ActionBar.OverflowMenu" parent="Widget.Material3.Toolbar">

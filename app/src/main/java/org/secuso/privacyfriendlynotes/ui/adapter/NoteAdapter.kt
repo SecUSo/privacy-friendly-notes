@@ -13,6 +13,7 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.Paint
@@ -59,6 +60,18 @@ class NoteAdapter(
 
     var saveContent: ((Note, NoteHolder) -> Unit)? = null
     private var listener: ((Note, NoteHolder) -> Unit)? = null
+
+    private val _selection: MutableSet<Int> = mutableSetOf()
+    val selection: List<Note>
+        get() = _selection.map { notes[it] }.toList()
+
+    var selectionMode: Boolean = false
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            field = value
+            _selection.clear()
+            notifyDataSetChanged()
+        }
 
     constructor(adapter: NoteAdapter, notes: List<Note>? = null) : this(
         adapter.activity,
@@ -199,7 +212,20 @@ class NoteAdapter(
         }
         holder.imageLock.visibility = if (currentNote.readonly > 0) View.VISIBLE else View.GONE
         holder.pinHandle.visibility = if (currentNote.pinned > 0) View.VISIBLE else View.GONE
-        holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
+        if (selectionMode) {
+            holder.dragHandle.visibility = View.GONE
+            holder.selectionCheckbox.visibility = View.VISIBLE
+            holder.selectionCheckbox.setOnClickListener {
+                if (_selection.contains(holder.bindingAdapterPosition)) {
+                    _selection.remove(holder.bindingAdapterPosition)
+                } else {
+                    _selection.add(holder.bindingAdapterPosition)
+                }
+            }
+        } else {
+            holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
+            holder.selectionCheckbox.visibility = View.GONE
+        }
         holder.space.visibility = if (currentNote.readonly > 0 || currentNote.pinned > 0 || currentNote.is_done > 0) View.VISIBLE else View.GONE
         holder.checkedHandle.visibility = if (currentNote.is_done > 0) View.VISIBLE else View.GONE
         holder.checkedHandle.setOnClickListener { setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], currentNote.is_done == 0) }
@@ -284,6 +310,7 @@ class NoteAdapter(
 
         val imageLock: ImageView
         val space: View
+        val selectionCheckbox: CheckBox
 
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
@@ -296,6 +323,7 @@ class NoteAdapter(
             pinHandle = itemView.findViewById(R.id.pin_handle)
             space = itemView.findViewById(R.id.note_item_title_space)
             checkedHandle = itemView.findViewById(R.id.done_handle)
+            selectionCheckbox = itemView.findViewById<CheckBox>(R.id.checkbox)
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {

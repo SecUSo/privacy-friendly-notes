@@ -22,6 +22,7 @@ import android.preference.PreferenceManager
 import android.text.Html
 import android.util.Log
 import android.util.TypedValue
+import android.view.ActionMode
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuInflater
@@ -59,6 +60,7 @@ import kotlinx.coroutines.runBlocking
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.model.SortingOrder
 import org.secuso.privacyfriendlynotes.room.DbContract
+import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.AboutActivity
 import org.secuso.privacyfriendlynotes.ui.HelpActivity
@@ -97,6 +99,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var fab: MainFABFragment
     private var skipNextNoteFlow = false
     private val separatePinnedNotes by lazy { PreferenceManager.getDefaultSharedPreferences(this).getBoolean("settings_pinned_notes_fixed", true) }
+
+    val defaultCategory by lazy { Category(0,resources.getString(R.string.default_category), null) }
 
     // A launcher to receive and react to a NoteActivity returning a category
     // The category is used to set the selectecCategory
@@ -162,6 +166,54 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
             }
+        }
+    }
+
+    private val actionModeChangeCategory = object : ActionMode.Callback {
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return if (item.itemId == R.id.action_mode_select_category) {
+                val categories = mainActivityViewModel.categoriesSync.toMutableList().apply {
+                    add(0, defaultCategory)
+                }
+                var selectedCategory: Category? = null
+                MaterialAlertDialogBuilder(ContextThemeWrapper(this@MainActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
+                    .setTitle(R.string.dialog_change_multiple_category_title)
+                    .setSingleChoiceItems(categories.map { it.name }.toTypedArray(), -1) { _, which ->
+                        selectedCategory = categories[which]
+                    }
+                    .setPositiveButton(R.string.dialog_change_multiple_category_btn) { _, _ ->
+                        mainActivityViewModel.updateAll(
+                            adapter.selection.map {
+                                it.category = selectedCategory!!._id
+                                it
+                            }
+                        )
+                        adapter.selectionMode = false
+                        mode.finish()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { _,_ ->
+                        adapter.selectionMode = false
+                        mode.finish()
+                    }
+                    .show()
+                true
+            } else {
+                false
+            }
+        }
+
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.menuInflater.inflate(R.menu.main_change_category, menu)
+            return true
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            adapter.selectionMode = false
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            adapter.selectionMode = true
+            return true
         }
     }
 
@@ -509,6 +561,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             mainActivityViewModel.updateAll(notes)
             Toast.makeText(this@MainActivity, getString(R.string.toast_deleted_multiple), Toast.LENGTH_SHORT).show()
+        } else if (id == R.id.action_change_multiple_category) {
+            startActionMode(actionModeChangeCategory)
         }
         return super.onOptionsItemSelected(item)
     }

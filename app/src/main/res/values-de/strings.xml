@@ -32,6 +32,8 @@
     <string name="dialog_trash_title">In den Papierkorb verschieben</string>
     <string name="dialog_create_category_title">Kategorie erstellen</string>
     <string name="dialog_create_category_btn">Erstellen</string>
+    <string name="dialog_change_multiple_category_title">Kategorie auswählen</string>
+    <string name="dialog_change_multiple_category_btn">Auswählen</string>
     <string name="category_fab_desc">Kategorie erstellen</string>
     <string name="dialog_change_category_name_title">Ändere Kategorienname</string>
     <string name="fab_audio">Audio</string>
@@ -88,6 +90,8 @@
     <string name="action_done">Erledigt</string>
     <string name="action_not_done">Nicht erledigt</string>
     <string name="action_delete_all_finished">Lösche alle erledigten</string>
+    <string name="action_mode_select_category">Kategorie auswählen</string>
+    <string name="action_change_multiple_category">Kategorie ändern</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>

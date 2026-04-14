@@ -52,6 +52,8 @@
         <item name="android:homeAsUpIndicator">@drawable/arrow_back</item>
         <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
         <item name="actionOverflowButtonStyle">@style/AppTheme.ActionBar.OverflowMenu</item>
+        <item name="actionModeStyle">@style/AppTheme.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/arrow_back</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="Widget.Material3.Toolbar">
@@ -66,6 +68,11 @@
         <item name="android:paddingEnd">10dp</item>
     </style>
 
+    <style name="AppTheme.ActionMode" parent="Widget.Material3.ActionMode">
+        <item name="background">@color/colorSecuso</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.AppTheme.ActionMode</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -77,6 +84,11 @@
 
     <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
+    </style>
+
+    <style name="ThemeOverlay.AppTheme.ActionMode" parent="">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorOnSurface">@color/white</item>
     </style>
 
     <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">

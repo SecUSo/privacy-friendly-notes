@@ -92,6 +92,12 @@
             app:tint="?attr/colorIconFill"
             android:src="@drawable/ic_baseline_drag_indicator_icon_24dp"/>
 
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

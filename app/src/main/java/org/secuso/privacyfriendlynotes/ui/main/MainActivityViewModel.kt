@@ -85,6 +85,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .sortNotes()
         .sortPinned()
     val categories: Flow<List<Category>> = repository.categoryDao().allCategories
+    val categoriesSync: List<Category>
+        get() = repository.categoryDao().allCategoriesSync
+
     val categoriesWithDoneInformation: Flow<List<CategoryWithCompleteInformation>> = repository.categoryDao().allCategoriesWithDoneInformation
     private val filesDir: File = application.filesDir
     private val resources: Resources = application.resources

@@ -61,6 +61,8 @@
     <string name="action_done">Mark as done</string>
     <string name="action_not_done">Mark as unfinished</string>
     <string name="action_delete_all_finished">Delete all done</string>
+    <string name="action_mode_select_category">Select category</string>
+    <string name="action_change_multiple_category">Change category</string>
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
@@ -104,6 +106,8 @@
     <string name="category_fab_desc">Create category</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Enable notifications</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Permission to send notifications and schedule alarms and reminders is needed for this feature.</string>
+    <string name="dialog_change_multiple_category_title">Select the category to be set</string>
+    <string name="dialog_change_multiple_category_btn">Set</string>
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
     <string name="fab_text">New text</string>
