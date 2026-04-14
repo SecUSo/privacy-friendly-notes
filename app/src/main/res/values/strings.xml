@@ -58,6 +58,9 @@
     <string name="action_convert_to_text">Convert to text note</string>
     <string name="action_pin">Pin</string>
     <string name="action_unpin">Unpin</string>
+    <string name="action_done">Mark as done</string>
+    <string name="action_not_done">Mark as unfinished</string>
+    <string name="action_delete_all_finished">Delete all done</string>
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
@@ -76,6 +79,7 @@
     <string name="toast_open_file_too_large">The opened file is too large.</string>
     <string name="toast_open_file_too_many_characters">The file has too many characters. Only loading until limit reached.</string>
     <string name="toast_deleted">Note deleted</string>
+    <string name="toast_deleted_multiple">Notes deleted</string>
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
     <string name="dialog_delete_category_with_notes">Are you sure you want to delete %1s? All notes in the category <b>will be deleted!</b></string>

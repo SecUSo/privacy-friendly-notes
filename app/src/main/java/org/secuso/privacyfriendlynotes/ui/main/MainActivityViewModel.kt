@@ -35,6 +35,7 @@ import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
+import org.secuso.privacyfriendlynotes.room.model.CategoryWithCompleteInformation
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
@@ -84,6 +85,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .sortNotes()
         .sortPinned()
     val categories: Flow<List<Category>> = repository.categoryDao().allCategories
+    val categoriesWithDoneInformation: Flow<List<CategoryWithCompleteInformation>> = repository.categoryDao().allCategoriesWithDoneInformation
     private val filesDir: File = application.filesDir
     private val resources: Resources = application.resources
 

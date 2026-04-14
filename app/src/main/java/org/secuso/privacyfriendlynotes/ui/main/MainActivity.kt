@@ -308,6 +308,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             note.pinned = if (state) { 1 } else { 0 }
             mainActivityViewModel.update(note)
         }
+        adapter.setNoteCheckedState = { holder, note, state ->
+            note.is_done = if (state) 1 else 0
+            skipNextNoteFlow = true
+            mainActivityViewModel.update(note)
+            adapter.notifyItemChanged(holder.bindingAdapterPosition)
+        }
 
 
         if (separatePinnedNotes) {
@@ -321,6 +327,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             pinnedAdapter?.setNotePinState = { _, note, state ->
                 note.pinned = if (state) { 1 } else { 0 }
                 mainActivityViewModel.update(note)
+            }
+            pinnedAdapter?.setNoteCheckedState = { holder, note, state ->
+                note.is_done = if (state) 1 else 0
+                skipNextNoteFlow = true
+                mainActivityViewModel.update(note)
+                pinnedAdapter?.notifyItemChanged(holder.bindingAdapterPosition)
             }
             val pinnedIth = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -488,6 +500,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             dialog.chooseSortingOption()
         } else if (id == R.id.action_export_all) {
             exportAllNotes()
+        } else if (id == R.id.action_delete_all_finished) {
+            val notes = listOfNotNull(adapter, pinnedAdapter).flatMap {
+                it.notes.filter { note -> note.is_done > 0 }
+            }.map {
+                it.in_trash = 1
+                it
+            }
+            mainActivityViewModel.updateAll(notes)
+            Toast.makeText(this@MainActivity, getString(R.string.toast_deleted_multiple), Toast.LENGTH_SHORT).show()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -544,10 +565,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //Get the rest from the database
         lifecycleScope.launch {
-            mainActivityViewModel.categories.collect {
-                navMenu.add(R.id.drawer_group2, 0, Menu.NONE, getString(R.string.default_category)).setIcon(R.drawable.ic_label_black_24dp)
-                for ((id, name) in it) {
-                    navMenu.add(R.id.drawer_group2, id, Menu.NONE, name).setIcon(R.drawable.ic_label_black_24dp)
+            mainActivityViewModel.categoriesWithDoneInformation.collect {
+                navMenu.removeItem(0)
+                val (name, _id, done, all) = it.first()
+                navMenu.add(R.id.drawer_group2, 0, Menu.NONE, String.format("%s \t %s/%s", getString(R.string.default_category), done, all)).setIcon(R.drawable.ic_label_black_24dp)
+                for ((name, _id, done, all) in it.subList(1, it.size)) {
+                    navMenu.removeItem(_id)
+                    navMenu.add(R.id.drawer_group2, _id, Menu.NONE, String.format("%s \t %s/%s", name, done, all)).setIcon(R.drawable.ic_label_black_24dp)
                 }
             }
         }

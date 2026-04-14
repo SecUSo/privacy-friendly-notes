@@ -22,6 +22,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.secuso.privacyfriendlynotes.room.model.Category
+import org.secuso.privacyfriendlynotes.room.model.CategoryWithCompleteInformation
 
 /**
  * Data Access Object for categories that define the interactions with the database
@@ -43,6 +44,11 @@ interface CategoryDao {
 
     @get:Query("SELECT * FROM categories GROUP BY name")
     val allCategories: Flow<List<Category>>
+    @get:Query("SELECT '' as name, -1 as _id, COUNT(CASE WHEN is_done > 0 THEN 1 END) AS done, COUNT(*) AS _all FROM notes " +
+            "UNION " +
+            "SELECT categories.name as name, categories._id, COUNT(CASE WHEN notes.is_done > 0 THEN 1 END) AS done, COUNT(*) AS _all FROM categories INNER JOIN notes ON categories._id == notes.category GROUP BY categories.name"
+    )
+    val allCategoriesWithDoneInformation: Flow<List<CategoryWithCompleteInformation>>
 
     @get:Query("SELECT * FROM categories GROUP BY name")
     val allCategoriesSync: List<Category>

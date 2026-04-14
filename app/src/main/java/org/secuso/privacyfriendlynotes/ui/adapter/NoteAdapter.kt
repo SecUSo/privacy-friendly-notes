@@ -15,12 +15,14 @@ package org.secuso.privacyfriendlynotes.ui.adapter
 
 import android.app.Activity
 import android.graphics.Color
+import android.graphics.Paint
 import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
@@ -51,6 +53,7 @@ class NoteAdapter(
     var startDrag: ((NoteAdapter.NoteHolder) -> Unit)? = null
     var setNoteLockState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
     var setNotePinState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
+    var setNoteCheckedState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
     var notes: MutableList<Note> = ArrayList()
         private set
 
@@ -197,21 +200,34 @@ class NoteAdapter(
         holder.imageLock.visibility = if (currentNote.readonly > 0) View.VISIBLE else View.GONE
         holder.pinHandle.visibility = if (currentNote.pinned > 0) View.VISIBLE else View.GONE
         holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
-        holder.space.visibility = if (currentNote.readonly > 0 || currentNote.pinned > 0) View.VISIBLE else View.GONE
+        holder.space.visibility = if (currentNote.readonly > 0 || currentNote.pinned > 0 || currentNote.is_done > 0) View.VISIBLE else View.GONE
+        holder.checkedHandle.visibility = if (currentNote.is_done > 0) View.VISIBLE else View.GONE
+        holder.checkedHandle.setOnClickListener { setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], currentNote.is_done == 0) }
+
+        val strikeThrough = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_checklist_strike_items", true)
+        listOf(holder.textViewTitle, holder.textViewDescription).forEach {
+            it.apply {
+                paintFlags = if (currentNote.is_done > 0 && strikeThrough) {
+                    paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                } else {
+                    paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+            }
+        }
 
         holder.itemView.setOnCreateContextMenuListener { menu, v, menuInfo ->
             if (currentNote.readonly > 0) {
                 menu?.add(R.string.action_unlock)
                     ?.setIcon(R.drawable.lock_open_variant_outline)
                     ?.setOnMenuItemClickListener {
-                        setNoteLockState?.invoke(holder, currentNote, false)
+                        setNoteLockState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
                         true
                     }
             } else {
                 menu?.add(R.string.action_lock)
                     ?.setIcon(R.drawable.lock_outline)
                     ?.setOnMenuItemClickListener {
-                        setNoteLockState?.invoke(holder, currentNote, true)
+                        setNoteLockState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
                         true
                     }
             }
@@ -219,14 +235,27 @@ class NoteAdapter(
                 menu?.add(R.string.action_unpin)
                     ?.setIcon(R.drawable.ic_pin)
                     ?.setOnMenuItemClickListener {
-                        setNotePinState?.invoke(holder, currentNote, false)
+                        setNotePinState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
                         true
                     }
             } else {
                 menu?.add( R.string.action_pin)
                     ?.setIcon(R.drawable.ic_pin)
                     ?.setOnMenuItemClickListener {
-                        setNotePinState?.invoke(holder, currentNote, true)
+                        setNotePinState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
+                        true
+                    }
+            }
+            if (currentNote.is_done > 0) {
+                menu?.add(R.string.action_not_done)
+                    ?.setOnMenuItemClickListener {
+                        setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
+                        true
+                    }
+            } else {
+                menu?.add( R.string.action_done)
+                    ?.setOnMenuItemClickListener {
+                        setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
                         true
                     }
             }
@@ -251,6 +280,7 @@ class NoteAdapter(
         val viewNoteItem: View
         val dragHandle: View
         val pinHandle: View
+        val checkedHandle: View
 
         val imageLock: ImageView
         val space: View
@@ -265,6 +295,7 @@ class NoteAdapter(
             imageLock = itemView.findViewById(R.id.imageView_lock)
             pinHandle = itemView.findViewById(R.id.pin_handle)
             space = itemView.findViewById(R.id.note_item_title_space)
+            checkedHandle = itemView.findViewById(R.id.done_handle)
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {

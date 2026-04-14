@@ -85,6 +85,9 @@
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>
     <string name="action_pin">Anheften</string>
     <string name="action_unpin">Lösen</string>
+    <string name="action_done">Erledigt</string>
+    <string name="action_not_done">Nicht erledigt</string>
+    <string name="action_delete_all_finished">Lösche alle erledigten</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -171,6 +174,7 @@
     <string name="toast_open_file_too_large">Die geöffnete Datei ist zu groß</string>
     <string name="toast_open_file_too_many_characters">Die Datei hat zu viele Zeichen, lade nur bis zum Limit.</string>
     <string name="toast_deleted">Notiz gelöscht</string>
+    <string name="toast_deleted_multiple">Notizen gelöscht</string>
     <string name="settings_text_note_heading">Textnotiz</string>
     <string name="select_import_text_file_char_limit">Zeichenlimit für importierte Textnotizen</string>
     <string name="select_import_text_file_size_limit">Dateigrößenlimit für importierte Textnotizen</string>
