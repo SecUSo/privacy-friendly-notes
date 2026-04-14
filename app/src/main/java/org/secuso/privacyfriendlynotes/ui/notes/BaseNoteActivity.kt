@@ -158,6 +158,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             val catName = catSelection.text.toString()
             if (catName == getString(R.string.default_category)) {
                 currentCat = 0
+                hasChanged = hasChanged or (savedCat != 0)
                 return@setOnDismissListener
             }
             currentCat = -1
