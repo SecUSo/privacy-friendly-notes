@@ -123,6 +123,20 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_sort_alphabetical -> {
+                val next = when (adapter.sortingOption) {
+                    ChecklistAdapter.SortingOption.NONE -> ChecklistAdapter.SortingOption.ASCENDING
+                    ChecklistAdapter.SortingOption.ASCENDING -> ChecklistAdapter.SortingOption.DESCENDING
+                    ChecklistAdapter.SortingOption.DESCENDING -> ChecklistAdapter.SortingOption.NONE
+                }
+                val icon = when (next) {
+                    ChecklistAdapter.SortingOption.NONE -> R.drawable.ic_sort_by_alpha_icon_24dp
+                    ChecklistAdapter.SortingOption.ASCENDING -> R.drawable.ic_sort_by_alpha_asc_icon_24dp
+                    ChecklistAdapter.SortingOption.DESCENDING -> R.drawable.ic_sort_by_alpha_desc_icon_24dp
+                }
+                adapter.sortingOption = next
+                item.setIcon(icon)
+            }
             R.id.action_convert_to_note -> {
                 MaterialAlertDialogBuilder(ContextThemeWrapper(this@ChecklistNoteActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
                     .setTitle(R.string.dialog_convert_to_text_title)

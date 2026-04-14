@@ -17,6 +17,7 @@ import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,19 @@ class ChecklistAdapter(
     private val startDrag: (ItemHolder) -> Unit,
 ) : RecyclerView.Adapter<ChecklistAdapter.ItemHolder>() {
 
+    var sortingOption: SortingOption = SortingOption.NONE
+        set(value) {
+            items.sortWith { a, b ->
+                when (value) {
+                    SortingOption.ASCENDING -> a.name.compareTo(b.name)
+                    SortingOption.DESCENDING -> b.name.compareTo(a.name)
+                    SortingOption.NONE -> 1
+                }
+            }
+            Log.d("Sorting", "$value")
+            notifyDataSetChanged()
+            field = value
+        }
     private var items: MutableList<ChecklistItem> = mutableListOf()
     var hasChanged = false
         private set
@@ -80,9 +94,11 @@ class ChecklistAdapter(
         val strikeThrough = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_checklist_strike_items", true)
         holder.textView.text = item
         holder.checkbox.isChecked = checked
-        holder.dragHandle.setOnTouchListener { v, _ ->
-            startDrag(holder)
-            v.performClick()
+        if (sortingOption == SortingOption.NONE) {
+            holder.dragHandle.setOnTouchListener { v, _ ->
+                startDrag(holder)
+                v.performClick()
+            }
         }
         holder.checkbox.setOnClickListener { _ ->
             items[holder.bindingAdapterPosition].state = holder.checkbox.isChecked
@@ -130,8 +146,17 @@ class ChecklistAdapter(
     }
 
     fun addItem(item: String) {
-        this.items.add(ChecklistItem(false, item))
-        notifyItemInserted(items.size - 1)
+        var index = when (sortingOption) {
+            SortingOption.NONE -> items.size
+            SortingOption.ASCENDING -> items.indexOfFirst { it.name >= item }
+            SortingOption.DESCENDING -> items.indexOfFirst { it.name <= item }
+        }
+        // item not found -> index = -1 -> should be at end
+        if (index < 0) {
+            index = items.size
+        }
+        this.items.add(index, ChecklistItem(false, item))
+        notifyItemInserted(index)
         hasChanged = true
     }
 
@@ -149,5 +174,11 @@ class ChecklistAdapter(
         val textView: TextView = itemView.findViewById(R.id.item_name)
         val checkbox: MaterialCheckBox = itemView.findViewById(R.id.item_checkbox)
         val dragHandle: View = itemView.findViewById(R.id.drag_handle)
+    }
+
+    enum class SortingOption {
+        ASCENDING,
+        DESCENDING,
+        NONE
     }
 }
