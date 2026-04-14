@@ -257,7 +257,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //Fill from Room database
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.setHasFixedSize(true)
         adapter = NoteAdapter(
             this,
             mainActivityViewModel,
@@ -438,7 +437,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             pinnedAdapter!!.startDrag = { holder -> pinnedIth.startDrag(holder) }
             val pinnedRecyclerView = findViewById<RecyclerView>(R.id.pinned_notes)
             pinnedRecyclerView.layoutManager = LinearLayoutManager(this)
-            pinnedRecyclerView.setHasFixedSize(true)
             pinnedRecyclerView.adapter = pinnedAdapter
             pinnedIth.attachToRecyclerView(pinnedRecyclerView)
         }
