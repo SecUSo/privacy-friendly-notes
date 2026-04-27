@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.text.Html
 import android.text.SpannedString
 import android.view.ContextThemeWrapper
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -72,7 +73,7 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun onLoadActivity() {
         etNewItem.setOnEditorActionListener { _, _, event ->
-            if (event == null && etNewItem.text.isNotEmpty()) {
+            if ((event == null || event.keyCode == KeyEvent.KEYCODE_ENTER) && etNewItem.text.isNotEmpty()) {
                 addItem()
             }
             return@setOnEditorActionListener true
@@ -122,6 +123,20 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_sort_alphabetical -> {
+                val next = when (adapter.sortingOption) {
+                    ChecklistAdapter.SortingOption.NONE -> ChecklistAdapter.SortingOption.ASCENDING
+                    ChecklistAdapter.SortingOption.ASCENDING -> ChecklistAdapter.SortingOption.DESCENDING
+                    ChecklistAdapter.SortingOption.DESCENDING -> ChecklistAdapter.SortingOption.NONE
+                }
+                val icon = when (next) {
+                    ChecklistAdapter.SortingOption.NONE -> R.drawable.ic_sort_by_alpha_icon_24dp
+                    ChecklistAdapter.SortingOption.ASCENDING -> R.drawable.ic_sort_by_alpha_asc_icon_24dp
+                    ChecklistAdapter.SortingOption.DESCENDING -> R.drawable.ic_sort_by_alpha_desc_icon_24dp
+                }
+                adapter.sortingOption = next
+                item.setIcon(icon)
+            }
             R.id.action_convert_to_note -> {
                 MaterialAlertDialogBuilder(ContextThemeWrapper(this@ChecklistNoteActivity, R.style.AppTheme_PopupOverlay_DialogAlert))
                     .setTitle(R.string.dialog_convert_to_text_title)
@@ -140,6 +155,24 @@ class ChecklistNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_CHECKLI
             }
             R.id.action_select_all -> adapter.selectAll()
             R.id.action_deselect_all -> adapter.deselectAll()
+            R.id.action_new_checked -> {
+                val items = adapter.getItems().filter { it.state }.map { ChecklistItem(false, it.name) }
+                super.newNote(ChecklistUtil.json(items).toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                    val i = Intent(application, ChecklistNoteActivity::class.java)
+                    i.putExtra(EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
+            R.id.action_new_unchecked -> {
+                val items = adapter.getItems().filter { !it.state }
+                super.newNote(ChecklistUtil.json(items).toString(), DbContract.NoteEntry.TYPE_CHECKLIST) {
+                    val i = Intent(application, ChecklistNoteActivity::class.java)
+                    i.putExtra(EXTRA_ID, it)
+                    startActivity(i)
+                    finish()
+                }
+            }
 
             else -> {}
         }

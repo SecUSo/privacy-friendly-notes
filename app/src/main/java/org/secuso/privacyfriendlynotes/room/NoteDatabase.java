@@ -53,8 +53,34 @@ import java.util.Locale;
 )
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 7;
+    public static final int VERSION = 9;
     public static final String DATABASE_NAME = "allthenotes";
+
+    static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE notes DROP COLUMN is_done;");
+
+            database.execSQL("ALTER TABLE notes ADD COLUMN is_done INTEGER NOT NULL DEFAULT 0;");
+        }
+    };
+
+    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE notes ADD COLUMN in_trash_time INTEGER NOT NULL DEFAULT 0;");
+            database.execSQL("ALTER TABLE notes ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;");
+            database.execSQL("ALTER TABLE notes ADD COLUMN is_done INTEGER NOT NULL DEFAULT 0;");
+
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateTrashTime] AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.in_trash != OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET in_trash_time = (CASE NEW.in_trash WHEN 0 THEN 0 ELSE unixepoch('subsec') * 1000 END) WHERE _id=NEW._id; " +
+                            "END;"
+            );
+        }
+    };
 
     static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
@@ -332,6 +358,8 @@ public abstract class NoteDatabase extends RoomDatabase {
             MIGRATION_4_5,
             MIGRATION_5_6,
             MIGRATION_6_7,
+            MIGRATION_7_8,
+            MIGRATION_8_9,
     };
     private static final RoomDatabase.Callback roomCallback = new RoomDatabase.Callback() {
         @Override

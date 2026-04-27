@@ -13,4 +13,16 @@
         android:title="@string/action_export_all"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/action_delete_all_finished"
+        android:orderInCategory="60"
+        android:title="@string/action_delete_all_finished"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_change_multiple_category"
+        android:orderInCategory="70"
+        android:title="@string/action_change_multiple_category"
+        app:showAsAction="never"
+        />
 </menu>

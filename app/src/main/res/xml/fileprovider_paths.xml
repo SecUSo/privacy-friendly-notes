@@ -2,4 +2,6 @@
 <paths>
     <files-path name="audio_notes" path="audio_notes/"/>
     <files-path name="sketches" path="sketches/"/>
+    <files-path name="text_notes" path="text_notes/"/>
+
 </paths>

@@ -53,4 +53,10 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE _id = :id")
     fun getNoteByID(id: Long): Note?
+
+    @Query("SELECT seq + 1 FROM sqlite_sequence WHERE name = :tableName")
+    fun getNextId(tableName: String = "notes"): Int
+
+    @Query("SELECT * FROM notes WHERE in_trash = 1 AND in_trash_time <= :timestamp AND in_trash_time > 0")
+    fun getAllTrashedNotesOlderThan(timestamp: Long): List<Note>
 }

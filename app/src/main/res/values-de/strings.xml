@@ -9,6 +9,7 @@
     <string name="action_sort_alphabetical">Alphabetisch sortieren</string>
     <string name="action_reminder">Erinnerung setzen</string>
     <string name="action_select_all">Alle auswählen</string>
+    <string name="action_new_unchecked">Neue Checkliste mit Offenen</string>
     <string name="action_save">Speichern</string>
     <string name="app_name_long">Privacy Friendly Notizen</string>
     <string name="action_unlock">Entsperren</string>
@@ -31,6 +32,8 @@
     <string name="dialog_trash_title">In den Papierkorb verschieben</string>
     <string name="dialog_create_category_title">Kategorie erstellen</string>
     <string name="dialog_create_category_btn">Erstellen</string>
+    <string name="dialog_change_multiple_category_title">Kategorie auswählen</string>
+    <string name="dialog_change_multiple_category_btn">Auswählen</string>
     <string name="category_fab_desc">Kategorie erstellen</string>
     <string name="dialog_change_category_name_title">Ändere Kategorienname</string>
     <string name="fab_audio">Audio</string>
@@ -78,9 +81,17 @@
     <string name="action_export">Exportieren</string>
     <string name="action_export_all">Alle Notizen exportieren</string>
     <string name="action_export_html">Als HTML exportieren</string>
+    <string name="action_export_png">Als PNG exportieren</string>
     <string name="action_category">Kategorie</string>
     <string name="action_convert_to_checklist">In Checkliste umwandeln</string>
     <string name="action_convert_to_text">In Textnotiz umwandeln</string>
+    <string name="action_pin">Anheften</string>
+    <string name="action_unpin">Lösen</string>
+    <string name="action_done">Erledigt</string>
+    <string name="action_not_done">Nicht erledigt</string>
+    <string name="action_delete_all_finished">Lösche alle erledigten</string>
+    <string name="action_mode_select_category">Kategorie auswählen</string>
+    <string name="action_change_multiple_category">Kategorie ändern</string>
     <string name="about_author">Autoren: </string>
     <string name="about_version_number">Version</string>
     <string name="title_about">Über</string>
@@ -167,9 +178,24 @@
     <string name="toast_open_file_too_large">Die geöffnete Datei ist zu groß</string>
     <string name="toast_open_file_too_many_characters">Die Datei hat zu viele Zeichen, lade nur bis zum Limit.</string>
     <string name="toast_deleted">Notiz gelöscht</string>
+    <string name="toast_deleted_multiple">Notizen gelöscht</string>
     <string name="settings_text_note_heading">Textnotiz</string>
     <string name="select_import_text_file_char_limit">Zeichenlimit für importierte Textnotizen</string>
     <string name="select_import_text_file_size_limit">Dateigrößenlimit für importierte Textnotizen</string>
     <string name="action_deselect_all">Alle abwählen</string>
     <string name="action_lock">Sperren</string>
+    <string name="preview_note_failed">Diese Notiz konnte nicht geladen werden. Wenn Sie versuchen diese Notiz zu öffnen, wird stattdessen versucht den Inhalt der Notiz unformattiert zu speichern.</string>
+    <string name="action_new_checked">Neue Checkliste mit Fertigen</string>
+    <string name="settings_checklist_strike_items_title">Einträge Checkliste durchstreichen</string>
+    <string name="settings_checklist_strike_items_sum">Streiche den Beschreibungstext eines Checklisteneintrages durch, sofern dieser abgehakt wurde.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Automatische Löschen im Papierkorb</string>
+    <string name="settings_auto_delete_trashed_notes_sum">Falls aktiviert, werden Notizen, die länger als die ausgewählte Zeitspanne im Papierkorb sind, automatisch gelöscht.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Zeitspanne automatisches Löschen</string>
+    <string-array name="array_auto_delete_trashed_notes_time">
+        <item>Einen Tag</item>
+        <item>Eine Woche</item>
+        <item>Einen Monat</item>
+    </string-array>
+    <string name="settings_pinned_notes_fixed_title">Fixe angehefete Notizen</string>
+    <string name="settings_pinned_notes_fixed_sum">Falls aktiviert, dann werden angeheftete Notizen in einem separaten Bereich am über den restlichen Notizen angezeigt.</string>
 </resources>

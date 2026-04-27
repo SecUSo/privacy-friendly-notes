@@ -35,6 +35,8 @@
     <string name="action_delete_all">Delete all</string>
     <string name="action_deselect_all">Deselect all</string>
     <string name="action_select_all">Select all</string>
+    <string name="action_new_checked">New checklist from checked</string>
+    <string name="action_new_unchecked">New checklist from unchecked</string>
     <string name="action_save">Save</string>
     <string name="action_lock">Lock</string>
     <string name="action_unlock">Unlock</string>
@@ -48,11 +50,19 @@
     <string name="action_export">Export</string>
     <string name="action_export_all">Export all notes</string>
     <string name="action_export_html">Export as HTML</string>
+    <string name="action_export_png">Export as PNG</string>
     <string name="action_category">Category</string>
     <string name="action_sketch_undo">Undo</string>
     <string name="action_sketch_redo">Redo</string>
     <string name="action_convert_to_checklist">Convert to checklist</string>
     <string name="action_convert_to_text">Convert to text note</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_unpin">Unpin</string>
+    <string name="action_done">Mark as done</string>
+    <string name="action_not_done">Mark as unfinished</string>
+    <string name="action_delete_all_finished">Delete all done</string>
+    <string name="action_mode_select_category">Select category</string>
+    <string name="action_change_multiple_category">Change category</string>
     <string name="hint_name">Name</string>
     <string name="hint_note">Note</string>
     <string name="hint_new_item">New item</string>
@@ -71,6 +81,7 @@
     <string name="toast_open_file_too_large">The opened file is too large.</string>
     <string name="toast_open_file_too_many_characters">The file has too many characters. Only loading until limit reached.</string>
     <string name="toast_deleted">Note deleted</string>
+    <string name="toast_deleted_multiple">Notes deleted</string>
     <string name="dialog_delete_title">Delete %1s?</string>
     <string name="dialog_delete_message">Are you sure you want to delete %1s?</string>
     <string name="dialog_delete_category_with_notes">Are you sure you want to delete %1s? All notes in the category <b>will be deleted!</b></string>
@@ -95,6 +106,8 @@
     <string name="category_fab_desc">Create category</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_title">Enable notifications</string>
     <string name="dialog_need_permission_notifications_and_exact_alarm_message">Permission to send notifications and schedule alarms and reminders is needed for this feature.</string>
+    <string name="dialog_change_multiple_category_title">Select the category to be set</string>
+    <string name="dialog_change_multiple_category_btn">Set</string>
     <string name="dialog_option_delete">Delete</string>
     <string name="dialog_option_restore">Restore</string>
     <string name="fab_text">New text</string>
@@ -196,4 +209,17 @@
     <string name="settings_text_note_heading">Text Note</string>
     <string name="select_import_text_file_char_limit">Character limit for imported text notes</string>
     <string name="select_import_text_file_size_limit">File Size limit for imported text notes</string>
+    <string name="preview_note_failed">This note could not be loaded. Click to save the stored content.</string>
+    <string name="settings_checklist_strike_items_title">Strike checked items in checklist</string>
+    <string name="settings_checklist_strike_items_sum">If enabled, checked checklist items will be rendered with a strike-through line.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Autodelete binned note</string>
+    <string name="settings_auto_delete_trashed_notes_sum">If enabled, any note longer in the recycle than the specified timespan will be automatically deleted.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Autodelete timespan</string>
+    <string-array name="array_auto_delete_trashed_notes_time">
+        <item>One day</item>
+        <item>One week</item>
+        <item>One month</item>
+    </string-array>
+    <string name="settings_pinned_notes_fixed_title">Fixed pinned notes</string>
+    <string name="settings_pinned_notes_fixed_sum">If enabled, pinned notes will be displayed in a separate area fixed at the top of the screen.</string>
 </resources>
