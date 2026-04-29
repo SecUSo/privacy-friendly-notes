@@ -88,14 +88,14 @@
     <string name="about_version_number">Wersja</string>
     <string name="about_author">Autorzy:</string>
     <string name="about_affiliation">We współpracy z</string>
-    <string name="about_author_contributors">i współtwórcy.</string>
+    <string name="about_author_contributors">i współtwórcy.</string>
     <string name="about_more_info">Więcej informacji można znaleźć na stronie:</string>
     <string name="note_item_description">Opis</string>
     <string name="slide1_text">Ta aplikacja umożliwia tworzenie i zarządzanie notatkami.</string>
     <string name="slide2_heading">Kluczowe elementy</string>
     <string name="slide2_text">Obecnie obsługuje cztery typy notatek: Tekst, Lista kontrolna, Dźwięk i Szkic.</string>
     <string name="slide3_heading">Zalety</string>
-    <string name="okay">OK</string>
+    <string name="okay">Ok</string>
     <string name="viewhelp">Wyświetl pomoc</string>
     <string name="next">Dalej</string>
     <string name="main_floating_button">Przycisk pływający</string>
@@ -150,4 +150,16 @@
     <string name="dialog_convert_to_checklist_desc">Spowoduje to konwersję tej notatki na listę kontrolną. Każdy wiersz powinien zaczynać się od „- [ ]” dla niezaznaczonego elementu lub od „- [x]” dla zaznaczonego elementu. Czy chcesz kontynuować?</string>
     <string name="dialog_convert_to_text_title">Konwertuj na notatkę tekstową</string>
     <string name="dialog_convert_to_text_desc">Spowoduje to konwersję tej notatki na notatkę tekstową. Czy chcesz kontynuować?</string>
+    <string name="action_deselect_all">Odznacz wszystko</string>
+    <string name="action_select_all">Zaznacz wszystko</string>
+    <string name="action_lock">Zablokuj</string>
+    <string name="action_unlock">Odblokuj</string>
+    <string name="action_export_all">Eksportuj wszystkie notatki</string>
+    <string name="toast_file_export_all_start">Rozpoczęto eksport wszystkich notatek</string>
+    <string name="toast_open_file_too_large">Otwarty plik jest za duży.</string>
+    <string name="toast_open_file_too_many_characters">Plik zawiera za dużo znaków. Trwa ładowanie do momentu osiągnięcia limitu.</string>
+    <string name="dialog_change_category_name_title">Zmień nazwę kategorii</string>
+    <string name="settings_text_note_heading">Notatka tekstowa</string>
+    <string name="select_import_text_file_char_limit">Limit znaków dla importowanych notatek tekstowych</string>
+    <string name="select_import_text_file_size_limit">Limit rozmiaru pliku dla importowanych notatek tekstowych</string>
 </resources>
