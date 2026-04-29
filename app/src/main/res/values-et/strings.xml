@@ -25,7 +25,7 @@
     <string name="category_fab_desc">Loo kategooria</string>
     <string name="settings_use_custom_font_size_sum">Kasuta kirjutamisvaates sinu valitud kirjatüübi suurust.</string>
     <string name="dialog_create_category_btn">Loo</string>
-    <string name="slide3_text">Enamus märkmete tegemiseks mõeldud rakendusi vajavad palju mittevajalikke õigusi ning sünkroniseerivad andmeid üle interneti. Mistõttu nad kasutaavad mõne firma teenust, mida sa pead usaldama. Kuigi see on mugav, ta siiski vähendab sinu privaatsust. Nii see, kui muud Privaatsussõbralikud rakendused (SECUSO PFA) ongi loodud eelkõige kasutajate privaatsust silmas pidades.</string>
+    <string name="slide3_text">Enamus märkmete tegemiseks mõeldud rakendusi vajavad palju mittevajalikke õigusi ning sünkroniseerivad andmeid üle interneti. Mistõttu nad kasutavad mõne firma teenust, mida sa pead usaldama. Kuigi see on mugav, ta siiski vähendab sinu privaatsust. Nii see, kui muud Privaatsussõbralikud rakendused (SECUSO PFA) ongi loodud eelkõige kasutajate privaatsust silmas pidades.</string>
     <string name="settings_import_text_title_file_first_line_desc">Kui see eelistus on kasutusel, siis imporditava teksti kogu esimene rida muutub tekstimärkme pealkirjaks. Muul juhul tekib pealkiri failinimest.</string>
     <string name="title_tutorial">Juhend</string>
     <string name="navigation_drawer_open">Ava menüü</string>
