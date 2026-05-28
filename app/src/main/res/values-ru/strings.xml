@@ -162,4 +162,18 @@
     <string name="select_import_text_file_char_limit">Ограничение на количество символов для импортных текстовых записок</string>
     <string name="select_import_text_file_size_limit">Ограничение на размер файла для импортируемых текстовых заметок</string>
     <string name="toast_open_file_too_many_characters">Файл слишком большой. Загружена только часть данных.</string>
+    <string name="action_export_png">Экспортировать в PNG</string>
+    <string name="action_pin">Закрепить</string>
+    <string name="action_unpin">Открепить</string>
+    <string name="action_delete_all_finished">Удалить все выполненные</string>
+    <string name="action_change_multiple_category">Изменить категорию</string>
+    <string name="toast_deleted_multiple">Заметки удалены</string>
+    <string name="dialog_change_multiple_category_title">Выберите новую категорию</string>
+    <string name="dialog_change_multiple_category_btn">Задать</string>
+    <string name="preview_note_failed">Эту заметку не удалось загрузить. Нажмите, чтобы сохранить её содержимое.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Автоматически удалять заметки в корзине</string>
+    <string name="settings_auto_delete_trashed_notes_sum">Если включено, любая заметка, находящаяся в корзине дольше указанного времени, будет автоматически удалена.</string>
+    <string name="settings_pinned_notes_fixed_sum">Если включено, закреплённые заметки будут располагаться в отдельной области, закреплённой в верхней части экрана.</string>
+    <string name="settings_pinned_notes_fixed_title">Зафиксировать закреплённые заметки</string>
+    <string name="action_new_checked">Новый контрольный список из выбранных</string>
 </resources>
