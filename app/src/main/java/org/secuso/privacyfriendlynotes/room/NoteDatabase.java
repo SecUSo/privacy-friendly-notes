@@ -59,8 +59,6 @@ public abstract class NoteDatabase extends RoomDatabase {
     static final Migration MIGRATION_8_9 = new Migration(8, 9) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE notes DROP COLUMN is_done;");
-
             database.execSQL("ALTER TABLE notes ADD COLUMN is_done INTEGER NOT NULL DEFAULT 0;");
         }
     };
