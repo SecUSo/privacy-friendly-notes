@@ -175,5 +175,8 @@
     <string name="settings_auto_delete_trashed_notes_sum">Если включено, любая заметка, находящаяся в корзине дольше указанного времени, будет автоматически удалена.</string>
     <string name="settings_pinned_notes_fixed_sum">Если включено, закреплённые заметки будут располагаться в отдельной области, закреплённой в верхней части экрана.</string>
     <string name="settings_pinned_notes_fixed_title">Зафиксировать закреплённые заметки</string>
-    <string name="action_new_checked">Новый контрольный список из выбранных</string>
+    <string name="action_new_checked">Новый список из отмеченных</string>
+    <string name="action_new_unchecked">Новый список из неотмеченных</string>
+    <string name="action_done">Отметить как выполненное</string>
+    <string name="action_not_done">Отметить как невыполненное</string>
 </resources>
