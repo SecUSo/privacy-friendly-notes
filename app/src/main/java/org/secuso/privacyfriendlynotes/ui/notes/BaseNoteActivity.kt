@@ -114,9 +114,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     protected var shouldSaveOnPause = true
     private var hasChanged = false
     private var currentCat = 0
-    private var id = -1
+    protected var id = -1
+        private set
     private val isLockedState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     protected val isLocked: StateFlow<Boolean> = isLockedState
+    private var initialLockState: Boolean? = null
 
     private var lockedItem: MenuItem? = null
 
@@ -128,6 +130,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
     private val noteType by lazy { noteType }
 
     protected abstract fun onNoteSave(name: String, category: Int): ActionResult<Note, Int>
+    protected open fun onNoteWasSaved() {}
     protected abstract fun onLoadActivity()
     protected abstract fun onSaveExternalStorage(outputStream: OutputStream)
 
@@ -155,6 +158,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             val catName = catSelection.text.toString()
             if (catName == getString(R.string.default_category)) {
                 currentCat = 0
+                hasChanged = hasChanged or (savedCat != 0)
                 return@setOnDismissListener
             }
             currentCat = -1
@@ -188,7 +192,9 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                     etName.isEnabled = !isLocked.value
                     catSelection.isEnabled = !isLocked.value
 
-                    hasChanged = true
+                    if (initialLockState == null) {
+                        initialLockState = isLocked.value
+                    }
                 }
             }
         }
@@ -248,6 +254,12 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
         isLoadedNote = id != -1
 
+        if (id == -1) {
+            // We do not want to keep this default value as it does not behave nicely with the activity lifecycle if the activity depends on the note id
+            // e.g. storing files associated to the id like images for text notes.
+            id = createEditNoteViewModel.nextNoteId()
+        }
+
         // Should we set a custom font size?
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         if (sp.getBoolean(SettingsActivity.PREF_CUSTOM_FONT, false)) {
@@ -260,6 +272,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         if (adapter!!.count == 0) {
             displayCategoryDialog()
         }
+
 
         //fill in values if update
         if (isLoadedNote) {
@@ -385,6 +398,7 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
             R.id.action_lock -> {
                 isLockedState.value = !isLockedState.value
+                saveNote(force = true)
             }
 
             R.id.action_share -> {
@@ -453,13 +467,10 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        shouldSaveOnPause = true
+        if (hasChanged || initialLockState != isLocked.value) {
+            shouldSaveOnPause = true
+        }
         super.onBackPressed()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadActivity(false)
     }
 
     override fun onRequestPermissionsResult(
@@ -507,8 +518,8 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
             etName.setText(note.name)
         }
         note.readonly = if (isLocked.value) 1 else 0
+        note._id = id
         if (isLoadedNote) {
-            note._id = id
             if (showNotSaved) {
                 //Wait for job to complete
                 runBlocking {
@@ -521,7 +532,11 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         } else {
             id = createEditNoteViewModel.insert(note)
             Toast.makeText(applicationContext, R.string.toast_saved, Toast.LENGTH_SHORT).show()
+            // ensure that the note is only inserted once, even if the activity was paused
+            isLoadedNote = true
         }
+        initialLockState = isLocked.value
+        onNoteWasSaved()
         return true
     }
 
@@ -592,12 +607,17 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
+    private var saveToExternalStorageCustomAction: ((OutputStream) -> Unit)? = null
     private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
                 fileOutputStream?.let {
-                    onSaveExternalStorage(it)
+                    if (saveToExternalStorageCustomAction != null) {
+                        saveToExternalStorageCustomAction?.invoke(it)
+                    } else {
+                        onSaveExternalStorage(it)
+                    }
                     Toast.makeText(
                         applicationContext,
                         String.format(getString(R.string.toast_file_exported_to), uri.toString()),
@@ -609,11 +629,16 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
         }
     }
 
-    private fun saveToExternalStorage() {
+    protected fun saveToExternalStorage(
+        extension: String? = null,
+        mimeType: String? = null,
+        saveToExternalStorageAction: ((OutputStream) -> Unit)? = null
+    ) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.putExtra(Intent.EXTRA_TITLE, etName.text.toString() + getFileExtension())
-        intent.type = getMimeType()
+        intent.putExtra(Intent.EXTRA_TITLE, etName.text.toString() + (extension ?: getFileExtension()))
+        intent.type = mimeType ?: getMimeType()
+        saveToExternalStorageCustomAction = saveToExternalStorageAction
         saveToExternalStorageResultLauncher.launch(intent)
     }
 
@@ -679,6 +704,20 @@ abstract class BaseNoteActivity(noteType: Int) : AppCompatActivity(), View.OnCli
                 it.type = type
                 createEditNoteViewModel.updateThen(it)
                 afterUpdate(it._id)
+            }
+        }
+    }
+
+    fun newNote(content: String, type: Int, afterUpdate: (Int) -> Unit) {
+        saveNote(force = true)
+        shouldSaveOnPause = false
+        createEditNoteViewModel.getNoteByID(id.toLong()).observe(this) {
+            if (it != null) {
+                it.content = content
+                it.type = type
+                it._id = 0
+                val id = createEditNoteViewModel.insert(it)
+                afterUpdate(id)
             }
         }
     }

@@ -14,26 +14,35 @@
 package org.secuso.privacyfriendlynotes.ui.notes
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.text.method.TextKeyListener
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -45,11 +54,29 @@ import kotlinx.coroutines.launch
 import org.secuso.privacyfriendlynotes.R
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.model.Note
+import org.secuso.privacyfriendlynotes.ui.helper.ArrowKeyLinkTouchMovementMethod
+import org.secuso.privacyfriendlynotes.ui.helper.makeDraggable
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.PrintWriter
+import java.util.jar.Manifest
+import kotlin.io.path.exists
+import androidx.core.text.toHtml
+import androidx.core.text.parseAsHtml
+import java.io.ByteArrayInputStream
+import java.io.DataInputStream
+import java.io.FileInputStream
+import java.nio.file.StandardCopyOption
+import java.util.UUID
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import kotlin.io.path.Path
+import kotlin.io.path.moveTo
+import kotlin.properties.Delegates
+import kotlin.random.Random
 
 /**
  * Activity that allows to add, edit and delete text notes.
@@ -60,6 +87,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val boldBtn: FloatingActionButton by lazy { findViewById(R.id.btn_bold) }
     private val italicsBtn: FloatingActionButton by lazy { findViewById(R.id.btn_italics) }
     private val underlineBtn: FloatingActionButton by lazy { findViewById(R.id.btn_underline) }
+    private val galleryBtn: FloatingActionButton by lazy { findViewById(R.id.btn_gallery) }
+    private val cameraBtn: FloatingActionButton by lazy { findViewById(R.id.btn_camera) }
+    private var lastCursorPosition = 0
 
     private val isBold = MutableLiveData(false)
     private val isItalic = MutableLiveData(false)
@@ -71,11 +101,84 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     private val fileSizeLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_size_limit", "10000")?.toInt() ?: 10000 }
     private val fileCharLimit by lazy { PreferenceManager.getDefaultSharedPreferences(this@TextNoteActivity).getString("settings_import_text_file_char_limit", "1000")?.toInt() ?: 1000 }
 
+    // Remember all loaded images to delete all not used images at activity end
+    private val loadedImages = mutableListOf<String>()
+    val htmlImageGetter = Html.ImageGetter { source ->
+        try {
+            // This is intentionally not getImageFilePathForId as we want to produce a correct html file on export,
+            // Which points correctly to the images directory next to the exported source file.
+            val file = File("${filesDir.path}/text_notes/${id}/images", source)
+
+            if (file.exists()) {
+                val drawable = Drawable.createFromPath(file.absolutePath)
+                drawable?.let {
+                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                }
+                loadedImages.add(source)
+                return@ImageGetter drawable
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        null
+    }
+
+    private var imageFile: String? = null
+
+    val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        Log.d("TextNoteActivity", "Received picture callback with result $it")
+        if (!it || imageFile == null) {
+            return@registerForActivityResult
+        }
+        // image was successfully stored in our requested location
+        // so add the image to the text field
+        insertImageToText(imageFile!!)
+    }
+    val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        if (it) {
+            imageFile = System.currentTimeMillis().toString() + ".png"
+            getImageFilePathForId(id).apply {
+                mkdirs()
+                val file = File(this, imageFile!!)
+                val uri = FileProvider.getUriForFile(this@TextNoteActivity, "org.secuso.privacyfriendlynotes", file)
+                Log.d("TextNoteActivity", "Now attempting to take picture for ${imageFile} and uri ${uri}")
+                takePictureLauncher.launch(uri)
+            }
+        }
+    }
+
+    val pickImageLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri == null) {
+            return@registerForActivityResult
+        }
+        val file = "${System.currentTimeMillis()}.png"
+        val inputStream = contentResolver.openInputStream(uri)
+        getImageFilePathForId(id).apply {
+            mkdirs()
+            val outputStream = FileOutputStream(File(this, file))
+            inputStream.use { input -> outputStream.use { input?.copyTo(it) } }
+        }
+        insertImageToText(file)
+    }
+
+    private fun insertImageToText(file: String) {
+        // Use a random anchor to obtain the current cursor location and insert the image there.
+        val anchor = UUID.randomUUID().toString()
+        var html = SpannableStringBuilder(etContent.text).apply {
+            insert(etContent.selectionStart, anchor)
+        }.toHtml(HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
+        html = html.replace(anchor, "<br><img src=\"${file}\" alt=\"${file}\" />")
+        etContent.setText(html.parseAsHtml(HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter))
+        etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
+        Log.d("TextNoteActivity", "Successfully taken picture and inserted into text note")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_text_note)
 
         val fabMenuBtn = findViewById<FloatingActionButton>(R.id.fab_menu)
         val fabMenu = findViewById<View>(R.id.fab_menu_wrapper)
+        fabMenuBtn.makeDraggable(fabMenuBtn.parent as View)
         var expanded = false
         fabMenuBtn.setOnClickListener {
             if (expanded) {
@@ -91,6 +194,13 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         boldBtn.setOnClickListener(this)
         italicsBtn.setOnClickListener(this)
         underlineBtn.setOnClickListener(this)
+        galleryBtn.setOnClickListener {
+            pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        cameraBtn.setOnClickListener {
+            requestCameraPermission.launch(android.Manifest.permission.CAMERA)
+        }
+
 
         isBold.observe(this) { b: Boolean ->
             boldBtn.backgroundTintList = ColorStateList.valueOf(if (b) Color.parseColor("#000000") else resources.getColor(R.color.colorSecuso))
@@ -104,18 +214,30 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                isLocked.collect {
-                    etContent.isEnabled = !it
+                isLocked.collect { readonly ->
+                    if (readonly) {
+                        etContent.keyListener = null
+                        etContent.showSoftInputOnFocus = false
+                    } else {
+                        etContent.keyListener = TextKeyListener.getInstance()
+                        etContent.showSoftInputOnFocus = true
+                        etContent.movementMethod = ArrowKeyLinkTouchMovementMethod.getInstance()
+                    }
                 }
             }
         }
 
-        etContent.movementMethod = LinkMovementMethod.getInstance()
+        etContent.movementMethod = ArrowKeyLinkTouchMovementMethod.getInstance()
         super.onCreate(savedInstanceState)
     }
 
     override fun onNoteLoadedFromDB(note: Note) {
-        etContent.setText(Html.fromHtml(note.content))
+        etContent.setText(
+            note.content.parseAsHtml(
+                HtmlCompat.FROM_HTML_MODE_LEGACY,
+                htmlImageGetter
+            ).trimEnd(' ', '\n'))
+        etContent.setSelection(lastCursorPosition.coerceIn(0, etContent.text.length))
         oldText = etContent.text.toString()
     }
 
@@ -196,10 +318,10 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                     }
                 }
                 super.setTitle(Html.fromHtml(title).toString())
-                etContent.setText(Html.fromHtml(text.joinToString("<br>")))
+                etContent.setText(HtmlCompat.fromHtml(text.joinToString("<br>"), HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
             intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-                etContent.setText(Html.fromHtml(it))
+                etContent.setText(HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY, htmlImageGetter, null))
             }
         }
     }
@@ -223,6 +345,26 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         } else {
             Pair(title.isNotEmpty() || Html.toHtml(etContent.text).isNotEmpty(), R.string.toast_emptyNote)
         }
+    }
+
+    override fun onNoteWasSaved() {
+        val target = getImageFilePathForId(id)
+        // cleanup not used files
+        target.apply {
+            if (exists() && isDirectory) {
+                listFiles()?.forEach {
+                    if (!loadedImages.contains(it.name)) {
+                        Log.d("TextNote", "Deleting file ${it.name}")
+                        it.delete()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onPause() {
+        lastCursorPosition = etContent.selectionStart
+        super.onPause()
     }
 
     override fun onClick(v: View) {
@@ -360,6 +502,9 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                 etContent.text = totalText
                 etContent.setSelection(startSelection)
             }
+            R.id.btn_gallery -> {
+
+            }
 
             else -> {}
         }
@@ -478,22 +623,28 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
         return if (name.isEmpty() && etContent.text.toString().isEmpty()) {
             ActionResult(false, null)
         } else {
-            ActionResult(true, Note(name, Html.toHtml(etContent.text), DbContract.NoteEntry.TYPE_TEXT, category))
+            ActionResult(true, Note(name, Html.toHtml(etContent.text).trimEnd(' ', '\n'), DbContract.NoteEntry.TYPE_TEXT, category))
         }
     }
 
-    override fun getMimeType() = "text/plain"
+    override fun getMimeType() = if (loadedImages.isEmpty()) {
+        "text/plain"
+    } else {
+        "application/zip"
+    }
 
-    override fun getFileExtension() = TextNoteActivity.getFileExtension()
+    override fun getFileExtension() = if (loadedImages.isEmpty()) {
+        TextNoteActivity.getFileExtension()
+    } else {
+        ".zip"
+    }
 
     private val saveToExternalStorageResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 val fileOutputStream: OutputStream? = contentResolver.openOutputStream(uri)
-                fileOutputStream?.let {
-                    val out = PrintWriter(it)
-                    out.println(Html.toHtml(etContent.text))
-                    out.close()
+                fileOutputStream?.let { outputStream ->
+                    exportWithImages(filesDir, etContent.text.toHtml(), id, outputStream)
                     Toast.makeText(
                         applicationContext,
                         String.format(getString(R.string.toast_file_exported_to), uri.toString()),
@@ -506,12 +657,48 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
     }
 
     override fun onSaveExternalStorage(outputStream: OutputStream) {
-        val out = PrintWriter(outputStream)
-        out.println(Html.fromHtml(Html.toHtml(etContent.text)).toString())
-        out.close()
+        exportWithImages(filesDir, etContent.text.toHtml(), id, outputStream)
     }
 
+    private fun getImageFilePathForId(id: Int) = getImageFilePathForId(filesDir, id)
+
     companion object {
-        fun getFileExtension() = ".txt"
+
+        fun getImageFilePathForId(filesDir: File, id: Int): File {
+            val path = File("${filesDir}/text_notes/$id/images")
+            return path
+        }
+        fun getFileExtension(filesDir: File? = null, id: Int? = null): String {
+            if (id != null && filesDir != null) {
+                val dir = getImageFilePathForId(filesDir, id)
+                return if (dir.exists() && dir.isDirectory && dir.listFiles()?.isNotEmpty() == true) {
+                    ".zip"
+                } else {
+                    ".txt"
+                }
+            } else {
+                return ".txt"
+            }
+        }
+
+        fun exportWithImages(filesDir: File, content: String, id: Int, outputStream: OutputStream, zipped: Boolean = true) {
+            val dir = getImageFilePathForId(filesDir, id)
+            if (dir.exists() && dir.isDirectory) {
+                ZipOutputStream(outputStream).use {
+                    it.putNextEntry(ZipEntry("text.txt"))
+                    ByteArrayInputStream(content.toByteArray()).copyTo(it)
+                    it.closeEntry()
+                    dir.listFiles()?.forEach { file ->
+                        it.putNextEntry(ZipEntry("images/${file}"))
+                        FileInputStream(file).copyTo(it)
+                        it.closeEntry()
+                    }
+                }
+            } else {
+                PrintWriter(outputStream).use {
+                    println(content)
+                }
+            }
+        }
     }
 }

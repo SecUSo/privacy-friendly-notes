@@ -46,6 +46,7 @@ public class BackupRestorer implements IBackupRestorer {
 
             switch (name) {
                 case "sketches":
+                case "text_notes":
                 case "audio_notes":
                     File f = new File(context.getFilesDir(), name);
                     FileUtil.readPath(reader, f);

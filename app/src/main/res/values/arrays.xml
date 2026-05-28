@@ -81,4 +81,10 @@
         <item>-1</item>
     </string-array>
 
+    <string-array name="array_auto_delete_trashed_notes_time_values">
+        <item>86400000</item> <!-- 1 day in ms -->
+        <item>604800000</item> <!-- 1 week in ms-->
+        <item>2592000000</item> <!-- 30 days in ms -->
+    </string-array>
+
 </resources>

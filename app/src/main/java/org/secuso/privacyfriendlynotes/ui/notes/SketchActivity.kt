@@ -222,6 +222,24 @@ class SketchActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_SKETCH), OnDia
                 }
             }
 
+            R.id.action_export_png -> {
+                super.saveToExternalStorage(
+                    extension = ".png",
+                    mimeType = "image/png"
+                ) {
+                    val bm = BitmapDrawable(resources, mFilePath).bitmap.overlay(drawView.bitmap)
+                    val canvas = Canvas(bm)
+                    canvas.drawColor(Color.WHITE)
+                    canvas.drawBitmap(
+                        BitmapDrawable(resources, mFilePath).bitmap.overlay(drawView.bitmap),
+                        0f,
+                        0f,
+                        null
+                    )
+                    bm.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+            }
+
             else -> {}
         }
         return super.onOptionsItemSelected(item)

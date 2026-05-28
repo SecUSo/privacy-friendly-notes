@@ -2,11 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_sort_alphabetical"
+        android:orderInCategory="10"
+        android:title="@string/action_sort_alphabetical"
+        android:icon="@drawable/ic_sort_by_alpha_icon_24dp"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/action_convert_to_note"
         android:orderInCategory="150"
         android:title="@string/action_convert_to_text"
         android:icon="@drawable/ic_short_text_icon_24dp"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_new_checked"
+        android:orderInCategory="100"
+        android:title="@string/action_new_checked"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_new_unchecked"
+        android:orderInCategory="100"
+        android:title="@string/action_new_unchecked"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_deselect_all"
         android:orderInCategory="100"

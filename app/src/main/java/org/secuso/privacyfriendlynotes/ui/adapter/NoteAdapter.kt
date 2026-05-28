@@ -13,16 +13,22 @@
  */
 package org.secuso.privacyfriendlynotes.ui.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
+import android.graphics.Paint
 import android.text.Html
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -32,6 +38,7 @@ import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.main.MainActivityViewModel
 import org.secuso.privacyfriendlynotes.ui.util.DarkModeUtil
 import java.io.File
+
 
 /**
  * Adapter that provides a binding for notes
@@ -45,10 +52,40 @@ class NoteAdapter(
     var colorCategory: Boolean,
 ) : RecyclerView.Adapter<NoteAdapter.NoteHolder>() {
     var startDrag: ((NoteAdapter.NoteHolder) -> Unit)? = null
+    var setNoteLockState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
+    var setNotePinState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
+    var setNoteCheckedState: ((NoteAdapter.NoteHolder, Note, Boolean) -> Unit)? = null
     var notes: MutableList<Note> = ArrayList()
         private set
 
+    var saveContent: ((Note, NoteHolder) -> Unit)? = null
     private var listener: ((Note, NoteHolder) -> Unit)? = null
+
+    private val _selection: MutableSet<Int> = mutableSetOf()
+    val selection: List<Note>
+        get() = _selection.map { notes[it] }.toList()
+
+    var selectionMode: Boolean = false
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            field = value
+            _selection.clear()
+            notifyDataSetChanged()
+        }
+
+    constructor(adapter: NoteAdapter, notes: List<Note>? = null) : this(
+        adapter.activity,
+        adapter.mainActivityViewModel,
+        adapter.colorCategory
+    ) {
+        startDrag = adapter.startDrag
+        setNotePinState = adapter.setNotePinState
+        setNoteLockState = adapter.setNoteLockState
+        saveContent = adapter.saveContent
+        listener = adapter.listener
+        this.notes = (notes ?: adapter.notes).toMutableList()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.note_item, parent, false)
@@ -102,6 +139,7 @@ class NoteAdapter(
             }
         }
 
+        try {
             when (currentNote.type) {
                 DbContract.NoteEntry.TYPE_TEXT -> {
                     if (showPreview) {
@@ -120,12 +158,23 @@ class NoteAdapter(
                     if (showPreview) {
                         holder.imageViewcategory.setBackgroundColor(run {
                             val value = TypedValue()
-                            holder.itemView.context.theme.resolveAttribute(R.attr.colorSurfaceVariantLight, value, true)
+                            holder.itemView.context.theme.resolveAttribute(
+                                R.attr.colorSurfaceVariantLight,
+                                value,
+                                true
+                            )
                             value.data
                         })
-                        holder.imageViewcategory.minimumHeight = 200; holder.imageViewcategory.minimumWidth = 200
-                        Glide.with(activity).load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
-                            .placeholder(AppCompatResources.getDrawable(activity, R.drawable.ic_photo_icon_24dp))
+                        holder.imageViewcategory.minimumHeight =
+                            200; holder.imageViewcategory.minimumWidth = 200
+                        Glide.with(activity)
+                            .load(File("${activity.application.filesDir.path}/sketches${currentNote.content}"))
+                            .placeholder(
+                                AppCompatResources.getDrawable(
+                                    activity,
+                                    R.drawable.ic_photo_icon_24dp
+                                )
+                            )
                             .into(holder.imageViewcategory)
                     } else {
                         holder.imageViewcategory.setImageResource(R.drawable.ic_photo_icon_24dp)
@@ -138,21 +187,105 @@ class NoteAdapter(
 
                     if (showPreview) {
                         val preview = mainActivityViewModel.checklistPreview(currentNote)
-                        holder.textViewExtraText.text = "${preview.filter { it.first }.count()}/${preview.size}"
-                        holder.textViewDescription.text = preview.take(3).joinToString(System.lineSeparator()) { it.second }
+                        holder.textViewExtraText.text =
+                            "${preview.filter { it.first }.count()}/${preview.size}"
+                        holder.textViewDescription.text =
+                            preview.take(3).joinToString(System.lineSeparator()) { it.second }
                         holder.textViewDescription.maxLines = 3
                     } else {
                         holder.textViewExtraText.text = "-/-"
                     }
                 }
             }
+        } catch (error: Exception) {
+            Log.d("NoteAdapter", "could not preview note.")
+            error.printStackTrace()
+            holder.textViewDescription.text = ContextCompat.getString(activity, R.string.preview_note_failed)
+            holder.itemView.setOnClickListener {
+                saveContent?.let { it(currentNote, holder) }
+            }
+        }
 
         // if the Description is empty, don't show it
         if (holder.textViewDescription.text.toString().isEmpty()) {
             holder.textViewDescription.visibility = View.GONE
         }
         holder.imageLock.visibility = if (currentNote.readonly > 0) View.VISIBLE else View.GONE
-        holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
+        holder.pinHandle.visibility = if (currentNote.pinned > 0) View.VISIBLE else View.GONE
+        if (selectionMode) {
+            holder.dragHandle.visibility = View.GONE
+            holder.selectionCheckbox.visibility = View.VISIBLE
+            holder.selectionCheckbox.setOnClickListener {
+                if (_selection.contains(holder.bindingAdapterPosition)) {
+                    _selection.remove(holder.bindingAdapterPosition)
+                } else {
+                    _selection.add(holder.bindingAdapterPosition)
+                }
+            }
+        } else {
+            holder.dragHandle.visibility = if (mainActivityViewModel.isCustomOrdering()) View.VISIBLE else View.GONE
+            holder.selectionCheckbox.visibility = View.GONE
+        }
+        holder.space.visibility = if (currentNote.readonly > 0 || currentNote.pinned > 0 || currentNote.is_done > 0) View.VISIBLE else View.GONE
+        holder.checkedHandle.visibility = if (currentNote.is_done > 0) View.VISIBLE else View.GONE
+        holder.checkedHandle.setOnClickListener { setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], currentNote.is_done == 0) }
+
+        val strikeThrough = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context).getBoolean("settings_checklist_strike_items", true)
+        listOf(holder.textViewTitle, holder.textViewDescription).forEach {
+            it.apply {
+                paintFlags = if (currentNote.is_done > 0 && strikeThrough) {
+                    paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                } else {
+                    paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+            }
+        }
+
+        holder.itemView.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            if (currentNote.readonly > 0) {
+                menu?.add(R.string.action_unlock)
+                    ?.setIcon(R.drawable.lock_open_variant_outline)
+                    ?.setOnMenuItemClickListener {
+                        setNoteLockState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
+                        true
+                    }
+            } else {
+                menu?.add(R.string.action_lock)
+                    ?.setIcon(R.drawable.lock_outline)
+                    ?.setOnMenuItemClickListener {
+                        setNoteLockState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
+                        true
+                    }
+            }
+            if (currentNote.pinned > 0) {
+                menu?.add(R.string.action_unpin)
+                    ?.setIcon(R.drawable.ic_pin)
+                    ?.setOnMenuItemClickListener {
+                        setNotePinState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
+                        true
+                    }
+            } else {
+                menu?.add( R.string.action_pin)
+                    ?.setIcon(R.drawable.ic_pin)
+                    ?.setOnMenuItemClickListener {
+                        setNotePinState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
+                        true
+                    }
+            }
+            if (currentNote.is_done > 0) {
+                menu?.add(R.string.action_not_done)
+                    ?.setOnMenuItemClickListener {
+                        setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], false)
+                        true
+                    }
+            } else {
+                menu?.add( R.string.action_done)
+                    ?.setOnMenuItemClickListener {
+                        setNoteCheckedState?.invoke(holder, notes[holder.bindingAdapterPosition], true)
+                        true
+                    }
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -172,8 +305,12 @@ class NoteAdapter(
         val textViewExtraText: TextView
         val viewNoteItem: View
         val dragHandle: View
+        val pinHandle: View
+        val checkedHandle: View
 
         val imageLock: ImageView
+        val space: View
+        val selectionCheckbox: CheckBox
 
         init {
             textViewTitle = itemView.findViewById(R.id.text_view_title)
@@ -183,6 +320,10 @@ class NoteAdapter(
             viewNoteItem = itemView.findViewById(R.id.note_item)
             dragHandle = itemView.findViewById(R.id.drag_handle)
             imageLock = itemView.findViewById(R.id.imageView_lock)
+            pinHandle = itemView.findViewById(R.id.pin_handle)
+            space = itemView.findViewById(R.id.note_item_title_space)
+            checkedHandle = itemView.findViewById(R.id.done_handle)
+            selectionCheckbox = itemView.findViewById<CheckBox>(R.id.checkbox)
             itemView.setOnClickListener {
                 bindingAdapterPosition.apply {
                     if (listener != null && this != RecyclerView.NO_POSITION) {
@@ -191,6 +332,8 @@ class NoteAdapter(
                 }
             }
         }
+
+
     }
 
     fun setOnItemClickListener(listener: (Note, NoteHolder) -> Unit) {

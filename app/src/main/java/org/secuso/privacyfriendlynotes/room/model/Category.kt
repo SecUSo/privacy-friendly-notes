@@ -13,6 +13,8 @@
  */
 package org.secuso.privacyfriendlynotes.room.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -41,3 +43,10 @@ data class Category(
     )
 
 }
+
+data class CategoryWithCompleteInformation(
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "_id") val _id: Int,
+    @ColumnInfo(name = "done") val done: Int,
+    @ColumnInfo(name = "_all") val all: Int,
+)

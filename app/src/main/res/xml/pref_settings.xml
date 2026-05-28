@@ -17,6 +17,22 @@
             android:summary="@string/settings_note_trashing_dialog_desc"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_auto_delete_trashed_notes"
+            android:defaultValue="false"
+            android:title="@string/settings_auto_delete_trashed_notes_title"
+            android:summary="@string/settings_auto_delete_trashed_notes_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.ListPreference
+            android:key="settings_auto_delete_trashed_notes_time"
+            android:title="@string/settings_auto_delete_trashed_notes_time_title"
+            android:summary="%s"
+            android:dependency="settings_auto_delete_trashed_notes"
+            android:defaultValue="604800000"
+            android:entries="@array/array_auto_delete_trashed_notes_time"
+            android:entryValues="@array/array_auto_delete_trashed_notes_time_values"
+            app:iconSpaceReserved="false"
+            />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_sketch_undo_redo"
             android:defaultValue="true"
             android:title="@string/settings_sketch_undo_redo_title"
@@ -89,10 +105,22 @@
             android:entryValues="@array/font_size_values"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_pinned_notes_fixed"
+            android:defaultValue="true"
+            android:title="@string/settings_pinned_notes_fixed_title"
+            android:summary="@string/settings_pinned_notes_fixed_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_show_preview"
             android:defaultValue="true"
             android:title="@string/settings_settings_show_preview_title"
             android:summary="@string/settings_settings_settings_show_preview_sum"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="settings_checklist_strike_items"
+            android:defaultValue="true"
+            android:title="@string/settings_checklist_strike_items_title"
+            android:summary="@string/settings_checklist_strike_items_sum"
             app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.List;
 
 public class BackupCreator implements IBackupCreator {
 
@@ -67,6 +68,20 @@ public class BackupCreator implements IBackupCreator {
             for (String path : Arrays.asList("sketches", "audio_notes")) {
                 writer.name(path);
                 FileUtil.writePath(writer, new File(context.getFilesDir().getPath(), path), false);
+            }
+            File text_notes = new File(context.getFilesDir().getPath(), "text_notes");
+            if (text_notes.exists() && text_notes.isDirectory()) {
+                File[] files = text_notes.listFiles();
+                if (files != null) {
+                    writer.name("text_notes");
+                    writer.beginObject();
+                    for (File path : files) {
+                        Log.d("PFA BackupCreator", "Writing images of text note " + path);
+                        writer.name(path.getName());
+                        FileUtil.writePath(writer, path, true);
+                    }
+                    writer.endObject();
+                }
             }
             Log.d("PFA BackupCreator", "finished writing files");
             writer.endObject();

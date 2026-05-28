@@ -15,4 +15,9 @@
         android:icon="@drawable/ic_baseline_redo_icon_24"
         app:iconTint="@color/menu_state_list"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_export_png"
+        android:orderInCategory="20"
+        android:title="@string/action_export_png"
+        app:showAsAction="never"/>
 </menu>

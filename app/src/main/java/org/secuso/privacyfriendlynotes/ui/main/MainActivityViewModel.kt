@@ -35,6 +35,7 @@ import org.secuso.privacyfriendlynotes.preference.PreferenceKeys
 import org.secuso.privacyfriendlynotes.room.DbContract
 import org.secuso.privacyfriendlynotes.room.NoteDatabase
 import org.secuso.privacyfriendlynotes.room.model.Category
+import org.secuso.privacyfriendlynotes.room.model.CategoryWithCompleteInformation
 import org.secuso.privacyfriendlynotes.room.model.Note
 import org.secuso.privacyfriendlynotes.ui.notes.AudioNoteActivity
 import org.secuso.privacyfriendlynotes.ui.notes.ChecklistNoteActivity
@@ -42,6 +43,7 @@ import org.secuso.privacyfriendlynotes.ui.notes.SketchActivity
 import org.secuso.privacyfriendlynotes.ui.notes.TextNoteActivity
 import org.secuso.privacyfriendlynotes.ui.util.ChecklistUtil
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -81,7 +83,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .filterCategories()
         .filterNotes()
         .sortNotes()
+        .sortPinned()
     val categories: Flow<List<Category>> = repository.categoryDao().allCategories
+    val categoriesSync: List<Category>
+        get() = repository.categoryDao().allCategoriesSync
+
+    val categoriesWithDoneInformation: Flow<List<CategoryWithCompleteInformation>> = repository.categoryDao().allCategoriesWithDoneInformation
     private val filesDir: File = application.filesDir
     private val resources: Resources = application.resources
 
@@ -150,6 +157,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             } else if (note.type == DbContract.NoteEntry.TYPE_SKETCH) {
                 File(filesDir.path + "/sketches" + note.content).delete()
                 File(filesDir.path + "/sketches" + note.content.substring(0, note.content.length - 3) + "jpg").delete()
+            } else if (note.type == DbContract.NoteEntry.TYPE_TEXT) {
+                TextNoteActivity.getImageFilePathForId(filesDir, note._id).delete()
             }
         }
     }
@@ -195,6 +204,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return this.map { it.sortedWith(ordering.comparator()).apply { return@map if (reversed.value) this.reversed() else this } }
     }
 
+    private fun Flow<List<Note>>.sortPinned(): Flow<List<Note>> {
+        return this.map { it.sortedWith { a,b -> -a.pinned.compareTo(b.pinned) } }
+    }
+
     private fun Flow<List<Note>>.filterCategories(): Flow<List<Note>> {
         return this.map {
             it.filter { note ->
@@ -224,6 +237,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun delete(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.categoryDao().delete(category)
+        }
+    }
+
+    fun deleteOldTrashedNotes(age: Long) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.noteDao().getAllTrashedNotesOlderThan(System.currentTimeMillis() - age)
+                .forEach {
+                    delete(it)
+                }
         }
     }
 
@@ -262,25 +284,31 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun zipAllNotes(notes: List<Note>, output: OutputStream) {
         ZipOutputStream(output).use { zipOut ->
+            val categories =
+                repository.categoryDao().allCategoriesSync.associate { it._id to it.name }.toMutableMap()
+            categories[CAT_ALL] = "default"
             notes.forEach { note ->
                 val name = note.name.replace("/", "_")
                 lateinit var entry: String
                 lateinit var inputStream: InputStream
                 when(note.type) {
                     DbContract.NoteEntry.TYPE_TEXT -> {
-                        entry = "text/" + name + "_" + System.currentTimeMillis() + "_" + TextNoteActivity.getFileExtension()
-                        inputStream = ByteArrayInputStream(note.content.toByteArray())
+                        entry = categories[note.category] + "/text/" + name + "_" + note._id + "_" + TextNoteActivity.getFileExtension(filesDir, note._id)
+                        // This could be a problem for large Notes, so if the app crashes due to OOM
+                        val out = ByteArrayOutputStream()
+                        TextNoteActivity.exportWithImages(filesDir, note.content, note._id, out)
+                        inputStream = ByteArrayInputStream(out.toByteArray())
                     }
                     DbContract.NoteEntry.TYPE_CHECKLIST -> {
-                        entry = "checklist/" + name  + "_" + System.currentTimeMillis() + "_" + ChecklistNoteActivity.getFileExtension()
+                        entry = categories[note.category] + "/checklist/" + name  + "_" + note._id + "_" + ChecklistNoteActivity.getFileExtension()
                         inputStream = ByteArrayInputStream(note.content.toByteArray())
                     }
                     DbContract.NoteEntry.TYPE_AUDIO -> {
-                        entry = "audio/" + name + "_" + System.currentTimeMillis() + "_" + AudioNoteActivity.getFileExtension()
+                        entry = categories[note.category] + "/audio/" + name + "_" + note._id + "_" + AudioNoteActivity.getFileExtension()
                         inputStream = FileInputStream(File(filesDir.path + "/audio_notes" + note.content))
                     }
                     DbContract.NoteEntry.TYPE_SKETCH -> {
-                        entry ="sketch/" + name + "_" + System.currentTimeMillis() + "_" + SketchActivity.getFileExtension()
+                        entry = categories[note.category] + "/sketch/" + name + "_" + note._id + "_" + SketchActivity.getFileExtension()
                         inputStream = FileInputStream(File(filesDir.path + "/sketches" + note.content))
                     }
                 }

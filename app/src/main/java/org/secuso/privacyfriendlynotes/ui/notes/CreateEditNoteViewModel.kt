@@ -102,6 +102,10 @@ class CreateEditNoteViewModel(application: Application) : AndroidViewModel(appli
         return _categoryName
     }
 
+    fun nextNoteId(): Int {
+        return database.noteDao().getNextId()
+    }
+
     /**
      * Returns id
      */
