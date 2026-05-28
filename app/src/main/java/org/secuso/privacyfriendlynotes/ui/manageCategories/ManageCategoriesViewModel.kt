@@ -56,6 +56,7 @@ class ManageCategoriesViewModel(application: Application) : AndroidViewModel(app
 
     fun delete(category: Category) {
         viewModelScope.launch(Dispatchers.Default) {
+            repository.noteDao().updateAllResetCategoryIfMatches(category._id)
             repository.categoryDao().delete(category)
         }
     }
