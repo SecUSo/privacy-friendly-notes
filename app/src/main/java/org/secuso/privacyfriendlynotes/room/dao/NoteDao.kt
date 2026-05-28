@@ -19,6 +19,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.secuso.privacyfriendlynotes.room.model.Category
 import org.secuso.privacyfriendlynotes.room.model.Note
 
 /**
@@ -35,6 +36,9 @@ interface NoteDao {
 
     @Update
     fun updateAll(note: List<Note>)
+
+    @Query("UPDATE notes SET category = -1 WHERE category = :category")
+    fun updateAllResetCategoryIfMatches(category: Int): Int
 
     @Delete
     fun delete(note: Note)
