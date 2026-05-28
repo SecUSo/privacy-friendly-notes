@@ -275,7 +275,7 @@ class AudioNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_AUDIO) {
     }
 
     override fun onNoteSave(name: String, category: Int): ActionResult<Note, Int> {
-        if (isEmpty) {
+        if (isEmpty && !noteLoaded) {
             return ActionResult(false, null, null)
         }
         return ActionResult(true, Note(name, mFileName, DbContract.NoteEntry.TYPE_AUDIO, category))
