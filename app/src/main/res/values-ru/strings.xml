@@ -100,7 +100,7 @@
     <string name="help_privacy_heading">О конфиденциальности</string>
     <string name="toast_checklist_oneItem">Только один элемент может быть изменён.</string>
     <string name="dialog_delete_message">Вы уверены, что хотите удалить %1s?</string>
-    <string name="dialog_delete_category_with_notes">Вы уверены, что хотите удалить %1s? Все заметки в категории <b>будут удалены</b></string>
+    <string name="dialog_delete_category_with_notes">Вы уверены, что хотите удалить %1s? Все заметки в категории <b>будут удалены!</b></string>
     <string name="dialog_delete_category_without_notes">Вы уверены, что хотите удалить %1s? <b>Никакие</b> заметки не будут удалены.</string>
     <string name="dialog_delete_all_recycle_bin_message">Вы точно хотите удалить все отфильтрованные заметки из корзины?</string>
     <string name="dialog_trash_message">Заметки будут перенесены в корзину. Вы можете восстановить их от туда или навсегда стереть. Уведомления не могут быть восстановлены.</string>
@@ -150,4 +150,16 @@
     <string name="slide3_text">Большинству приложений для записей требуется много разрешений и синхронизации через сеть. Следовательно, они используют какой-то сервис компании которой вы должны доверять. Хотя это удобная функция, она ослабляет вашу конфиденциальность. Приложения PFA — это группа приложений Android которые заморочены на приватности.</string>
     <string name="help_perm_record_audio_sum">это необходимо для записи аудиозаписей; если это не предоставлено, то аудиозаписи недоступны.</string>
     <string name="settings_import_text_title_file_first_line_desc">Если включено, то название импортированной текстовой записки станет первой строкой её текста. В противном случае будет выбрано имя импортного файла.</string>
+    <string name="action_deselect_all">Снять выделение</string>
+    <string name="action_select_all">Выбрать всё</string>
+    <string name="action_lock">Заблокировать</string>
+    <string name="action_unlock">Разблокировать</string>
+    <string name="action_export_all">Экспорт всех заметок</string>
+    <string name="toast_file_export_all_start">Начался экспорт всех заметок</string>
+    <string name="toast_open_file_too_large">Открываемый файл слишком большой.</string>
+    <string name="dialog_change_category_name_title">Изменение названия категории</string>
+    <string name="settings_text_note_heading">Текстовые заметки</string>
+    <string name="select_import_text_file_char_limit">Ограничение на количество символов для импортных текстовых записок</string>
+    <string name="select_import_text_file_size_limit">Ограничение на размер файла для импортируемых текстовых заметок</string>
+    <string name="toast_open_file_too_many_characters">Файл слишком большой. Загружена только часть данных.</string>
 </resources>
