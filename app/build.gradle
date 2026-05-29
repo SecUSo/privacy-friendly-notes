@@ -24,8 +24,8 @@ android {
         minSdkVersion 21
         compileSdk 34
         targetSdkVersion 34
-        versionCode 103
-        versionName "2.2.0"
+        versionCode 104
+        versionName "2.2.1"
     }
 
     applicationVariants.configureEach { variant ->
