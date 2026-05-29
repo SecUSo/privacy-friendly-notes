@@ -1,5 +1,40 @@
 # Changelog
 
+<a id="v2.2.1"></a>
+## [Notes (Privacy Friendly) v2.2.1](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.2.1) - 2026-05-29
+
+## What's Changed
+* Update changelog for v2.1.1 by [@github-actions](https://github.com/github-actions)[bot] in [#220](https://github.com/SecUSo/privacy-friendly-notes/pull/220)
+* v2.2.0 by [@coderPaddyS](https://github.com/coderPaddyS) in [#234](https://github.com/SecUSo/privacy-friendly-notes/pull/234)
+** Export of all notes now respect the category structure (Closes https://github.com/SecUSo/privacy-friendly-notes/issues/233).
+Cursor location is now remembered in text notes during a context switch, e.g. swapping app temporarily. (Closes [#232](https://github.com/SecUSo/privacy-friendly-notes/issues/232).)
+** Space key cursor movements and arrow key movements now work in text notes. (Closes [#226](https://github.com/SecUSo/privacy-friendly-notes/issues/226).)
+** Changes locked notes to be able to select and copy text. (Closes [#229](https://github.com/SecUSo/privacy-friendly-notes/issues/229).)
+Closes [#205](https://github.com/SecUSo/privacy-friendly-notes/issues/205).
+** Makes FAB for styling option draggable in text notes. (Closes [#193](https://github.com/SecUSo/privacy-friendly-notes/issues/193).)
+** Adds option to create a new checklist based on the current checklist checked/unchecked items. (Closes [#188](https://github.com/SecUSo/privacy-friendly-notes/issues/188).)
+** Adds setting to disable text strike-through in checklist items. (Closes [#189](https://github.com/SecUSo/privacy-friendly-notes/issues/189).)
+** Changes sketch save format to PNG. (Closes [#49](https://github.com/SecUSo/privacy-friendly-notes/issues/49).)
+** Fix: Enter now creates a new checklist item again. (Closes [#235](https://github.com/SecUSo/privacy-friendly-notes/issues/235).)
+** Adds inclusion of images (Camera and Gallery) in text notes. (Closes [#52](https://github.com/SecUSo/privacy-friendly-notes/issues/52). Closes [#180](https://github.com/SecUSo/privacy-friendly-notes/issues/180).)
+** Adds setting to automatically delete notes in recycle bin after a specified time. (Closes [#183](https://github.com/SecUSo/privacy-friendly-notes/issues/183).)
+** Adds option to pin notes, which are either fixed at the top of the screen or are always at the beginning of the list. This respects filtering and sorting of notes. (Closes [#228](https://github.com/SecUSo/privacy-friendly-notes/issues/228).)
+** Adds option to mark notes as completed. (Closes [#31](https://github.com/SecUSo/privacy-friendly-notes/issues/31).)
+** Removes trailing new lines in text notes. (Closes [#236](https://github.com/SecUSo/privacy-friendly-notes/issues/236).)
+** Allows notes to be changed back to the default category. (Closes [#237](https://github.com/SecUSo/privacy-friendly-notes/issues/237).)
+** Adds option to change category of multiple notes at once. Shows completed/total notes in category in the drawer. (Closes [#51](https://github.com/SecUSo/privacy-friendly-notes/issues/51).)
+** Adds option to sort checklist items. This will change the order permanently. (Closes [#119](https://github.com/SecUSo/privacy-friendly-notes/issues/119). Closes [#160](https://github.com/SecUSo/privacy-friendly-notes/issues/160).)
+* Bugfixes by [@coderPaddyS](https://github.com/coderPaddyS) in [#244](https://github.com/SecUSo/privacy-friendly-notes/pull/244)
+* Translations update from Hosted Weblate by [@weblate](https://github.com/weblate) in [#223](https://github.com/SecUSo/privacy-friendly-notes/pull/223)
+
+Please be aware that taking many pictures will increase the time needed for the backup process. This can look like nothing happens at all, we will look at possible improvements on this process and will update accordingly.
+
+
+**Full Changelog**: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.1.1...v2.2.0
+
+[Changes][v2.2.1]
+
+
 <a id="v2.1.1"></a>
 ## [Notes (Privacy Friendly) v2.1.1](https://github.com/SecUSo/privacy-friendly-notes/releases/tag/v2.1.1) - 2025-11-05
 
@@ -342,6 +377,7 @@ This app belongs to the Privacy Friendly Apps group developed by the research gr
 [Changes][v1.0]
 
 
+[v2.2.1]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.1.1...v2.2.1
 [v2.1.1]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.5...v2.1.1
 [v2.0.5]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.3...v2.0.5
 [v2.0.3]: https://github.com/SecUSo/privacy-friendly-notes/compare/v2.0.2...v2.0.3
