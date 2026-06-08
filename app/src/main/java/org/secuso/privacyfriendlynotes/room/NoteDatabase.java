@@ -60,19 +60,6 @@ public abstract class NoteDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TRIGGER IF EXISTS UpdateTrashTime;");
-            database.execSQL(
-                    "CREATE TRIGGER IF NOT EXISTS UpdateTrashTime " +
-                            "AFTER UPDATE ON notes FOR EACH ROW " +
-                            "WHEN NEW.in_trash != OLD.in_trash " +
-                            "BEGIN " +
-                            "UPDATE notes SET in_trash_time = " +
-                            "CASE NEW.in_trash " +
-                            "WHEN 0 THEN 0 " +
-                            "ELSE (strftime('%s','now') * 1000) " +
-                            "END " +
-                            "WHERE _id = NEW._id; " +
-                            "END;"
-            );
             // Alter default of column
             // Sqlite does not support that, so recreate it..
             database.execSQL(
@@ -103,6 +90,19 @@ public abstract class NoteDatabase extends RoomDatabase {
             );
             database.execSQL("DROP TABLE notes;");
             database.execSQL("ALTER TABLE notes_new RENAME TO notes;");
+            database.execSQL(
+                    "CREATE TRIGGER IF NOT EXISTS UpdateTrashTime " +
+                            "AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.in_trash != OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET in_trash_time = " +
+                            "CASE NEW.in_trash " +
+                            "WHEN 0 THEN 0 " +
+                            "ELSE (strftime('%s','now') * 1000) " +
+                            "END " +
+                            "WHERE _id = NEW._id; " +
+                            "END;"
+            );
         }
     };
 
