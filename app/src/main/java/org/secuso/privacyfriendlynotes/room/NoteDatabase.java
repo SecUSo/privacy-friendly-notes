@@ -408,9 +408,22 @@ public abstract class NoteDatabase extends RoomDatabase {
             // Adds a trigger to auto-set custom_order to _id
             // Room currently supports no DEFAULT = COLUMN or @Trigger Annotation
             db.execSQL(
-                    "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                    "CREATE TRIGGER IF NOT EXISTS [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
                             "BEGIN " +
                             "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                            "END;"
+            );
+            db.execSQL(
+                    "CREATE TRIGGER IF NOT EXISTS UpdateTrashTime " +
+                            "AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.in_trash != OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET in_trash_time = " +
+                            "CASE NEW.in_trash " +
+                            "WHEN 0 THEN 0 " +
+                            "ELSE (strftime('%s','now') * 1000) " +
+                            "END " +
+                            "WHERE _id = NEW._id; " +
                             "END;"
             );
             super.onCreate(db);
