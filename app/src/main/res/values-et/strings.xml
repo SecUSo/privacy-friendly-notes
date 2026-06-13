@@ -58,7 +58,7 @@
     <string name="action_italics">K</string>
     <string name="action_underline"><u>A</u></string>
     <string name="action_export">Ekspordi</string>
-    <string name="action_export_html">Ekspordi HTMLina</string>
+    <string name="action_export_html">Ekspordi HTML-failina</string>
     <string name="action_category">Kategooria</string>
     <string name="action_sketch_undo">Pööra tegevus tagasi</string>
     <string name="action_sketch_redo">Korda tegevust</string>
@@ -162,4 +162,25 @@
     <string name="settings_text_note_heading">Tekstimärge</string>
     <string name="select_import_text_file_char_limit">Imporditud tekstimärgete lubatud tähemärkide arvu ülempiir</string>
     <string name="select_import_text_file_size_limit">Imporditud tekstimärgete lubatud suuruse ülempiir</string>
+    <string name="action_new_checked">Tee märgitud kirjetest uus kontrollnimekiri</string>
+    <string name="action_new_unchecked">Tee märkimata kirjetest uus kontrollnimekiri</string>
+    <string name="action_export_png">Ekspordi PNG-failina</string>
+    <string name="action_pin">Tõsta esile</string>
+    <string name="action_unpin">Lõpeta esiletõstmine</string>
+    <string name="action_done">Märgi tehtuks</string>
+    <string name="action_not_done">Märgi pooleliolevaks</string>
+    <string name="action_delete_all_finished">Kustuta kõik tehtuks märgitud kirjed</string>
+    <string name="action_mode_select_category">Vali kategooria</string>
+    <string name="action_change_multiple_category">Muuda kategooriat</string>
+    <string name="toast_deleted_multiple">Märkmed on kustutatud</string>
+    <string name="dialog_change_multiple_category_title">Vali soovitud kategooria</string>
+    <string name="dialog_change_multiple_category_btn">Määra</string>
+    <string name="preview_note_failed">Selle märkme laadimine ei õnnestunud. Klõpsa talletatud sisu salvestamiseks.</string>
+    <string name="settings_checklist_strike_items_title">Kriipsuta tehtuks märgitud kirjed läbi</string>
+    <string name="settings_checklist_strike_items_sum">Kui valik on kasutusel, siis tehtuks märgitud kirjetete kuvamisel kasutatakse läbikriipsutatud kirjatüüpi.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Automaatne kustutamine prügikastist</string>
+    <string name="settings_auto_delete_trashed_notes_sum">Kui valik on kasutusel, siis etteantud aja möödumisel märge kustutatakse prügikastist.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Automaatse kustutamise ajavahemik</string>
+    <string name="settings_pinned_notes_fixed_title">Esiletõstetud märkmete kindel asukoht</string>
+    <string name="settings_pinned_notes_fixed_sum">Kui see valik on kasutusel, siis esiletõstetud märkmed kuvatakse kindlas kohas ekraani ülaosas.</string>
 </resources>
