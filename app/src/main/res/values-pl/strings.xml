@@ -162,4 +162,19 @@
     <string name="settings_text_note_heading">Notatka tekstowa</string>
     <string name="select_import_text_file_char_limit">Limit znaków dla importowanych notatek tekstowych</string>
     <string name="select_import_text_file_size_limit">Limit rozmiaru pliku dla importowanych notatek tekstowych</string>
+    <string name="action_new_checked">Nowa lista kontrolna z zaznaczonych</string>
+    <string name="action_new_unchecked">Nowa lista kontrolna z niezaznaczonych</string>
+    <string name="action_export_png">Eksportuj jako PNG</string>
+    <string name="action_pin">Przypnij</string>
+    <string name="action_unpin">Odepnij</string>
+    <string name="action_done">Oznacz jako wykonane</string>
+    <string name="action_not_done">Oznacz jako nieskończone</string>
+    <string name="action_delete_all_finished">Usuń wszystkie wykonane</string>
+    <string name="action_mode_select_category">Wybierz kategorie</string>
+    <string name="action_change_multiple_category">Zmień kategorie</string>
+    <string name="toast_deleted_multiple">Notatki usunięte</string>
+    <string name="dialog_change_multiple_category_title">Wybierz kategorię, którą chcesz ustawić</string>
+    <string name="dialog_change_multiple_category_btn">Ustaw</string>
+    <string name="preview_note_failed">Nie udało się załadować tej notatki. Kliknij, aby zapisać zachowaną treść.</string>
+    <string name="settings_checklist_strike_items_title">Wykreśl zaznaczone elementy na liście kontrolnej</string>
 </resources>
