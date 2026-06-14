@@ -177,4 +177,10 @@
     <string name="dialog_change_multiple_category_btn">Ustaw</string>
     <string name="preview_note_failed">Nie udało się załadować tej notatki. Kliknij, aby zapisać zachowaną treść.</string>
     <string name="settings_checklist_strike_items_title">Wykreśl zaznaczone elementy na liście kontrolnej</string>
+    <string name="settings_checklist_strike_items_sum">Jeśli ta opcja jest włączona, zaznaczone elementy listy kontrolnej zostaną oznaczone przekreśleniem.</string>
+    <string name="settings_auto_delete_trashed_notes_title">Automatyczne usuwanie notatek z kosza</string>
+    <string name="settings_auto_delete_trashed_notes_sum">Jeśli ta opcja jest włączona, każda notatka znajdująca się w koszu dłużej niż określony czas zostanie automatycznie usunięta.</string>
+    <string name="settings_auto_delete_trashed_notes_time_title">Czas automatycznego usuwania</string>
+    <string name="settings_pinned_notes_fixed_title">Naprawiono przypięte notatki</string>
+    <string name="settings_pinned_notes_fixed_sum">Jeśli ta opcja jest włączona, przypięte notatki będą wyświetlane w osobnym obszarze u góry ekranu.</string>
 </resources>
