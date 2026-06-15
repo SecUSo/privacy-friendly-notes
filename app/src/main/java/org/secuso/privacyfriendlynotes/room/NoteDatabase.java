@@ -53,8 +53,73 @@ import java.util.Locale;
 )
 public abstract class NoteDatabase extends RoomDatabase {
 
-    public static final int VERSION = 8;
+    public static final int VERSION = 9;
     public static final String DATABASE_NAME = "allthenotes";
+
+    static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("DROP TRIGGER IF EXISTS UpdateTrashTime;");
+            // Alter default of column
+            // Sqlite does not support that, so recreate it..
+            database.execSQL(
+                    "CREATE TABLE notes_new (" +
+                            "_id INTEGER NOT NULL DEFAULT 0," +
+                            "in_trash INTEGER NOT NULL DEFAULT 0," +
+                            "in_trash_time INTEGER NOT NULL DEFAULT 0," +
+                            "pinned INTEGER NOT NULL DEFAULT 1," +
+                            "is_done INTEGER NOT NULL DEFAULT 0," +
+                            "readonly INTEGER NOT NULL DEFAULT 0," +
+                            "name TEXT NOT NULL DEFAULT 'TEXT'," +
+                            "type INTEGER NOT NULL DEFAULT 0," +
+                            "category INTEGER NOT NULL DEFAULT 0," +
+                            "content TEXT NOT NULL DEFAULT 'TEXT'," +
+                            "last_modified INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)," +
+                            "custom_order INTEGER NOT NULL DEFAULT 0," +
+                            "PRIMARY KEY(_id)" +
+                            ");"
+            );
+            database.execSQL(
+                    "INSERT INTO notes_new (" +
+                            "_id, in_trash, in_trash_time, pinned, is_done, readonly, " +
+                            "name, type, category, content, last_modified, custom_order) " +
+                            "SELECT " +
+                            "_id, in_trash, in_trash_time, pinned, is_done, readonly, " +
+                            "name, type, category, content, last_modified, custom_order " +
+                            "FROM notes;"
+            );
+            database.execSQL("DROP TABLE notes;");
+            database.execSQL("ALTER TABLE notes_new RENAME TO notes;");
+            database.execSQL(
+                    "CREATE TRIGGER IF NOT EXISTS UpdateTrashTime " +
+                            "AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.in_trash != OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET in_trash_time = " +
+                            "CASE NEW.in_trash " +
+                            "WHEN 0 THEN 0 " +
+                            "ELSE (strftime('%s','now') * 1000) " +
+                            "END " +
+                            "WHERE _id = NEW._id; " +
+                            "END;"
+            );
+
+            database.execSQL(
+                    "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                            "END;"
+            );
+            // This trigger ensures that a custom_order cannot be updated to an invalid value <= 0 and defers to the old value or the id to ensure valid custom_orders.
+            database.execSQL(
+                    "CREATE TRIGGER [UpdateCustomOrder] AFTER UPDATE OF custom_order ON notes FOR EACH ROW " +
+                            "WHEN NEW.custom_order <= 0 " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = (CASE WHEN OLD.custom_order <= 0 THEN OLD._id ELSE OLD.custom_order END) WHERE _id=NEW._id; " +
+                            "END;"
+            );
+        }
+    };
 
     static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
@@ -350,6 +415,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             MIGRATION_5_6,
             MIGRATION_6_7,
             MIGRATION_7_8,
+            MIGRATION_8_9
     };
     private static final RoomDatabase.Callback roomCallback = new RoomDatabase.Callback() {
         @Override
@@ -357,9 +423,30 @@ public abstract class NoteDatabase extends RoomDatabase {
             // Adds a trigger to auto-set custom_order to _id
             // Room currently supports no DEFAULT = COLUMN or @Trigger Annotation
             db.execSQL(
-                    "CREATE TRIGGER [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
+                    "CREATE TRIGGER IF NOT EXISTS [InsertCustomOrder] AFTER INSERT ON notes FOR EACH ROW " +
                             "BEGIN " +
                             "UPDATE notes SET custom_order = _id WHERE _id=NEW._id; " +
+                            "END;"
+            );
+            db.execSQL(
+                    "CREATE TRIGGER IF NOT EXISTS UpdateTrashTime " +
+                            "AFTER UPDATE ON notes FOR EACH ROW " +
+                            "WHEN NEW.in_trash != OLD.in_trash " +
+                            "BEGIN " +
+                            "UPDATE notes SET in_trash_time = " +
+                            "CASE NEW.in_trash " +
+                            "WHEN 0 THEN 0 " +
+                            "ELSE (strftime('%s','now') * 1000) " +
+                            "END " +
+                            "WHERE _id = NEW._id; " +
+                            "END;"
+            );
+            // This trigger ensures that a custom_order cannot be updated to an invalid value <= 0 and defers to the old value or the id to ensure valid custom_orders.
+            db.execSQL(
+                    "CREATE TRIGGER IF NOT EXISTS [UpdateCustomOrder] AFTER UPDATE OF custom_order ON notes FOR EACH ROW " +
+                            "WHEN NEW.custom_order <= 0 " +
+                            "BEGIN " +
+                            "UPDATE notes SET custom_order = (CASE WHEN OLD.custom_order <= 0 THEN OLD._id ELSE OLD.custom_order END) WHERE _id=NEW._id; " +
                             "END;"
             );
             super.onCreate(db);
