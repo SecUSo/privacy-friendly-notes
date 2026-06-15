@@ -66,6 +66,7 @@ import java.util.jar.Manifest
 import kotlin.io.path.exists
 import androidx.core.text.toHtml
 import androidx.core.text.parseAsHtml
+import java.io.BufferedWriter
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
@@ -689,14 +690,14 @@ class TextNoteActivity : BaseNoteActivity(DbContract.NoteEntry.TYPE_TEXT) {
                     ByteArrayInputStream(content.toByteArray()).copyTo(it)
                     it.closeEntry()
                     dir.listFiles()?.forEach { file ->
-                        it.putNextEntry(ZipEntry("images/${file}"))
+                        it.putNextEntry(ZipEntry("images/${file.relativeTo(dir)}"))
                         FileInputStream(file).copyTo(it)
                         it.closeEntry()
                     }
                 }
             } else {
-                PrintWriter(outputStream).use {
-                    println(content)
+                outputStream.bufferedWriter(Charsets.UTF_8).use { writer ->
+                    writer.write(content)
                 }
             }
         }
