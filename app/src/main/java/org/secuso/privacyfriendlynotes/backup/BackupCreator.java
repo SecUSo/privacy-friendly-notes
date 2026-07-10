@@ -31,11 +31,11 @@ import org.secuso.privacyfriendlybackup.api.backup.FileUtil;
 import org.secuso.privacyfriendlybackup.api.backup.PreferenceUtil;
 import org.secuso.privacyfriendlybackup.api.pfa.IBackupCreator;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.List;
 
 public class BackupCreator implements IBackupCreator {
 
@@ -43,7 +43,8 @@ public class BackupCreator implements IBackupCreator {
     public boolean writeBackup(@NonNull Context context, @NonNull OutputStream outputStream) {
         Log.d("PFA BackupCreator", "createBackup() started");
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, UTF_8);
-        JsonWriter writer = new JsonWriter(outputStreamWriter);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter, 32 * 1024); // 32KB char buffer
+        JsonWriter writer = new JsonWriter(bufferedWriter);
         writer.setIndent("");
 
         try {
@@ -88,6 +89,8 @@ public class BackupCreator implements IBackupCreator {
 
             writer.endObject();
 
+            bufferedWriter.flush();
+            writer.flush();
             writer.close();
         } catch (Exception e) {
             Log.e("PFA BackupCreator", "Error occurred", e);
